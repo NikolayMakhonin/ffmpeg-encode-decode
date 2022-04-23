@@ -1,7 +1,7 @@
 {
   "name": "@flemist/ffmpeg-encode-decode",
   "version": "0.0.1",
-  "description": "",
+  "description": "WASM (WebAssembly) encode/decode mp3/ogg (opus/vorbis) from/to Float32Array. Well tested @ffmpeg/ffmpeg wrapper.",
   "main": "dist/index.js",
   "files": [
     "dist/**"
@@ -36,6 +36,9 @@
     "url": "https://github.com/NikolayMakhonin/ffmpeg-encode-decode/issues"
   },
   "homepage": "https://github.com/NikolayMakhonin/ffmpeg-encode-decode",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
