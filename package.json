@@ -40,10 +40,11 @@
     "access": "public"
   },
   "scripts": {
+    "prepublishOnly": "yarn build && yarn run test:ci",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "build": "rimraf dist && rollup -c && cpy \"**/assets/**\" \"../dist/\" --parents --cwd=src",
-    "coverage-check": "nyc check-coverage --report-dir tmp/coverage/lcov --lines 0.1 --functions 0.1 --branches 0 --statements 0.1",
+    "coverage-check": "nyc check-coverage --report-dir tmp/coverage/lcov --lines 50 --functions 50 --branches 50 --statements 50",
     "test": "mocha ./src/**/*.test.ts",
     "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",
     "test:watch": "mocha --watch ./src/**/*.test.ts",
