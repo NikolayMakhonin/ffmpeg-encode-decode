@@ -5,7 +5,7 @@
 
 Well tested WASM (WebAssembly) in-memory encoder/decoder mp3/ogg/opus/vorbis from/to Float32Array based on [@ffmpeg/ffmpeg](https://www.npmjs.com/package/@ffmpeg/ffmpeg)
 
-I think this should work in the browser, but I haven't tested it.
+I think this should work in the browser, but I haven't tested.
 
 ```ts
 import {
@@ -60,7 +60,7 @@ export async function example() {
     }),
   })
 
-  // Auto recognize/detect/determine and decode any audio formats that supports in [@ffmpeg/ffmpeg](https://www.npmjs.com/package/@ffmpeg/ffmpeg) library:
+  // Auto recognize/detect/determine and decode any audio formats that supports in @ffmpeg/ffmpeg library:
   
   const mp3Samples: AudioSamples = await ffmpegDecode(mp3Data, {
     channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)
