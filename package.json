@@ -1,0 +1,35 @@
+{
+  "name": "@flemist/ffmpeg-encode-decode",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "mocha ./src/**/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikolayMakhonin/ffmpeg-encode-decode.git"
+  },
+  "keywords": [
+    "WASM",
+    "WebAssembly",
+    "ffmpeg",
+    "encode",
+    "decode",
+    "encoder",
+    "decoder",
+    "mp3",
+    "ogg",
+    "opus",
+    "vorbis",
+    "mono",
+    "stereo",
+    "Float32Array"
+  ],
+  "author": "Nikolay Makhonin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NikolayMakhonin/ffmpeg-encode-decode/issues"
+  },
+  "homepage": "https://github.com/NikolayMakhonin/ffmpeg-encode-decode#readme"
+}
