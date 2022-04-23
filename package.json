@@ -1,7 +1,7 @@
 {
   "name": "@flemist/ffmpeg-encode-decode",
   "version": "0.0.1",
-  "description": "WASM (WebAssembly) encode/decode mp3/ogg (opus/vorbis) from/to Float32Array. Well tested @ffmpeg/ffmpeg wrapper.",
+  "description": "WASM (WebAssembly) encode/decode mp3/ogg/opus/vorbis from/to Float32Array. Well tested @ffmpeg/ffmpeg wrapper.",
   "main": "dist/index.js",
   "files": [
     "dist/**"
