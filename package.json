@@ -47,7 +47,7 @@
     "test": "mocha ./src/**/*.test.ts",
     "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",
     "test:watch": "mocha --watch ./src/**/*.test.ts",
-    "test:ci": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.js && yarn run coverage-check",
+    "test:ci": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.cjs && yarn run coverage-check",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "ci:test": "yarn install --frozen-lockfile && yarn build && yarn run test:ci"
   },
