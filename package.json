@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
-  "type": "module",
   "files": [
     "dist/**"
   ],
@@ -43,9 +42,9 @@
     "build": "rimraf dist && rollup -c && cpy \"**/assets/**\" \"../dist/\" --parents --cwd=src",
     "coverage-check": "nyc check-coverage --report-dir tmp/coverage/lcov --lines 0.1 --functions 0.1 --branches 0 --statements 0.1",
     "test": "mocha ./src/**/*.test.ts",
-    "test:coverage": "rimraf tmp/coverage && cross-env \"NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook\" nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",
+    "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",
     "test:watch": "mocha --watch ./src/**/*.test.ts",
-    "test:ci": "rimraf tmp/coverage && cross-env \"NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook\" nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.js && yarn run coverage-check",
+    "test:ci": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.js && yarn run coverage-check",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "ci:test": "yarn install --frozen-lockfile && yarn build && yarn run test:ci",
     "ci:start": "yarn install --prod --frozen-lockfile && yarn start",
@@ -67,7 +66,6 @@
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "cpy-cli": "3.1.1",
-    "cross-env": "^7.0.3",
     "eslint": "^8.12.0",
     "eslint-config-pro": "^2.1.1",
     "expect": "^27.5.1",

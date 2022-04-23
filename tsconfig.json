@@ -1,7 +1,8 @@
 {
   "ts-node": {
-    "esm": true,
-    "module": "ESNext"
+    "compilerOptions": {
+      "module": "CommonJS"
+    },
   },
   "include": [
     "src/**/*"
@@ -12,7 +13,7 @@
   ],
   "compilerOptions": {
     "target": "es6",
-    "module": "ESNext",
+    "module": "es6",
     "allowJs": true,
     "isolatedModules": false,
     "declaration": false,

@@ -8,8 +8,8 @@ import {AudioSamples} from '../../common/contracts'
 import {saveFile} from '../../common/test/saveFile'
 
 getFFmpeg({
-  log   : true,
-  logger: ({message}) => console.log(message),
+  log: false,
+  // logger: ({message}) => console.log(message),
 })
 
 export async function ffmpegTestEncode({

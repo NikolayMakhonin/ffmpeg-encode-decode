@@ -1,8 +1,5 @@
 import path from 'path'
-import {fileURLToPath} from 'url'
 import fse from 'fs-extra'
-
-export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export function getAssetPath(assetFileName: string) {
   const filePath = path.resolve(__dirname, 'assets', assetFileName)
