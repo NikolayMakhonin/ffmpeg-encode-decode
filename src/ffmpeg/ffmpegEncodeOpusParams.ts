@@ -5,7 +5,10 @@ export type OpusVbr = 'off' | 'on' | 'constrained'
 export type OpusCutoff = 0 | 4000 | 6000 | 8000 | 12000 | 20000
 export type OpusFrameDurationMs = 2.5 | 5 | 10 | 20 | 40 | 60
 
-/** docs: http://ffmpeg.org/ffmpeg-codecs.html#libopus-1 */
+/**
+ * docs: http://ffmpeg.org/ffmpeg-codecs.html#libopus-1
+ * !! Attention opus encoder heavily distorts samples data
+ */
 export function ffmpegEncodeOpusParams(options: {
   bitrate: OpusBitrate,
   vbr?: OpusVbr,
