@@ -85,5 +85,5 @@ export async function example() {
 [downloads-url]: https://npmjs.org/package/@flemist/ffmpeg-encode-decode
 [github-image]: https://github.com/NikolayMakhonin/ffmpeg-encode-decode/actions/workflows/test.yml/badge.svg
 [github-url]: https://github.com/NikolayMakhonin/ffmpeg-encode-decode/actions
-[coveralls-image]: https://coveralls.io/repos/github/NikolayMakhonin/ffmpeg-encode-decode/badge.svg?branch=browser-helpers
-[coveralls-url]: https://coveralls.io/github/NikolayMakhonin/ffmpeg-encode-decode?branch=browser-helpers
+[coveralls-image]: https://coveralls.io/repos/github/NikolayMakhonin/ffmpeg-encode-decode/badge.svg
+[coveralls-url]: https://coveralls.io/github/NikolayMakhonin/ffmpeg-encode-decode
