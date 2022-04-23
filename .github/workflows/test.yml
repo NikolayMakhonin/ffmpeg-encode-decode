@@ -16,5 +16,8 @@ jobs:
           node-version: '14'
           cache: 'yarn'
       - name: Run tests
-        run: yarn run ci:test
+        run: |
+          yarn run ci:test
+          yarn add coveralls -D
+          yarn run coveralls
         shell: bash
