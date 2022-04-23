@@ -1,0 +1,61 @@
+*.doc binary
+*.docx binary
+*.gif binary
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.tif binary
+*.tiff binary
+*.ttf binary
+*.wasm binary
+*.woff binary
+*.woff2 binary
+*.xls binary
+*.xlsx binary
+*.map binary
+
+*.babelrc text eol=lf
+*.cjs text gitlab-language=js eol=lf
+*.cmd text eol=lf
+*.css text eol=lf
+*.editorconfig text eol=lf
+*.eslintignore text eol=lf
+*.eslintrc text eol=lf
+*.example text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+*.gitkeep text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.jscsrc text eol=lf
+*.jshintrc text eol=lf
+*.json text eol=lf
+*.json5 text gitlab-language=js eol=lf
+*.lock text gitlab-language=json eol=lf
+*.log text eol=lf
+*.markdown text eol=lf
+*.md text eol=lf
+*.mjs text gitlab-language=js eol=lf
+*.npmignore text eol=lf
+*.nvmrc text eol=lf
+*.nycrc text eol=lf
+*.opts text eol=lf
+*.pcss text gitlab-language=css eol=lf
+*.php text eol=lf
+*.prettierignore text eol=lf
+*.prettierrc text eol=lf
+*.scss text eol=lf
+*.sh text eol=lf
+*.svelte text gitlab-language=html eol=lf
+*.svg text gitlab-language=xml eol=lf
+*.ts text gitlab-language=js eol=lf
+*.txt text eol=lf
+*.workflow text eol=lf
+*.xml text eol=lf
+*.yaml text eol=lf
+*.yml text gitlab-language=txt eol=lf
+
+ChangeLog text eol=lf
+Dockerfile text eol=lf
+LICENSE text eol=lf
+Makefile text eol=lf
