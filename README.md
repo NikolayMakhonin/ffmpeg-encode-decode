@@ -15,7 +15,14 @@ import {
   ffmpegEncodeVorbisParams,
   ffmpegEncodeMp3Params,
   ffmpegEncodeOpusParams,
+  getFFmpeg,
 } from '@flemist/ffmpeg-encode-decode'
+
+// Optional: preload ffmpeg library and enable logger
+getFFmpeg({
+  log   : true,
+  logger: ({message}) => console.log(message),
+})
 
 export async function example() {
   const samples: AudioSamples = {

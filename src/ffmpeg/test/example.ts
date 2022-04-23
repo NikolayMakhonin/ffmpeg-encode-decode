@@ -5,7 +5,14 @@ import {
   ffmpegEncodeVorbisParams,
   ffmpegEncodeMp3Params,
   ffmpegEncodeOpusParams,
+  getFFmpeg,
 } from '../../index'
+
+// Optional: preload ffmpeg library and enable logger
+getFFmpeg({
+  log   : true,
+  logger: ({message}) => console.log(message),
+})
 
 export async function example() {
   const samples: AudioSamples = {
@@ -50,7 +57,7 @@ export async function example() {
     }),
   })
 
-  // decode any formats:
+  // Auto recognize/detect/determine and decode any audio formats that supports in @ffmpeg/ffmpeg library:
 
   const mp3Samples: AudioSamples = await ffmpegDecode(mp3Data, {
     channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)
