@@ -8,8 +8,6 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import path from "path"
 import pkg from './package.json'
-// import dotenv from 'dotenv'
-// dotenv.config()
 
 const dev = !!process.env.ROLLUP_WATCH
 
