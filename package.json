@@ -1,8 +1,9 @@
 {
   "name": "@flemist/ffmpeg-encode-decode",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "WASM (WebAssembly) encode/decode mp3/ogg/opus/vorbis from/to Float32Array. Well tested @ffmpeg/ffmpeg wrapper.",
   "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=14.17.6",
     "yarn": "^1.22"
@@ -40,7 +41,9 @@
     "prepublishOnly": "yarn build && yarn run test:ci",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
-    "build": "rimraf dist && rollup -c && cpy \"**/assets/**\" \"../dist/\" --parents --cwd=src",
+    "build:js": "rollup -c && cpy \"**/assets/**\" \"../dist/\" --parents --cwd=src",
+    "build:types": "tsc --outDir dist --declaration",
+    "build": "rimraf dist && yarn run build:js && yarn run build:types",
     "coverage-check": "nyc check-coverage --report-dir tmp/coverage/lcov --lines 50 --functions 50 --branches 50 --statements 50",
     "test": "mocha ./src/**/*.test.ts",
     "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",

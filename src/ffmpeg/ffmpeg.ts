@@ -43,13 +43,13 @@ async function _ffmpegTransform(inputData: Uint8Array, {
 }
 
 export type FFmpegDecodeArgs = {
+  /** same as file extension */
   inputFormat?: string,
   channels: number,
   sampleRate: number,
 }
 
 export async function ffmpegDecode(inputData: Uint8Array, {
-  /** same as file extension */
   inputFormat,
   channels,
   sampleRate,
