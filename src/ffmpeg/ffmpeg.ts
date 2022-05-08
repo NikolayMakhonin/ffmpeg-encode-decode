@@ -1,4 +1,4 @@
-import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@ffmpeg/ffmpeg'
+import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
 import {AudioSamples} from '../common/contracts'
 
 let ffmpegLoadPromise: Promise<FFmpeg>

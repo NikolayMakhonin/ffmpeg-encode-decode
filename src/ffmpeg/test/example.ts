@@ -57,7 +57,7 @@ export async function example() {
     }),
   })
 
-  // Auto recognize/detect/determine and decode any audio formats that supports in @ffmpeg/ffmpeg library:
+  // Auto recognize/detect/determine and decode any audio formats that supports in @flemist/ffmpeg.wasm-st library:
 
   const mp3Samples: AudioSamples = await ffmpegDecode(mp3Data, {
     channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)

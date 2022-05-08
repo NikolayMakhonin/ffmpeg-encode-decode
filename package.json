@@ -84,10 +84,10 @@
     "typescript": "^4.6.3"
   },
   "optionalDependencies": {
-    "@ffmpeg/core": "^0.10.0"
+    "@flemist/ffmpeg.wasm-core-st": "^0.10.0"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.10.1",
+    "@flemist/ffmpeg.wasm-st": "^0.10.1",
     "tslib": "^2.3.1"
   }
 }
