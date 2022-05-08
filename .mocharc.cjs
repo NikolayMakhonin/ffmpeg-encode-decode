@@ -6,7 +6,7 @@ module.exports = {
   ],
   'watch-files': ['./src/**'],
   "node-option": [
-    "experimental-wasm-threads",
-    "experimental-wasm-bulk-memory",
+    // "experimental-wasm-threads",
+    // "experimental-wasm-bulk-memory",
   ],
 }
