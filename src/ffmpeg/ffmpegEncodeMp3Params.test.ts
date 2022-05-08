@@ -133,4 +133,30 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
       },
     })
   })
+
+  it('vbr joint stereo stress simple', async function () {
+    for (let i = 0; i < 300; i++) {
+      console.log('iteration: ' + i)
+      await ffmpegTestVariants({
+        encode: {
+          encodeArgs: {
+            outputFormat: 'mp3',
+            params      : ffmpegEncodeMp3Params({
+              vbrQuality : 5,
+              mode       : 'vbr',
+              jointStereo: true,
+            }),
+          },
+          // eslint-disable-next-line no-loop-func
+          checkEncodedMetadata(metadata) {
+            assert.strictEqual(metadata.format.lossless, false)
+            assert.strictEqual(metadata.format.codec, 'MPEG 2 Layer 3')
+            assert.ok(metadata.format.bitrate > 7000, metadata.format.bitrate + '')
+            assert.ok(metadata.format.bitrate <= 9500, metadata.format.bitrate + '')
+            assert.strictEqual(metadata.format.codecProfile, 'V10')
+          },
+        },
+      })
+    }
+  })
 })
