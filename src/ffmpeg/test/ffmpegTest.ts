@@ -44,7 +44,7 @@ export async function ffmpegTestEncode({
 
   assert.ok(data.length > 100, data.length + '')
 
-  await saveFile('mpeg.ogg', data)
+  // await saveFile('mpeg.ogg', data)
 
   if (checkEncodedMetadata) {
     const metadata = await musicMetadata.parseBuffer(data)
