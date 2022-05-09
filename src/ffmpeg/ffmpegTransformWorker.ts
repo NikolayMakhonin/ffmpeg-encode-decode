@@ -5,15 +5,18 @@ import {FFmpegTransformArgs} from './contracts'
 let ffmpegLoadPromise: Promise<FFmpeg>
 export function getFFmpeg(options?: CreateFFmpegOptions) {
   if (!ffmpegLoadPromise) {
-    const ffmpeg = createFFmpeg({
-      ...options,
-      logger: options.logger && (function logger(value) {
+    if (options.logger) {
+      options.logger = function logger(value) {
         parentPort.postMessage({
           type: 'logger',
           value,
         })
-      }),
-    })
+      }
+    } else {
+      delete options.logger
+    }
+
+    const ffmpeg = createFFmpeg(options)
     ffmpegLoadPromise = ffmpeg.load().then(() => ffmpeg)
   }
 

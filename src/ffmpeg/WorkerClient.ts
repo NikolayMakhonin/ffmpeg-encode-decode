@@ -43,29 +43,58 @@ export class WorkerClient {
 
     const requestId = this._nextRequestId++
     const promise = new Promise<TResult>((resolve, reject) => {
-      this.worker.on('message', (value) => {
-        if (value && this._responseFilter(value, null, requestId)) {
+      const _this = this
+      const worker = this.worker
+
+      function subscribe() {
+        worker.on('message', onMessage)
+        worker.on('error', onError)
+        worker.on('exit', _onExit)
+      }
+
+      function unsubscribe() {
+        worker.off('message', onMessage)
+        worker.off('error', onError)
+        worker.off('exit', _onExit)
+      }
+
+      function _resolve(value) {
+        unsubscribe()
+        resolve(value)
+      }
+
+      function _reject(err) {
+        unsubscribe()
+        reject(err)
+      }
+
+      function onMessage(value) {
+        if (value && _this._responseFilter(value, null, requestId)) {
           try {
-            resolve(this._getResponseValue(value))
+            _resolve(_this._getResponseValue(value))
           } catch (err) {
-            reject(err)
+            _reject(err)
           }
         }
-      })
-      this.worker.on('error', (err) => {
-        reject(err)
-      })
-      this.worker.on('exit', (code) => {
+      }
+
+      function onError(err) {
+        _reject(err)
+      }
+
+      function _onExit(code) {
         try {
           if (!onExit) {
-            reject(new Error(`exit code is ${code}`))
+            _reject(new Error(`exit code is ${code}`))
           } else {
-            resolve(onExit(code))
+            _resolve(onExit(code))
           }
         } catch (err) {
-          reject(err)
+          _reject(err)
         }
-      })
+      }
+
+      subscribe()
     })
 
     this.worker.postMessage(this._createRequest(message, requestId))
