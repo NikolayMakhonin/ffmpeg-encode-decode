@@ -237,7 +237,9 @@ export async function ffmpegTestVariants(options: {
     checkEncodedMetadata: (metadata: IAudioMetadata) => void,
   },
 }) {
-  await ffmpegTestStereo(options)
-  await ffmpegTestMono(options)
-  await ffmpegTestMonoSplit(options)
+  await Promise.all([
+    ffmpegTestStereo(options),
+    ffmpegTestMono(options),
+    ffmpegTestMonoSplit(options),
+  ])
 }
