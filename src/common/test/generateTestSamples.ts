@@ -54,16 +54,20 @@ export function generateTestSamples({
   durationSec,
   channels,
   splitMono,
+  sharedMemory,
 }: {
   audioFunc: (time: number, channel: number, splitMono?: boolean) => number,
   sampleRate: number,
   durationSec: number,
   channels: number,
   splitMono?: boolean,
+  sharedMemory?: boolean,
 }) {
   const samplesCount = durationSec * sampleRate
   const samples: AudioSamples = {
-    data: new Float32Array(samplesCount * channels),
+    data: sharedMemory
+      ? new Float32Array(new SharedArrayBuffer(samplesCount * channels * 4))
+      : new Float32Array(samplesCount * channels),
     channels,
     sampleRate,
   }
@@ -73,4 +77,14 @@ export function generateTestSamples({
     }
   }
   return samples
+}
+
+export function shareSamples(samples: AudioSamples): AudioSamples {
+  return {
+    data: samples.data instanceof SharedArrayBuffer
+      ? samples.data
+      : samples.data.slice(),
+    channels  : samples.channels,
+    sampleRate: samples.sampleRate,
+  }
 }

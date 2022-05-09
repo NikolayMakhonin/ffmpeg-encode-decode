@@ -1,12 +1,11 @@
 import {ffmpegDecode, FFmpegDecodeArgs, ffmpegEncode, FFmpegEncodeArgs} from '../ffmpeg'
 import {testSamplesMono, testSamplesMonoSplit, testSamplesStereo} from '../../common/test/testSamples'
 import {checkSamples} from '../../common/test/checkSamples'
-import {testAudioFunc} from '../../common/test/generateTestSamples'
+import {shareSamples, testAudioFunc} from '../../common/test/generateTestSamples'
 import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
 import {saveFile} from '../../common/test/saveFile'
-import {FFmpegRunner} from '../FFmpegRunner'
 import {createFFmpegTransform} from '../createFFmpegTransform'
 
 let logSize = 0
@@ -35,17 +34,19 @@ export async function ffmpegTestEncode({
   let input: AudioSamples
   switch (inputType) {
     case 'mono':
-      input = testSamplesMono
+      input = shareSamples(testSamplesMono)
       break
     case 'stereo':
-      input = testSamplesStereo
+      input = shareSamples(testSamplesStereo)
       break
     case 'mono-split':
-      input = testSamplesMonoSplit
+      input = shareSamples(testSamplesMonoSplit)
       break
     default:
       throw new Error('Unknown inputType: ' + inputType)
   }
+
+  const inputDataLength = input.data.length
 
   const data = await ffmpegEncode(ffmpegTransform, input, encodeArgs)
 
@@ -58,7 +59,7 @@ export async function ffmpegTestEncode({
 
     assert.strictEqual(metadata.format.sampleRate, input.sampleRate)
     assert.strictEqual(metadata.format.numberOfChannels, encodeArgs.channels || input.channels)
-    const checkDuration = input.data.length / input.channels / input.sampleRate
+    const checkDuration = inputDataLength / input.channels / input.sampleRate
     assert.ok(metadata.format.duration >= checkDuration - 0.05, metadata.format.duration + '')
     assert.ok(metadata.format.duration <= checkDuration + 0.15, metadata.format.duration + '')
     checkEncodedMetadata(metadata)
@@ -148,8 +149,10 @@ export async function ffmpegTestMono({
   })
 
   await ffmpegTestDecode({
-    inputData: data,
-    decode   : {
+    inputData: data.buffer instanceof SharedArrayBuffer
+      ? data
+      : data.slice(),
+    decode: {
       decodeArgs: {
         inputFormat: encode.encodeArgs.outputFormat,
         channels   : 1,
@@ -216,20 +219,20 @@ export async function ffmpegTestMonoSplit({
     },
   })
 
-  // await ffmpegTestDecode({
-  //   inputData: data,
-  //   decode   : {
-  //     decodeArgs: {
-  //       inputFormat: encode.encodeArgs.outputFormat,
-  //       channels   : 2,
-  //       sampleRate : 32000,
-  //     },
-  //     checkDecoded: {
-  //       isMono      : true,
-  //       minAmplitude: 0.4,
-  //     },
-  //   },
-  // })
+  await ffmpegTestDecode({
+    inputData: data,
+    decode   : {
+      decodeArgs: {
+        inputFormat: encode.encodeArgs.outputFormat,
+        channels   : 2,
+        sampleRate : 32000,
+      },
+      checkDecoded: {
+        isMono      : true,
+        minAmplitude: 0.4,
+      },
+    },
+  })
 }
 
 export async function ffmpegTestVariants(options: {

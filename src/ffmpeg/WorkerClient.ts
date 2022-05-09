@@ -1,4 +1,4 @@
-import {Worker} from 'worker_threads'
+import {TransferListItem, Worker} from 'worker_threads'
 
 export class WorkerClient {
   worker: Worker
@@ -18,7 +18,8 @@ export class WorkerClient {
     worker: Worker
     responseFilter: (response: any, err: Error, requestId: number) => boolean
     getResponseValue: (response: any) => any
-    createRequest: (value: any, requestId: number) => any
+    createRequest: (value: any, requestId: number)
+      => [value: any, transferList?: ReadonlyArray<TransferListItem>]
   }) {
     this.worker = worker
     this._responseFilter = responseFilter
@@ -33,7 +34,11 @@ export class WorkerClient {
   }
 
   private _nextRequestId = 1
-  request<TResult>(message: any, onExit?: (code: number) => TResult): Promise<TResult> {
+  request<TResult>(
+    value: any,
+    transferList?: ReadonlyArray<TransferListItem>,
+    onExit?: (code: number) => TResult,
+  ): Promise<TResult> {
     if (this._error) {
       throw this._error
     }
@@ -58,9 +63,9 @@ export class WorkerClient {
         worker.off('exit', _onExit)
       }
 
-      function _resolve(value) {
+      function _resolve(result) {
         unsubscribe()
-        resolve(value)
+        resolve(result)
       }
 
       function _reject(err) {
@@ -68,10 +73,10 @@ export class WorkerClient {
         reject(err)
       }
 
-      function onMessage(value) {
-        if (value && _this._responseFilter(value, null, requestId)) {
+      function onMessage(message) {
+        if (message && _this._responseFilter(message, null, requestId)) {
           try {
-            _resolve(_this._getResponseValue(value))
+            _resolve(_this._getResponseValue(message))
           } catch (err) {
             _reject(err)
           }
@@ -97,7 +102,7 @@ export class WorkerClient {
       subscribe()
     })
 
-    this.worker.postMessage(this._createRequest(message, requestId))
+    this.worker.postMessage(this._createRequest(value, requestId), transferList)
 
     return promise
   }

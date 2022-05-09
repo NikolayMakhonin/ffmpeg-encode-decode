@@ -8,11 +8,12 @@ export const testSamplesStereo = generateTestSamples({
 })
 
 export const testSamplesMonoSplit = generateTestSamples({
-  audioFunc  : testAudioFunc,
-  sampleRate : 22050,
-  durationSec: 7,
-  channels   : 2,
-  splitMono  : true,
+  audioFunc   : testAudioFunc,
+  sampleRate  : 22050,
+  durationSec : 7,
+  channels    : 2,
+  splitMono   : true,
+  sharedMemory: true,
 })
 
 export const testSamplesMono = generateTestSamples({

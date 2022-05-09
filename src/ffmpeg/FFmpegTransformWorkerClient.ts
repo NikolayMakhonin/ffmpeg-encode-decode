@@ -52,7 +52,12 @@ export class FFmpegTransformWorkerClient {
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
     try {
       this._runCount++
-      const result = await this.getWorkerClient().request<Uint8Array>(args)
+      const result = await this.getWorkerClient().request<Uint8Array>(
+        args,
+        args[0].buffer instanceof SharedArrayBuffer
+          ? null
+          : [args[0].buffer],
+      )
       return result
     } finally {
       if (this._runCount >= 15000) {
