@@ -7,9 +7,10 @@ import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
 import {saveFile} from '../../common/test/saveFile'
 import {FFmpegRunner} from '../FFmpegRunner'
+import {createFFmpegTransform} from '../createFFmpegTransform'
 
 let logSize = 0
-const ffmpegRunner = new FFmpegRunner({
+const ffmpegTransform = createFFmpegTransform({
   log: false,
   logger({type, message}) {
     logSize += `[${type}] ${message}\n`.length
@@ -46,7 +47,7 @@ export async function ffmpegTestEncode({
       throw new Error('Unknown inputType: ' + inputType)
   }
 
-  const data = await ffmpegEncode(ffmpegRunner, input, encodeArgs)
+  const data = await ffmpegEncode(ffmpegTransform, input, encodeArgs)
 
   assert.ok(data.length > 100, data.length + '')
 
@@ -85,7 +86,7 @@ export async function ffmpegTestDecode({
     },
   },
 }) {
-  const samples = await ffmpegDecode(ffmpegRunner, inputData, decodeArgs)
+  const samples = await ffmpegDecode(ffmpegTransform, inputData, decodeArgs)
   
   // const _data = await ffmpegEncode(samples, {
   //   outputFormat: 'mp3',

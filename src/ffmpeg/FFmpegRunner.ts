@@ -16,7 +16,9 @@ export class FFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions>
   private _loadPromise: Promise<void>
   load(): Promise<void> {
     if (!this._loadPromise) {
-      this._ffmpeg = createFFmpeg(this.options)
+      // if (!this._ffmpeg) {
+        this._ffmpeg = createFFmpeg(this.options)
+      // }
       this._loadPromise = this._ffmpeg.load().then(() => {})
     }
     return this._loadPromise
@@ -40,11 +42,12 @@ export class FFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions>
       } finally {
         this._totalRunCount += ffmpegWrapper.runCount
         // maximum run count = 27049, otherwise there will be memory overflow
-        if (this._totalRunCount >= 15000) {
+        if (this._totalRunCount >= 15) {
           ffmpeg.exit()
-          this._ffmpeg = null
+          // this._ffmpeg = null
           this._loadPromise = null
           this._totalRunCount = 0
+          console.log(`Unload ffmpeg instance after ${this._totalRunCount} run calls`)
         }
       }
     })

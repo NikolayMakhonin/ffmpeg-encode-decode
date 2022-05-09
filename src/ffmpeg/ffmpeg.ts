@@ -1,5 +1,5 @@
 import {AudioSamples} from '../common/contracts'
-import {IFFmpegRunner} from './contracts'
+import {FFmpegTransform} from './contracts'
 
 let encodeInputSize = 0
 let encodeOutputSize = 0
@@ -7,43 +7,6 @@ let encodeCount = 0
 let decodeInputSize = 0
 let decodeOutputSize = 0
 let decodeCount = 0
-function _ffmpegTransform(
-  ffmpegRunner: IFFmpegRunner,
-  inputData: Uint8Array,
-  {
-    inputFile,
-    outputFile,
-    params,
-  }: {
-    inputFile?: string,
-    outputFile?: string,
-    params?: string[],
-  },
-): Promise<Uint8Array> {
-  return ffmpegRunner.run(async (ffmpeg) => {
-    // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
-    ffmpeg.FS(
-      'writeFile',
-      inputFile,
-      inputData,
-    )
-
-    await ffmpeg.run(
-      '-loglevel', ffmpegRunner.options.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
-      ...params,
-    )
-
-    const outputData = ffmpeg.FS(
-      'readFile',
-      outputFile,
-    )
-
-    ffmpeg.FS('unlink', inputFile)
-    ffmpeg.FS('unlink', outputFile)
-
-    return outputData
-  })
-}
 
 export type FFmpegDecodeArgs = {
   /** same as file extension */
@@ -53,7 +16,7 @@ export type FFmpegDecodeArgs = {
 }
 
 export async function ffmpegDecode(
-  ffmpegRunner: IFFmpegRunner,
+  ffmpegTransform: FFmpegTransform,
   inputData: Uint8Array,
   {
     inputFormat,
@@ -64,8 +27,7 @@ export async function ffmpegDecode(
   const inputFile = 'input' + (inputFormat ? '.' + inputFormat : '')
   const outputFile = 'output.pcm'
 
-  const outputData = await _ffmpegTransform(
-    ffmpegRunner,
+  const outputData = await ffmpegTransform(
     inputData,
     {
       inputFile,
@@ -102,7 +64,7 @@ export type FFmpegEncodeArgs = {
 }
 
 export async function ffmpegEncode(
-  ffmpegRunner: IFFmpegRunner,
+  ffmpegTransform: FFmpegTransform,
   samples: AudioSamples,
   {
     outputFormat,
@@ -120,8 +82,7 @@ export async function ffmpegEncode(
   )
 
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
-  const outputData = await _ffmpegTransform(
-    ffmpegRunner,
+  const outputData = await ffmpegTransform(
     pcmData,
     {
       inputFile,

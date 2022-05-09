@@ -1,3 +1,4 @@
+import './test/processExitDebug'
 import {ffmpegEncodeMp3Params} from './ffmpegEncodeMp3Params'
 import {ffmpegTestVariants} from './test/ffmpegTest'
 

@@ -8,6 +8,17 @@ export type FFmpegOptions = CreateFFmpegOptions & {
   loglevel?: FFmpegLogLevel,
 }
 
+export type FFmpegTransformArgs = [
+  inputData: Uint8Array,
+  data: {
+    inputFile?: string,
+    outputFile?: string,
+    params?: string[],
+  },
+]
+
+export type FFmpegTransform = (...args: FFmpegTransformArgs) => Promise<Uint8Array>
+
 export interface IFFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions> {
   options: TOptions
   load(): Promise<void>
