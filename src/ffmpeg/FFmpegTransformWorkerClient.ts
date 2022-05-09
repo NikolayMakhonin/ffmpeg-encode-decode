@@ -48,18 +48,18 @@ export class FFmpegTransformWorkerClient {
     return this._workerClient
   }
 
-  private _isRunning: boolean = false
-
+  private _runCount: number = 0
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
-    if (this._isRunning) {
-      throw new Error('ffmpegTransform is running')
-    }
-    this._isRunning = true
     try {
+      this._runCount++
       const result = await this.getWorkerClient().request<Uint8Array>(args)
       return result
     } finally {
-      this._isRunning = false
+      if (this._runCount >= 15) {
+        await this._workerClient.worker.terminate()
+        this._workerClient = null
+        console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
+      }
     }
   }
 }
