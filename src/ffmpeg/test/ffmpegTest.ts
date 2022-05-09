@@ -1,4 +1,4 @@
-import {ffmpegDecode, FFmpegDecodeArgs, ffmpegEncode, FFmpegEncodeArgs, getFFmpeg} from '../ffmpeg'
+import {ffmpegDecode, FFmpegDecodeArgs, ffmpegEncode, FFmpegEncodeArgs} from '../ffmpeg'
 import {testSamplesMono, testSamplesMonoSplit, testSamplesStereo} from '../../common/test/testSamples'
 import {checkSamples} from '../../common/test/checkSamples'
 import {testAudioFunc} from '../../common/test/generateTestSamples'
@@ -6,10 +6,16 @@ import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
 import {saveFile} from '../../common/test/saveFile'
+import {FFmpegLoader} from '../FFmpegLoader'
 
-getFFmpeg({
+let logSize = 0
+const ffmpegLoader = new FFmpegLoader({
   log: false,
-  // logger: ({message}) => console.log(message),
+  logger({type, message}) {
+    logSize += `[${type}] ${message}\n`.length
+    console.log('Log: ' + logSize)
+    // console.log(`[${type}] ${message}`)
+  },
 })
 
 export async function ffmpegTestEncode({
@@ -40,7 +46,7 @@ export async function ffmpegTestEncode({
       throw new Error('Unknown inputType: ' + inputType)
   }
 
-  const data = await ffmpegEncode(input, encodeArgs)
+  const data = await ffmpegEncode(ffmpegLoader, input, encodeArgs)
 
   assert.ok(data.length > 100, data.length + '')
 
@@ -79,7 +85,7 @@ export async function ffmpegTestDecode({
     },
   },
 }) {
-  const samples = await ffmpegDecode(inputData, decodeArgs)
+  const samples = await ffmpegDecode(ffmpegLoader, inputData, decodeArgs)
   
   // const _data = await ffmpegEncode(samples, {
   //   outputFormat: 'mp3',
@@ -118,8 +124,9 @@ export async function ffmpegTestStereo({
     inputData: data,
     decode   : {
       decodeArgs: {
-        channels  : 2,
-        sampleRate: 32000,
+        inputFormat: encode.encodeArgs.outputFormat,
+        channels   : 2,
+        sampleRate : 32000,
       },
       checkDecoded: {},
     },
@@ -143,8 +150,9 @@ export async function ffmpegTestMono({
     inputData: data,
     decode   : {
       decodeArgs: {
-        channels  : 1,
-        sampleRate: 32000,
+        inputFormat: encode.encodeArgs.outputFormat,
+        channels   : 1,
+        sampleRate : 32000,
       },
       checkDecoded: {
         isMono: true,
@@ -156,8 +164,9 @@ export async function ffmpegTestMono({
     inputData: data,
     decode   : {
       decodeArgs: {
-        channels  : 2,
-        sampleRate: 32000,
+        inputFormat: encode.encodeArgs.outputFormat,
+        channels   : 2,
+        sampleRate : 32000,
       },
       checkDecoded: {
         isMono      : true,
@@ -184,8 +193,9 @@ export async function ffmpegTestMonoSplit({
     inputData: data,
     decode   : {
       decodeArgs: {
-        channels  : 1,
-        sampleRate: 32000,
+        inputFormat: encode.encodeArgs.outputFormat,
+        channels   : 1,
+        sampleRate : 32000,
       },
       checkDecoded: {
         isMono      : true,
@@ -205,19 +215,20 @@ export async function ffmpegTestMonoSplit({
     },
   })
 
-  await ffmpegTestDecode({
-    inputData: data,
-    decode   : {
-      decodeArgs: {
-        channels  : 2,
-        sampleRate: 32000,
-      },
-      checkDecoded: {
-        isMono      : true,
-        minAmplitude: 0.4,
-      },
-    },
-  })
+  // await ffmpegTestDecode({
+  //   inputData: data,
+  //   decode   : {
+  //     decodeArgs: {
+  //       inputFormat: encode.encodeArgs.outputFormat,
+  //       channels   : 2,
+  //       sampleRate : 32000,
+  //     },
+  //     checkDecoded: {
+  //       isMono      : true,
+  //       minAmplitude: 0.4,
+  //     },
+  //   },
+  // })
 }
 
 export async function ffmpegTestVariants(options: {
