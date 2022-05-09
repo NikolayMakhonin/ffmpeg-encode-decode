@@ -1,5 +1,5 @@
 import {AudioSamples} from '../common/contracts'
-import {IFFmpegLoader} from './contracts'
+import {IFFmpegRunner} from './contracts'
 
 let encodeInputSize = 0
 let encodeOutputSize = 0
@@ -8,7 +8,7 @@ let decodeInputSize = 0
 let decodeOutputSize = 0
 let decodeCount = 0
 function _ffmpegTransform(
-  ffmpegLoader: IFFmpegLoader,
+  ffmpegRunner: IFFmpegRunner,
   inputData: Uint8Array,
   {
     inputFile,
@@ -20,7 +20,7 @@ function _ffmpegTransform(
     params?: string[],
   },
 ): Promise<Uint8Array> {
-  return ffmpegLoader.run(async (ffmpeg) => {
+  return ffmpegRunner.run(async (ffmpeg) => {
     // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
     ffmpeg.FS(
       'writeFile',
@@ -29,7 +29,7 @@ function _ffmpegTransform(
     )
 
     await ffmpeg.run(
-      '-loglevel', ffmpegLoader.options.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
+      '-loglevel', ffmpegRunner.options.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
       ...params,
     )
 
@@ -53,7 +53,7 @@ export type FFmpegDecodeArgs = {
 }
 
 export async function ffmpegDecode(
-  ffmpegLoader: IFFmpegLoader,
+  ffmpegRunner: IFFmpegRunner,
   inputData: Uint8Array,
   {
     inputFormat,
@@ -65,7 +65,7 @@ export async function ffmpegDecode(
   const outputFile = 'output.pcm'
 
   const outputData = await _ffmpegTransform(
-    ffmpegLoader,
+    ffmpegRunner,
     inputData,
     {
       inputFile,
@@ -102,7 +102,7 @@ export type FFmpegEncodeArgs = {
 }
 
 export async function ffmpegEncode(
-  ffmpegLoader: IFFmpegLoader,
+  ffmpegRunner: IFFmpegRunner,
   samples: AudioSamples,
   {
     outputFormat,
@@ -121,7 +121,7 @@ export async function ffmpegEncode(
 
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
   const outputData = await _ffmpegTransform(
-    ffmpegLoader,
+    ffmpegRunner,
     pcmData,
     {
       inputFile,

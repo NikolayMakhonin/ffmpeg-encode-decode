@@ -6,9 +6,9 @@ import {
   ffmpegEncodeMp3Params,
   ffmpegEncodeOpusParams,
 } from '../../index'
-import {FFmpegLoader} from '../FFmpegLoader'
+import {FFmpegRunner} from '../FFmpegRunner'
 
-const ffmpegLoader = new FFmpegLoader({
+const ffmpegRunner = new FFmpegRunner({
   log   : true,
   logger: ({type, message}) => console.log(`${type}: ${message}`),
 })
@@ -22,7 +22,7 @@ export async function example() {
 
   // encode mp3
   const mp3Data: Uint8Array = await ffmpegEncode(
-    ffmpegLoader,
+    ffmpegRunner,
     samples,
     {
       outputFormat: 'mp3', // same as file extension
@@ -38,7 +38,7 @@ export async function example() {
 
   // encode ogg vorbis
   const oggVorbisData: Uint8Array = await ffmpegEncode(
-    ffmpegLoader,
+    ffmpegRunner,
     samples,
     {
       outputFormat: 'ogg', // same as file extension
@@ -54,7 +54,7 @@ export async function example() {
   // encode ogg opus
   // !! Attention opus encoder heavily distorts samples data
   const oggOpusData: Uint8Array = await ffmpegEncode(
-    ffmpegLoader,
+    ffmpegRunner,
     samples,
     {
       outputFormat: 'opus', // same as file extension
@@ -71,7 +71,7 @@ export async function example() {
   // Auto recognize/detect/determine and decode any audio formats that supports in @flemist/ffmpeg.wasm-st library:
 
   const mp3Samples: AudioSamples = await ffmpegDecode(
-    ffmpegLoader,
+    ffmpegRunner,
     mp3Data,
     {
       channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)
@@ -80,7 +80,7 @@ export async function example() {
   )
 
   const oggVorbisSamples: AudioSamples = await ffmpegDecode(
-    ffmpegLoader,
+    ffmpegRunner,
     oggVorbisData,
     {
       channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)
@@ -89,7 +89,7 @@ export async function example() {
   )
 
   const oggOpusSamples: AudioSamples = await ffmpegDecode(
-    ffmpegLoader,
+    ffmpegRunner,
     oggOpusData,
     {
       channels  : 2, // auto convert mono to stereo (notice - this will turn the volume down to 60%)

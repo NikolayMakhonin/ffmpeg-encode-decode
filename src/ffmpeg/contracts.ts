@@ -8,7 +8,7 @@ export type FFmpegOptions = CreateFFmpegOptions & {
   loglevel?: FFmpegLogLevel,
 }
 
-export interface IFFmpegLoader<TOptions extends CreateFFmpegOptions = FFmpegOptions> {
+export interface IFFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions> {
   options: TOptions
   load(): Promise<void>
   run<T>(func: (ffmpeg: FFmpeg) => T|Promise<T>): Promise<T>

@@ -1,10 +1,10 @@
-import {FFmpegOptions, IFFmpegLoader} from './contracts'
+import {FFmpegOptions, IFFmpegRunner} from './contracts'
 import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
 import {FFmpegWrapper} from './FFmpegWrapper'
 import {Locker} from './locker'
 
-export class FFmpegLoader<TOptions extends CreateFFmpegOptions = FFmpegOptions>
-  implements IFFmpegLoader<TOptions> {
+export class FFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions>
+  implements IFFmpegRunner<TOptions> {
   readonly options: TOptions
   private readonly _locker: Locker = new Locker()
 
