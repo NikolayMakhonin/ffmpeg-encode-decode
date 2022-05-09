@@ -74,7 +74,7 @@ parentPort.on('message', async (value: FFmpegTransformArgs) => {
     parentPort.postMessage({
       type : 'ffmpegTransform',
       value: result,
-    })
+    }, [result])
   } catch (err) {
     parentPort.postMessage({
       type : 'ffmpegTransform',
