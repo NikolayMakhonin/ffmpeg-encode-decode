@@ -55,9 +55,10 @@ export class FFmpegTransformWorkerClient {
       const result = await this.getWorkerClient().request<Uint8Array>(args)
       return result
     } finally {
-      if (this._runCount >= 15) {
+      if (this._runCount >= 15000) {
         await this._workerClient.worker.terminate()
         this._workerClient = null
+        this._runCount = 0
         console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
       }
     }
