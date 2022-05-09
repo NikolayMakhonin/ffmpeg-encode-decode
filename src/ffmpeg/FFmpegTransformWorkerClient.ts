@@ -23,16 +23,21 @@ export class FFmpegTransformWorkerClient {
           },
         },
       })
+      worker.on('message', (response) => {
+        if (response.type === 'logger') {
+          this.options.logger(response.value)
+        }
+      })
       this._workerClient = new WorkerClient({
         worker,
         responseFilter(response, err, requestId) {
-          return true
+          return response.type === 'ffmpegTransform'
         },
         getResponseValue(response) {
-          if (response instanceof Error) {
-            throw response
+          if (response.value instanceof Error) {
+            throw response.value
           }
-          return response
+          return response.value
         },
         createRequest(value, requestId) {
           return value

@@ -5,7 +5,15 @@ import {FFmpegTransformArgs} from './contracts'
 let ffmpegLoadPromise: Promise<FFmpeg>
 export function getFFmpeg(options?: CreateFFmpegOptions) {
   if (!ffmpegLoadPromise) {
-    const ffmpeg = createFFmpeg(options)
+    const ffmpeg = createFFmpeg({
+      ...options,
+      logger: options.logger && (function logger(value) {
+        parentPort.postMessage({
+          type: 'logger',
+          value,
+        })
+      }),
+    })
     ffmpegLoadPromise = ffmpeg.load().then(() => ffmpeg)
   }
 
@@ -51,15 +59,24 @@ async function ffmpegTransform(
 let isRunning: boolean = false
 parentPort.on('message', async (value: FFmpegTransformArgs) => {
   if (isRunning) {
-    parentPort.postMessage(new Error('ffmpegTransform is running'))
+    parentPort.postMessage({
+      type : 'ffmpegTransform',
+      value: new Error('ffmpegTransform is running'),
+    })
   }
   isRunning = true
 
   try {
     const result = await ffmpegTransform(...value)
-    parentPort.postMessage(result)
+    parentPort.postMessage({
+      type : 'ffmpegTransform',
+      value: result,
+    })
   } catch (err) {
-    parentPort.postMessage(err)
+    parentPort.postMessage({
+      type : 'ffmpegTransform',
+      value: err,
+    })
   } finally {
     isRunning = false
   }
