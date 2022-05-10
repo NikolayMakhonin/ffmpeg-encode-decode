@@ -44,7 +44,7 @@ export async function ffmpegDecode(
     },
   )
 
-  // decodeOutputSize += outputData.byteLength
+  decodeOutputSize += outputData.byteLength
   decodeCount++
   console.log(`Decode: ${decodeCount}, ${decodeInputSize}, ${decodeOutputSize}`)
 
@@ -81,6 +81,8 @@ export async function ffmpegEncode(
     samples.data.byteLength,
   )
 
+  encodeInputSize += pcmData.byteLength
+
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
   const outputData = await ffmpegTransform(
     pcmData,
@@ -99,7 +101,6 @@ export async function ffmpegEncode(
     },
   )
 
-  encodeInputSize += pcmData.byteLength
   encodeOutputSize += outputData.byteLength
   encodeCount++
   console.log(`Encode: ${encodeCount}, ${encodeInputSize}, ${encodeOutputSize}`)
