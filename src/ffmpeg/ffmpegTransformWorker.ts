@@ -1,14 +1,17 @@
 import {parentPort, workerData} from 'worker_threads'
 import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
-import {FFmpegTransformArgs} from './contracts'
+import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
+
+let ffmpegOptions: FFmpegOptions = workerData
 
 let ffmpegLoadPromise: Promise<FFmpeg>
-export function getFFmpeg(options?: CreateFFmpegOptions) {
+export function getFFmpeg(options?: FFmpegOptions) {
   if (!ffmpegLoadPromise) {
+    ffmpegOptions = options
     if (options.logger) {
       options.logger = function logger(value) {
         parentPort.postMessage({
-          type: 'logger',
+          callbackId: 'logger',
           value,
         })
       }
@@ -23,6 +26,11 @@ export function getFFmpeg(options?: CreateFFmpegOptions) {
   return ffmpegLoadPromise
 }
 
+async function ffmpegLoad(options?: CreateFFmpegOptions) {
+  await getFFmpeg(options)
+}
+
+let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
   inputData: Uint8Array,
   {
@@ -34,53 +42,74 @@ async function ffmpegTransform(
     outputFile?: string,
     params?: string[],
   },
-): Promise<Uint8Array> {
-  const ffmpeg = await getFFmpeg(workerData)
-  // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
-  ffmpeg.FS(
-    'writeFile',
-    inputFile,
-    inputData,
-  )
-
-  await ffmpeg.run(
-    '-loglevel', workerData.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
-    ...params,
-  )
-
-  const outputData = ffmpeg.FS(
-    'readFile',
-    outputFile,
-  )
-
-  ffmpeg.FS('unlink', inputFile)
-  ffmpeg.FS('unlink', outputFile)
-
-  return outputData
-}
-
-let isRunning: boolean = false
-parentPort.on('message', async (value: FFmpegTransformArgs) => {
-  if (isRunning) {
-    parentPort.postMessage({
-      type : 'ffmpegTransform',
-      value: new Error('ffmpegTransform is running'),
-    })
+) {
+  if (ffmpegTransformRunning) {
+    throw new Error('ffmpegTransform is running')
   }
-  isRunning = true
+  ffmpegTransformRunning = true
 
   try {
-    const result = await ffmpegTransform(...value)
+    const ffmpeg = await getFFmpeg(ffmpegOptions)
+    // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
+    ffmpeg.FS(
+      'writeFile',
+      inputFile,
+      inputData,
+    )
+
+    await ffmpeg.run(
+      '-loglevel', ffmpegOptions.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
+      ...params,
+    )
+
+    const outputData = ffmpeg.FS(
+      'readFile',
+      outputFile,
+    )
+
+    ffmpeg.FS('unlink', inputFile)
+    ffmpeg.FS('unlink', outputFile)
+
+    return [outputData, [outputData.buffer]]
+  } finally {
+    ffmpegTransformRunning = false
+  }
+}
+
+const methods: {
+  [key in string]: (...args: any[]) => any
+} = {
+  ffmpegLoad,
+  ffmpegTransform,
+}
+
+parentPort.on('message', async ({
+  requestId,
+  value: {
+    method,
+    args,
+  },
+}: {
+  requestId: number,
+  value: {
+    method: string,
+    args: FFmpegTransformArgs
+  },
+}) => {
+  try {
+    const func = methods[method]
+    if (!func) {
+      throw new Error('Unknown method: ' + method)
+    }
+    const [result, transferList] = (await func.apply(null, args)) || []
     parentPort.postMessage({
-      type : 'ffmpegTransform',
+      requestId,
       value: result,
-    }, [result, value[0].buffer])
+    }, transferList)
   } catch (err) {
     parentPort.postMessage({
-      type : 'ffmpegTransform',
-      value: err,
+      requestId,
+      error: err,
     })
-  } finally {
-    isRunning = false
   }
 })

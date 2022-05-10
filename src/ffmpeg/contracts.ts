@@ -6,6 +6,7 @@ export type FFmpegLogLevel = 'quiet' | 'panic' | 'fatal' | 'error' | 'warning' |
 
 export type FFmpegOptions = CreateFFmpegOptions & {
   loglevel?: FFmpegLogLevel,
+  preload?: boolean,
 }
 
 export type FFmpegTransformArgs = [

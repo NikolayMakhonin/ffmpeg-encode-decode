@@ -134,7 +134,7 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
     })
   })
 
-  it('vbr joint stereo stress simple', async function () {
+  xit('vbr joint stereo stress simple', async function () {
     this.timeout(15 * 60 * 1000)
 
     for (let i = 0; i < 300; i++) {

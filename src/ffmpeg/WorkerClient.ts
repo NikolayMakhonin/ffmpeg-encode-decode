@@ -2,7 +2,7 @@ import {TransferListItem, Worker} from 'worker_threads'
 
 export class WorkerClient {
   worker: Worker
-  private readonly _responseFilter: (response: any, err: Error, requestId: number) => boolean
+  private readonly _responseFilter: (response: any, requestId: number) => boolean
   private readonly _getResponseValue: (response: any) => any
   private readonly _createRequest: (value: any, requestId: number) => any
 
@@ -16,10 +16,9 @@ export class WorkerClient {
     createRequest,
   }: {
     worker: Worker
-    responseFilter: (response: any, err: Error, requestId: number) => boolean
+    responseFilter: (response: any, requestId: number) => boolean
     getResponseValue: (response: any) => any
-    createRequest: (value: any, requestId: number)
-      => [value: any, transferList?: ReadonlyArray<TransferListItem>]
+    createRequest: (value: any, requestId: number) => any
   }) {
     this.worker = worker
     this._responseFilter = responseFilter
@@ -35,7 +34,7 @@ export class WorkerClient {
 
   private _nextRequestId = 1
   request<TResult>(
-    value: any,
+    value?: any,
     transferList?: ReadonlyArray<TransferListItem>,
     onExit?: (code: number) => TResult,
   ): Promise<TResult> {
@@ -74,7 +73,7 @@ export class WorkerClient {
       }
 
       function onMessage(message) {
-        if (message && _this._responseFilter(message, null, requestId)) {
+        if (message && _this._responseFilter(message, requestId)) {
           try {
             _resolve(_this._getResponseValue(message))
           } catch (err) {

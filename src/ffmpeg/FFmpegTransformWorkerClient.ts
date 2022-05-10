@@ -1,14 +1,13 @@
-import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
 import {WorkerClient} from './WorkerClient'
 import {Worker} from 'worker_threads'
-import {FFmpegTransformArgs} from './contracts'
+import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
 
 export class FFmpegTransformWorkerClient {
-  options?: CreateFFmpegOptions
+  options?: FFmpegOptions
   private readonly _workerFilePath: string
   private _workerClient: WorkerClient = null
 
-  constructor(workerFilePath: string, options?: CreateFFmpegOptions) {
+  constructor(workerFilePath: string, options?: FFmpegOptions) {
     this._workerFilePath = workerFilePath
     this.options = options
   }
@@ -24,23 +23,26 @@ export class FFmpegTransformWorkerClient {
         },
       })
       worker.on('message', (response) => {
-        if (response.type === 'logger') {
+        if (response.callbackId === 'logger') {
           this.options.logger(response.value)
         }
       })
       this._workerClient = new WorkerClient({
         worker,
-        responseFilter(response, err, requestId) {
-          return response.type === 'ffmpegTransform'
+        responseFilter(response, requestId) {
+          return response?.requestId === requestId
         },
         getResponseValue(response) {
-          if (response.value instanceof Error) {
-            throw response.value
+          if (response.error) {
+            throw response.error
           }
           return response.value
         },
         createRequest(value, requestId) {
-          return value
+          return {
+            requestId,
+            value,
+          }
         },
       })
     }
@@ -48,12 +50,21 @@ export class FFmpegTransformWorkerClient {
     return this._workerClient
   }
 
+  async load(): Promise<void> {
+    await this.getWorkerClient().request({
+      method: 'load',
+    })
+  }
+
   private _runCount: number = 0
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
     try {
       this._runCount++
       const result = await this.getWorkerClient().request<Uint8Array>(
-        args,
+        {
+          method: 'ffmpegTransform',
+          args,
+        },
         args[0].buffer instanceof SharedArrayBuffer
           ? null
           : [args[0].buffer],
@@ -61,11 +72,17 @@ export class FFmpegTransformWorkerClient {
       return result
     } finally {
       if (this._runCount >= 15000) {
-        await this._workerClient.worker.terminate()
-        this._workerClient = null
-        this._runCount = 0
-        console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
+        const runCount = this._runCount
+        await this.terminate()
+        this.getWorkerClient()
+        console.log(`Unload ffmpegTransform worker after ${runCount} calls`)
       }
     }
+  }
+
+  async terminate() {
+    await this._workerClient.worker?.terminate()
+    this._workerClient = null
+    this._runCount = 0
   }
 }

@@ -6,10 +6,10 @@ import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
 import {saveFile} from '../../common/test/saveFile'
-import {createFFmpegTransform} from '../createFFmpegTransform'
+import {createFFmpegTransformClient, getFFmpegTransform} from '../getFFmpegTransform'
 
 let logSize = 0
-const ffmpegTransform = createFFmpegTransform({
+const ffmpegTransformClient = createFFmpegTransformClient({
   log: false,
   logger({type, message}) {
     logSize += `[${type}] ${message}\n`.length
@@ -17,6 +17,8 @@ const ffmpegTransform = createFFmpegTransform({
     // console.log(`[${type}] ${message}`)
   },
 })
+
+const ffmpegTransform = getFFmpegTransform(ffmpegTransformClient)
 
 export async function ffmpegTestEncode({
   inputType,

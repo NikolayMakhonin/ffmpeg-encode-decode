@@ -5,13 +5,18 @@ import {
   ffmpegEncodeVorbisParams,
   ffmpegEncodeMp3Params,
   ffmpegEncodeOpusParams,
+  createFFmpegTransformClient,
+  getFFmpegTransform,
 } from '../../index'
-import {createFFmpegTransform} from '../createFFmpegTransform'
 
-const ffmpegTransform = createFFmpegTransform({
+const ffmpegTransformClient = createFFmpegTransformClient({
   log   : true,
   logger: ({type, message}) => console.log(`${type}: ${message}`),
 })
+
+ffmpegTransformClient.load() // if you want to preload wasm
+
+const ffmpegTransform = getFFmpegTransform(ffmpegTransformClient)
 
 export async function example() {
   const samples: AudioSamples = {
