@@ -26,6 +26,7 @@ export async function ffmpegDecode(
 ): Promise<AudioSamples> {
   const inputFile = 'input' + (inputFormat ? '.' + inputFormat : '')
   const outputFile = 'output.pcm'
+  decodeInputSize += inputData.byteLength
 
   const outputData = await ffmpegTransform(
     inputData,
@@ -43,8 +44,7 @@ export async function ffmpegDecode(
     },
   )
 
-  decodeInputSize += inputData.byteLength
-  decodeOutputSize += outputData.byteLength
+  // decodeOutputSize += outputData.byteLength
   decodeCount++
   console.log(`Decode: ${decodeCount}, ${decodeInputSize}, ${decodeOutputSize}`)
 
