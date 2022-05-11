@@ -1,7 +1,7 @@
 import {TransferListItem, Worker} from 'worker_threads'
 
 export class WorkerClient {
-  worker: Worker
+  worker: EventTarget
   private readonly _responseFilter: (response: any, requestId: number) => boolean
   private readonly _getResponseValue: (response: any) => any
   private readonly _createRequest: (value: any, requestId: number) => any
@@ -24,11 +24,20 @@ export class WorkerClient {
     this._responseFilter = responseFilter
     this._getResponseValue = getResponseValue
     this._createRequest = createRequest
-    this.worker.on('error', (err) => {
+  }
+
+  private subscribe() {
+    const onError = () => {
       this._error = err
-    })
-    this.worker.on('exit', (code) => {
+    }
+    const onExit = () => {
       this._exitCode = code
+    }
+    this.worker.addEventListener('messageerror', (event: MessageEvent) => {
+      this._error = new Error(event.
+    })
+    this.worker.addEventListener('close', (event) => {
+      this._closed = true
     })
   }
 

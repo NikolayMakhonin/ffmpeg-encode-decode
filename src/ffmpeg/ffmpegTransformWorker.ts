@@ -30,6 +30,7 @@ async function ffmpegLoad(options?: CreateFFmpegOptions) {
   await getFFmpeg(options)
 }
 
+let ffmpegTransformRunCount: number = 0
 let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
   inputData: Uint8Array,
@@ -73,6 +74,10 @@ async function ffmpegTransform(
     return [outputData, [outputData.buffer]]
   } finally {
     ffmpegTransformRunning = false
+    if (ffmpegTransformRunCount >= 15000) {
+      console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
+      process.exit(0)
+    }
   }
 }
 
@@ -113,3 +118,4 @@ parentPort.on('message', async ({
     })
   }
 })
+
