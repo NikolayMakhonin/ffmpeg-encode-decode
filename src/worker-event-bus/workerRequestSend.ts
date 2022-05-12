@@ -1,32 +1,21 @@
-import {IWorkerEventBus} from './contracts'
-import {getNextRequestId} from './getNextRequestId'
+import {IWorkerEventEmitter} from './contracts'
+import {getNextId} from './getNextId'
 import {TransferListItem} from 'worker_threads'
 
-export type WorkerRequestSendConfig<TRequestData = any> = {
-  createRequest: (data: TRequestData, requestId: string) => any
-}
-
-export function workerRequestSend<
-  TRequestData = any,
->({
-  eventBus,
+export function workerRequestSend<TRequestData = any>({
+  eventEmitter,
   data,
   transferList,
   requestId,
-  config: {
-    createRequest,
-  },
 }: {
-  eventBus: IWorkerEventBus,
+  eventEmitter: IWorkerEventEmitter<TRequestData>,
   data: TRequestData,
   transferList?: ReadonlyArray<TransferListItem>,
   requestId?: string,
-  config: WorkerRequestSendConfig<TRequestData>,
 }) {
   if (!requestId) {
-    requestId = getNextRequestId()
+    requestId = getNextId()
   }
-  const request = createRequest(data, requestId)
-  eventBus.emit({data: request, transferList})
+  eventEmitter.emit({data, transferList, route: [requestId]})
   return requestId
 }

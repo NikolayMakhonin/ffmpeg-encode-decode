@@ -1,26 +1,14 @@
-import {AbortError, IUnsubscribe, IWorkerEventBus} from './contracts'
+import {AbortError, IUnsubscribe, IWorkerEventSubscriber} from './contracts'
+import {routePop} from './route'
 
-export type WorkerRequestSubscribeConfig<TResponseData = any,
-  TResponse = any,
-  > = {
-  responseFilter: (response: TResponse, requestId: string) => boolean
-  getResponseData: (response: TResponse) => TResponseData
-}
-
-export function workerRequestSubscribe<TResponseData = any,
-  TResponse = any>({
+export function workerRequestSubscribe<TResponseData = any>({
   eventBus,
   requestId,
   abortSignal,
-  config: {
-    responseFilter,
-    getResponseData,
-  },
 }: {
-  eventBus: IWorkerEventBus,
+  eventBus: IWorkerEventSubscriber<TResponseData>,
   requestId: string,
   abortSignal?: AbortSignal,
-  config: WorkerRequestSubscribeConfig<TResponseData, TResponse>,
 }): Promise<TResponseData> {
   return new Promise<TResponseData>((_resolve, _reject) => {
     if (abortSignal.aborted) {
@@ -49,20 +37,15 @@ export function workerRequestSubscribe<TResponseData = any,
     abortSignal.addEventListener('abort', unsubscribe)
 
     try {
-      unsubscribeEventBus = eventBus.subscribe(({data: response, error}) => {
+      unsubscribeEventBus = eventBus.subscribe(({data, error, route}) => {
+        if (!routePop(route, requestId)) {
+          return
+        }
         if (error) {
           reject(error)
           return
         }
-        try {
-          if (!responseFilter(response, requestId)) {
-            return
-          }
-          const responseData = getResponseData(response)
-          resolve(responseData)
-        } catch (err) {
-          reject(err)
-        }
+        resolve(data)
       })
     } catch (err) {
       unsubscribe()
