@@ -49,7 +49,7 @@ export function workerRequestSubscribe<TResponseData = any,
     abortSignal.addEventListener('abort', unsubscribe)
 
     try {
-      unsubscribeEventBus = eventBus.subscribe((response, error) => {
+      unsubscribeEventBus = eventBus.subscribe(({data: response, error}) => {
         if (error) {
           reject(error)
           return

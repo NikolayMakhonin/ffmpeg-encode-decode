@@ -27,6 +27,6 @@ export function workerRequestSend<
     requestId = getNextRequestId()
   }
   const request = createRequest(data, requestId)
-  eventBus.emit(request, transferList)
+  eventBus.emit({data: request, transferList})
   return requestId
 }
