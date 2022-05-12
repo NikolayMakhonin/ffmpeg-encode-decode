@@ -1,8 +1,8 @@
 import {IWorkerEventBus} from './contracts'
 import {useAbortController} from '../abort-controller/useAbortController'
 import {combineAbortSignals} from '../abort-controller/combineAbortSignals'
-import {workerRequestSubscribe} from './workerRequestSubscribe'
-import {workerRequestSend} from './workerRequestSend'
+import {workerSubscribe} from './workerSubscribe'
+import {workerSend} from './workerSend'
 import {getNextId} from './getNextId'
 import {TransferListItem} from 'worker_threads'
 
@@ -23,13 +23,13 @@ export function workerRequest<
   return useAbortController((signal) => {
     const requestId = getNextId()
 
-    const promise = workerRequestSubscribe({
+    const promise = workerSubscribe({
       eventBus,
       requestId,
       abortSignal: combineAbortSignals(abortSignal, signal),
     })
 
-    workerRequestSend({
+    workerSend({
       eventEmitter: eventBus,
       data,
       transferList,

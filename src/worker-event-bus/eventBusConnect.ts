@@ -21,13 +21,18 @@ export function eventBusConnect<TData = any>(
 
   try {
     unsubscribeServer = eventBusServer.subscribe((event) => {
-      if (!routePop(event.route, connectionId)) {
+      try {
+        if (!routePop(event.route, connectionId)) {
+          return
+        }
+        eventBusClient.emit(event)
+      } catch (err) {
+        console.error(err)
         return
       }
-      eventBusClient.emit(event)
     })
     unsubscribeClient = eventBusClient.subscribe((event) => {
-      event.route = routePush(event.route, connectionId)
+      routePush(event.route, connectionId)
       eventBusServer.emit(event)
     })
   } catch (err) {

@@ -2,7 +2,7 @@ import {IUnsubscribe, IWorkerEventSubscriber} from './contracts'
 import {routePop} from './route'
 import {AbortError} from '../abort-controller/AbortError'
 
-export function workerRequestSubscribe<TResponseData = any>({
+export function workerSubscribe<TResponseData = any>({
   eventBus,
   requestId,
   abortSignal,
@@ -39,8 +39,15 @@ export function workerRequestSubscribe<TResponseData = any>({
 
     try {
       unsubscribeEventBus = eventBus.subscribe(({data, error, route}) => {
-        if (!routePop(route, requestId)) {
-          return
+        try {
+          if (!routePop(route, requestId)) {
+            return
+          }
+        } catch (err) {
+          reject(err)
+        }
+        if (route.length) {
+          reject(new Error(`route.length == ${route.length}`))
         }
         if (error) {
           reject(error)

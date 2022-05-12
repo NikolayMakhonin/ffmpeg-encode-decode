@@ -14,6 +14,6 @@ export {messagePortToEventBus} from './messagePortToEventBus'
 export {eventBusConnect} from './eventBusConnect'
 export {eventBusToMessagePort} from './eventBusToMessagePort'
 
-export {workerRequestSend} from './workerRequestSend'
-export {workerRequestSubscribe} from './workerRequestSubscribe'
+export {workerSend} from './workerSend'
+export {workerSubscribe} from './workerSubscribe'
 export {workerRequest} from './workerRequest'
