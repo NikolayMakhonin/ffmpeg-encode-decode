@@ -1,7 +1,7 @@
 import {IUnsubscribe, IWorkerEventBus, TWorkerEvent} from '../worker-event-bus/contracts'
 import {FFmpegOptions} from './contracts'
 import {Worker} from 'worker_threads'
-import {WorkerExitError} from '../worker-event-bus/workerExitError'
+import {WorkerExitError} from '../worker-event-bus/WorkerExitError'
 import {workerToEventBus} from '../worker-event-bus/workerToEventBus'
 
 export class FFmpegTransformWorker implements IWorkerEventBus {

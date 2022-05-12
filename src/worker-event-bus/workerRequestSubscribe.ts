@@ -1,5 +1,6 @@
-import {AbortError, IUnsubscribe, IWorkerEventSubscriber} from './contracts'
+import {IUnsubscribe, IWorkerEventSubscriber} from './contracts'
 import {routePop} from './route'
+import {AbortError} from '../abort-controller/AbortError'
 
 export function workerRequestSubscribe<TResponseData = any>({
   eventBus,

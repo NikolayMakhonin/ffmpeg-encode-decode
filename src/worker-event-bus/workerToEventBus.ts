@@ -1,6 +1,6 @@
 import {Worker} from 'node:worker_threads'
 import {IUnsubscribe, IWorkerEventBus, TWorkerRequestEvent, TWorkerResponseEvent} from './contracts'
-import {WorkerExitError} from './workerExitError'
+import {WorkerExitError} from './WorkerExitError'
 
 export function workerToEventBus<TRequestData = any, TResponseData = any>(
   worker: Worker,

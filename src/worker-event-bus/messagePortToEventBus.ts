@@ -1,6 +1,6 @@
 import {MessagePort} from 'node:worker_threads'
 import {IUnsubscribe, IWorkerEventBus, TWorkerEvent} from './contracts'
-import {WorkerExitError} from './workerExitError'
+import {WorkerExitError} from './WorkerExitError'
 
 export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IWorkerEventBus<TData> {
   return {

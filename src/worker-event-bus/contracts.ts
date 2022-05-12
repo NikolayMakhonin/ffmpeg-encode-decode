@@ -33,6 +33,3 @@ export interface IWorkerEventBus<TRequestData = any, TResponseData = any>
   extends IWorkerEventEmitter<TRequestData>, IWorkerEventSubscriber<TResponseData>
 { }
 
-export class AbortError extends Error {
-
-}
