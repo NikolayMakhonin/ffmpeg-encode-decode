@@ -1,6 +1,6 @@
-import {IUnsubscribe, IWorkerEventBus} from '../worker-event-bus/contracts'
+import {IUnsubscribe, IWorkerEventBus, TWorkerEvent} from '../worker-event-bus/contracts'
 import {FFmpegOptions} from './contracts'
-import {TransferListItem, Worker} from 'worker_threads'
+import {Worker} from 'worker_threads'
 import {WorkerExitError} from '../worker-event-bus/workerExitError'
 import {workerToEventBus} from '../worker-event-bus/workerToEventBus'
 
@@ -60,12 +60,12 @@ export class FFmpegTransformWorker implements IWorkerEventBus {
     return this._workerEventBus
   }
 
-  emit(data: any, transferList?: ReadonlyArray<TransferListItem>) {
+  emit(event: TWorkerEvent) {
     this.assert()
-    this.getWorkerEventBus().emit(data, transferList)
+    this.getWorkerEventBus().emit(event)
   }
 
-  subscribe(callback: (data: any, error?: Error) => void): IUnsubscribe {
+  subscribe(callback: (event: TWorkerEvent) => void): IUnsubscribe {
     this.assert()
     return this.getWorkerEventBus().subscribe(callback)
   }

@@ -1,22 +1,21 @@
 import {Worker} from 'node:worker_threads'
-import {IUnsubscribe, IWorkerEventBus} from './contracts'
-import {TransferListItem} from 'worker_threads'
+import {IUnsubscribe, IWorkerEventBus, TWorkerEvent} from './contracts'
 import {WorkerExitError} from './workerExitError'
 
 export function workerToEventBus<TData = any>(worker: Worker): IWorkerEventBus<TData> {
   return {
-    subscribe(callback: (data: TData, error?: Error) => void): IUnsubscribe {
+    subscribe(callback: (event: TWorkerEvent<TData>) => void): IUnsubscribe {
       function onError(error: Error) {
-        callback(void 0, error)
+        callback({error})
       }
       function onMessageError(error: Error) {
-        callback(void 0, error)
+        callback({error})
       }
       function onExit(code: number) {
-        callback(void 0, new WorkerExitError(code))
+        callback({error: new WorkerExitError(code)})
       }
-      function onMessage(data) {
-        callback(data)
+      function onMessage(event) {
+        callback(event)
       }
 
       function unsubscribe() {
@@ -33,8 +32,8 @@ export function workerToEventBus<TData = any>(worker: Worker): IWorkerEventBus<T
 
       return unsubscribe
     },
-    emit(value: any, transferList?: ReadonlyArray<TransferListItem>) {
-      worker.postMessage(value, transferList)
+    emit(event: TWorkerEvent<TData>) {
+      worker.postMessage(event, event.transferList)
     },
   }
 }
