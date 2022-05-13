@@ -1,5 +1,6 @@
-import {func1} from './main'
+import {func1, func2, func3} from './main'
 import {TestFunc} from './contracts'
+import {createTestVariants} from '../../test/createTestVariants'
 
 describe('worker-event-bus', function () {
   this.timeout(60000)
@@ -18,18 +19,37 @@ describe('worker-event-bus', function () {
     values,
     async,
     error,
-    checkResult,
   }: {
     func: TestFunc,
     values: number[],
     async: boolean,
     error: boolean,
-    checkResult: number[],
   }) {
+    const checkResult = values.slice()
+    switch (func.name) {
+      case 'func1':
+        checkResult[0]++
+        break
+      case 'func2':
+        checkResult[1]++
+        if (async) {
+          checkResult[0]++
+        }
+        break
+      case 'func3':
+        checkResult[2]++
+        if (async) {
+          checkResult[0]++
+        }
+        break
+      default:
+        throw new Error('Unknown func name: ' + func.name)
+    }
+
     try {
       const value = createArray(...values)
       assert.strictEqual(value.length, values.length)
-      const result = await func1([value, async, error], [value.buffer])
+      const result = await func([value, async, error], [value.buffer])
       assert.strictEqual(value.length, 0)
       assert.deepStrictEqual(parseArray(result), checkResult)
     } catch (err) {
@@ -44,13 +64,23 @@ describe('worker-event-bus', function () {
     }
   }
 
-  it('func1', async function () {
-    await test({
-      func       : func1,
-      values     : [1, 2, 3],
-      async      : false,
-      error      : false,
-      checkResult: [2, 2, 3],
+  const testVariants = createTestVariants(test)
+
+  it('simple', async function () {
+    await testVariants({
+      func  : [func1, func2, func3],
+      values: [[1, 2, 3]],
+      async : [false, true],
+      error : [false, true],
+    })
+  })
+
+  it('stress', async function () {
+    await testVariants({
+      func  : [func1, func2, func3],
+      values: [[1, 2, 3]],
+      async : [false, true],
+      error : [false, true],
     })
   })
 })

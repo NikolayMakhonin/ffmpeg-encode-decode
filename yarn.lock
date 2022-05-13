@@ -2704,6 +2704,11 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+rdtsc@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rdtsc/-/rdtsc-2.0.0.tgz#77d75999aad0da05e41262d158e3d166a790e346"
+  integrity sha512-Uol+smiNk1M9zWYZnC0EOAGrogW9IldsKbl1aLS1C5tOOVScLgdozldL5BGsf+wTjtNYOdzeNRiv/WBU2jN0Bw==
+
 react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
