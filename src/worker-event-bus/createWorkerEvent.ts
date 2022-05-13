@@ -1,4 +1,4 @@
-import {WorkerEmitEvent} from './contracts'
+import {WorkerEvent} from './contracts'
 import {TransferListItem} from 'worker_threads'
 
 export function createWorkerEvent<TData = any>(
@@ -6,7 +6,7 @@ export function createWorkerEvent<TData = any>(
   error?: Error,
   transferList?: ReadonlyArray<TransferListItem>,
   route?: string[],
-): WorkerEmitEvent {
+): WorkerEvent {
   return {
     data,
     error,

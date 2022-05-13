@@ -11,13 +11,7 @@ export interface IEventBus<TEmitEvent, TSubscribeEvent>
   extends IEventEmitter<TEmitEvent>, IEventSubscriber<TSubscribeEvent>
 { }
 
-export type WorkerEmitEvent<TData = any> = {
-  data?: TData
-  error?: Error
-  transferList?: ReadonlyArray<TransferListItem>
-  route?: string[]
-}
-export type WorkerSubscribeEvent<TData = any> = {
+export type WorkerEvent<TData = any> = {
   data?: TData
   error?: Error
   transferList?: ReadonlyArray<TransferListItem>
@@ -25,10 +19,10 @@ export type WorkerSubscribeEvent<TData = any> = {
 }
 
 export interface IWorkerEventEmitter<TRequestData = any>
-  extends IEventEmitter<WorkerEmitEvent<TRequestData>>
+  extends IEventEmitter<WorkerEvent<TRequestData>>
 { }
 export interface IWorkerEventSubscriber<TResponseData = any>
-  extends IEventSubscriber<WorkerSubscribeEvent<TResponseData>>
+  extends IEventSubscriber<WorkerEvent<TResponseData>>
 { }
 export interface IWorkerEventBus<TRequestData = any, TResponseData = any>
   extends IWorkerEventEmitter<TRequestData>, IWorkerEventSubscriber<TResponseData>

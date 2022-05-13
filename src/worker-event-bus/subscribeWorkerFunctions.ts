@@ -1,22 +1,24 @@
 import {parentPort, TransferListItem} from 'worker_threads'
-import {FFmpegTransformArgs} from '../ffmpeg/contracts'
 import {IWorkerEventBus} from './contracts'
 import {createWorkerEvent} from './createWorkerEvent'
 
-type PromiseOrValue<T> = Promise<T> | T
+type PromiseOrValue<T> = Promise<PromiseOrValue<T>> | T
 
-export type WorkerFunction = (...args: any[]) => PromiseOrValue<[
-  result: any,
+export type WorkerFunctionResult<TResult> = PromiseOrValue<[
+  result: TResult,
   transferList?: ReadonlyArray<TransferListItem>
 ]>
 
-export type WorkerFunctions = {
+export type WorkerFunction<TResult = any>
+  = (...args: any[]) => WorkerFunctionResult<TResult>
+
+export type SubscribeWorkerFunctions = {
   [key in string]: WorkerFunction
 }
 
 export type FunctionRequest = {
   func: string,
-  args: FFmpegTransformArgs
+  args: any[],
 }
 
 export function subscribeWorkerFunctions({
@@ -24,7 +26,7 @@ export function subscribeWorkerFunctions({
   funcs,
 }: {
   eventBus: IWorkerEventBus<any, FunctionRequest>,
-  funcs: WorkerFunctions,
+  funcs: SubscribeWorkerFunctions,
 }) {
   return eventBus.subscribe(async (event) => {
     if (event.error) {
