@@ -1,7 +1,6 @@
-import {Worker} from 'node:worker_threads'
+import {Worker} from 'worker_threads'
 import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from './contracts'
 import {WorkerExitError} from './WorkerExitError'
-import {createWorkerEvent} from './createWorkerEvent'
 
 export function workerToEventBus<TRequestData = any, TResponseData = any>(
   worker: Worker,
@@ -9,13 +8,17 @@ export function workerToEventBus<TRequestData = any, TResponseData = any>(
   return {
     subscribe(callback: (event: WorkerEvent<TResponseData>) => void): IUnsubscribe {
       function onError(error: Error) {
-        callback(createWorkerEvent(void 0, error))
+        console.error(error)
       }
       function onMessageError(error: Error) {
-        callback(createWorkerEvent(void 0, error))
+        console.error(error)
       }
       function onExit(code: number) {
-        callback(createWorkerEvent(void 0, new WorkerExitError(code)))
+        if (code) {
+          console.error(new WorkerExitError(code))
+        } else {
+          console.warn(`Exit code: ${code}`)
+        }
       }
       function onMessage(event) {
         callback(event)

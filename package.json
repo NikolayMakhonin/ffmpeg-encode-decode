@@ -88,6 +88,7 @@
   },
   "dependencies": {
     "@flemist/ffmpeg.wasm-st": "^0.10.1",
+    "abortcontroller-polyfill": "^1.7.3",
     "tslib": "^2.3.1"
   }
 }

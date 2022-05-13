@@ -3,7 +3,8 @@ import {IWorkerEventBus} from '../contracts'
 import {createWorkerEvent} from '../createWorkerEvent'
 import {FunctionRequest} from './contracts'
 
-type PromiseOrValue<T> = Promise<PromiseOrValue<T>> | T
+type PromiseOrValue<T> = Promise<T> | T
+// interface IPromiseOrValue<T> extends Promise<PromiseOrValue<T>> { }
 
 export type WorkerFunctionServerResult<TResult> = PromiseOrValue<[
   result: TResult,

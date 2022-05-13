@@ -1,4 +1,4 @@
-import {MessagePort} from 'node:worker_threads'
+import {MessagePort} from 'worker_threads'
 import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from './contracts'
 import {WorkerExitError} from './WorkerExitError'
 import {createWorkerEvent} from './createWorkerEvent'

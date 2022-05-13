@@ -2,7 +2,7 @@ export class WorkerExitError extends Error {
   code: number
 
   constructor(code: number) {
-    super()
+    super(`Exit code: ${code}`)
     this.code = code
   }
 }

@@ -1,4 +1,4 @@
-import {MessagePort, MessageChannel} from 'node:worker_threads'
+import {MessagePort, MessageChannel} from 'worker_threads'
 import {IWorkerEventBus} from './contracts'
 import {messagePortToEventBus} from './messagePortToEventBus'
 import {eventBusConnect} from './eventBusConnect'

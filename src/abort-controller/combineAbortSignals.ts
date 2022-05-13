@@ -1,3 +1,5 @@
+import {AbortController} from './AbortController'
+
 export function combineAbortSignals(...abortSignals: AbortSignal[]) {
   const abortController = new AbortController()
 

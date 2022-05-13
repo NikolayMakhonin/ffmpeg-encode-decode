@@ -1,1 +1,1 @@
-// export { AbortController, AbortSignal } from 'abortcontroller-polyfill/dist/abortcontroller'
+export { AbortController, AbortSignal } from 'abortcontroller-polyfill/dist/abortcontroller'

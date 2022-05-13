@@ -1,7 +1,6 @@
 export {
   IUnsubscribe,
   WorkerEvent,
-  WorkerEvent,
   IWorkerEventEmitter,
   IWorkerEventSubscriber,
   IWorkerEventBus,
