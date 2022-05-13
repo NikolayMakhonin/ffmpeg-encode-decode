@@ -1,32 +1,26 @@
 import {parentPort, TransferListItem} from 'worker_threads'
-import {IWorkerEventBus} from './contracts'
-import {createWorkerEvent} from './createWorkerEvent'
+import {IWorkerEventBus} from '../contracts'
+import {createWorkerEvent} from '../createWorkerEvent'
+import {FunctionRequest} from './contracts'
 
 type PromiseOrValue<T> = Promise<PromiseOrValue<T>> | T
 
-export type WorkerFunctionResult<TResult> = PromiseOrValue<[
+export type WorkerFunctionServerResult<TResult> = PromiseOrValue<[
   result: TResult,
   transferList?: ReadonlyArray<TransferListItem>
 ]>
 
-export type WorkerFunction<TResult = any>
-  = (...args: any[]) => WorkerFunctionResult<TResult>
+export type WorkerFunctionServer<TArgs extends any[] = any[], TResult = any>
+  = (...args: TArgs) => WorkerFunctionServerResult<TResult>
 
-export type SubscribeWorkerFunctions = {
-  [key in string]: WorkerFunction
-}
-
-export type FunctionRequest = {
-  func: string,
-  args: any[],
-}
-
-export function subscribeWorkerFunctions({
+export function workerFunctionServer<TArgs extends any[] = any[], TResult = any>({
   eventBus,
-  funcs,
+  func,
+  name,
 }: {
-  eventBus: IWorkerEventBus<any, FunctionRequest>,
-  funcs: SubscribeWorkerFunctions,
+  eventBus: IWorkerEventBus<TResult, FunctionRequest<TArgs>>,
+  func: WorkerFunctionServer<TArgs, TResult>,
+  name?: string,
 }) {
   return eventBus.subscribe(async (event) => {
     if (event.error) {
@@ -35,8 +29,14 @@ export function subscribeWorkerFunctions({
       return
     }
 
+    if (!name) {
+      name = func.name
+    }
+
     try {
-      const func = funcs[event.data.func]
+      if (event.data.func !== name) {
+        return
+      }
       if (!func) {
         eventBus.emit(createWorkerEvent(
           void 0,
