@@ -1,20 +1,21 @@
 import {Worker} from 'node:worker_threads'
-import {IUnsubscribe, IWorkerEventBus, TWorkerRequestEvent, TWorkerResponseEvent} from './contracts'
+import {IUnsubscribe, IWorkerEventBus, WorkerEmitEvent, WorkerSubscribeEvent} from './contracts'
 import {WorkerExitError} from './WorkerExitError'
+import {createWorkerEvent} from './createWorkerEvent'
 
 export function workerToEventBus<TRequestData = any, TResponseData = any>(
   worker: Worker,
 ): IWorkerEventBus<TRequestData, TResponseData> {
   return {
-    subscribe(callback: (event: TWorkerResponseEvent<TResponseData>) => void): IUnsubscribe {
+    subscribe(callback: (event: WorkerSubscribeEvent<TResponseData>) => void): IUnsubscribe {
       function onError(error: Error) {
-        callback({error})
+        callback(createWorkerEvent(void 0, error))
       }
       function onMessageError(error: Error) {
-        callback({error})
+        callback(createWorkerEvent(void 0, error))
       }
       function onExit(code: number) {
-        callback({error: new WorkerExitError(code)})
+        callback(createWorkerEvent(void 0, new WorkerExitError(code)))
       }
       function onMessage(event) {
         callback(event)
@@ -34,7 +35,7 @@ export function workerToEventBus<TRequestData = any, TResponseData = any>(
 
       return unsubscribe
     },
-    emit(event: TWorkerRequestEvent<TRequestData>) {
+    emit(event: WorkerEmitEvent<TRequestData>) {
       worker.postMessage(event, event.transferList)
     },
   }

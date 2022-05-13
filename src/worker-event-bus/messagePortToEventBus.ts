@@ -1,18 +1,19 @@
 import {MessagePort} from 'node:worker_threads'
-import {IUnsubscribe, IWorkerEventBus, TWorkerEvent} from './contracts'
+import {IUnsubscribe, IWorkerEventBus, WorkerEmitEvent, WorkerSubscribeEvent} from './contracts'
 import {WorkerExitError} from './WorkerExitError'
+import {createWorkerEvent} from './createWorkerEvent'
 
 export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IWorkerEventBus<TData> {
   return {
-    subscribe(callback: (event: TWorkerEvent<TData>) => void): IUnsubscribe {
+    subscribe(callback: (event: WorkerSubscribeEvent<TData>) => void): IUnsubscribe {
       function onError(error: Error) {
-        callback({error})
+        callback(createWorkerEvent(void 0, error))
       }
       function onMessageError(error: Error) {
-        callback({error})
+        callback(createWorkerEvent(void 0, error))
       }
       function onExit(code: number) {
-        callback({error: new WorkerExitError(code)})
+        callback(createWorkerEvent(void 0, new WorkerExitError(code)))
       }
       function onMessage(event) {
         callback(event)
@@ -32,7 +33,7 @@ export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IW
 
       return unsubscribe
     },
-    emit(event: TWorkerEvent<TData>) {
+    emit(event: WorkerEmitEvent<TData>) {
       messagePort.postMessage(event, event.transferList)
     },
   }

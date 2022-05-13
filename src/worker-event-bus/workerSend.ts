@@ -1,6 +1,6 @@
 import {IWorkerEventEmitter} from './contracts'
-import {getNextId} from './getNextId'
 import {TransferListItem} from 'worker_threads'
+import {createWorkerEvent} from './createWorkerEvent'
 
 export function workerSend<TRequestData = any>({
   eventEmitter,
@@ -13,6 +13,6 @@ export function workerSend<TRequestData = any>({
   transferList?: ReadonlyArray<TransferListItem>,
   requestId?: string,
 }) {
-  eventEmitter.emit({data, transferList, route: requestId && [requestId]})
+  eventEmitter.emit(createWorkerEvent(data, void 0, transferList, requestId && [requestId]))
   return requestId
 }
