@@ -21,7 +21,7 @@ function func3(value: Float32Array, async: boolean, error: boolean): WorkerFunct
     })()
   }
   if (error) {
-    throw new Error('func3')
+    throw new Error('func4')
   }
   return [value, [value.buffer]]
 }

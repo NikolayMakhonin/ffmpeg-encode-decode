@@ -137,11 +137,11 @@ export function createTestVariantsSync<TArgs extends object>(
     : key extends keyof TAdditionalArgs ? TAdditionalArgs[key]
       : never
 }>) => void {
-  return _createTestVariants(test, true)
+  return _createTestVariants(test, false)
 }
 
 export function createTestVariantsAsync<TArgs extends object>(
   test: (args: TArgs) => Promise<void> | void,
 ) {
-  return _createTestVariants(test, false)
+  return _createTestVariants(test, true)
 }

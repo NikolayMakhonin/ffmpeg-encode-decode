@@ -1,34 +1,31 @@
 import {MessagePort} from 'worker_threads'
 import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from './contracts'
-import {WorkerExitError} from './WorkerExitError'
-import {createWorkerEvent} from './createWorkerEvent'
+import {CloseError} from './CloseError'
 
 export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IWorkerEventBus<TData> {
   return {
     subscribe(callback: (event: WorkerEvent<TData>) => void): IUnsubscribe {
       function onError(error: Error) {
-        callback(createWorkerEvent(void 0, error))
+        console.error(error)
       }
       function onMessageError(error: Error) {
-        callback(createWorkerEvent(void 0, error))
+        console.error(error)
       }
-      function onExit(code: number) {
-        callback(createWorkerEvent(void 0, new WorkerExitError(code)))
+      function onClose() {
+        console.error(new CloseError())
       }
       function onMessage(event) {
         callback(event)
       }
 
       function unsubscribe() {
-        messagePort.off('error', onError)
         messagePort.off('messageerror', onMessageError)
-        messagePort.off('exit', onExit)
+        messagePort.off('close', onClose)
         messagePort.off('message', onMessage)
       }
 
-      messagePort.on('error', onError)
       messagePort.on('messageerror', onMessageError)
-      messagePort.on('exit', onExit)
+      messagePort.on('close', onClose)
       messagePort.on('message', onMessage)
 
       return unsubscribe

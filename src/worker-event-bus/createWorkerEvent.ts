@@ -3,9 +3,9 @@ import {TransferListItem} from 'worker_threads'
 
 export function createWorkerEvent<TData = any>(
   data: TData,
-  error?: Error,
-  transferList?: ReadonlyArray<TransferListItem>,
-  route?: string[],
+  error: Error,
+  transferList: ReadonlyArray<TransferListItem>,
+  route: string[],
 ): WorkerEvent {
   return {
     data,
