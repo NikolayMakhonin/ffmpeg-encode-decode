@@ -16,7 +16,7 @@ function func3(value: Float32Array, async: boolean, error: boolean): WorkerFunct
   value[2]++
   if (async) {
     return (async () => {
-      value = await func1([value, async, error], [value])
+      value = await func1([value, async, error], [value.buffer])
       return [value, [value.buffer]]
     })()
   }

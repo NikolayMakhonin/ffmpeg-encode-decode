@@ -18,16 +18,16 @@ const worker2 = new Worker(
 )
 const worker2EventBus = workerToEventBus(worker2)
 
-func1PortForward = eventBusToMessagePort(func1EventBus)
-const worker3 = new Worker(
-  path.resolve('./dist/worker-event-bus/test/worker3.cjs'),
-  {
-    workerData  : {func1Port: func1PortForward},
-    transferList: [func1PortForward],
-  },
-)
-const worker3EventBus = workerToEventBus(worker3)
+// func1PortForward = eventBusToMessagePort(func1EventBus)
+// const worker3 = new Worker(
+//   path.resolve('./dist/worker-event-bus/test/worker3.cjs'),
+//   {
+//     workerData  : {func1Port: func1PortForward},
+//     transferList: [func1PortForward],
+//   },
+// )
+// const worker3EventBus = workerToEventBus(worker3)
 
 const parentEventBus = messagePortToEventBus(parentPort)
-eventBusConnect(worker3EventBus, parentEventBus)
+// eventBusConnect(worker3EventBus, parentEventBus)
 eventBusConnect(worker2EventBus, parentEventBus)

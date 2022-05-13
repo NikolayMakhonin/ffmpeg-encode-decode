@@ -72,18 +72,18 @@ describe('worker-event-bus', function () {
   const testVariants = createTestVariantsAsync(function () {
     return Promise.race([
       test.apply(null, arguments),
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          reject('Timeout')
-        }, 5000)
-      }),
+      // new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     reject('Timeout')
+      //   }, 5000)
+      // }),
     ])
   })
 
   it('simple', async function () {
     await testVariants({
       // funcName: ['func1', 'func2', 'func3'],
-      funcName: ['func2'],
+      funcName: ['func1', 'func2'],
       values  : [[1, 2, 3]],
       async   : [false, true],
       error   : [false, true],
