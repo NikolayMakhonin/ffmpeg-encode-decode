@@ -1,9 +1,7 @@
-import {TransferListItem} from 'worker_threads'
-
-export type FunctionRequest<TArgs extends any[] = any[]> = {
+export type FunctionRequest<TRequestData = any> = {
   func: string,
-  args: TArgs,
+  data: TRequestData,
 }
 
-export type WorkerFunctionClient<TArgs extends any[] = any[], TResult = any>
-  = (args: TArgs, transferList?: ReadonlyArray<TransferListItem>) => Promise<TResult>
+export type WorkerFunctionClient<TRequestData = any, TResponseData = any>
+  = (data: TRequestData) => Promise<TResponseData>

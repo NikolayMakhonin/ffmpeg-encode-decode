@@ -1,28 +1,31 @@
 import {TransferListItem} from 'worker_threads'
-import {IWorkerEventBus} from '../contracts'
+import {IWorkerEventBus, WorkerData} from '../contracts'
 import {workerRequest} from '../workerRequest'
 import {FunctionRequest} from './contracts'
 
-export function workerFunctionClient<TArgs extends any[] = any[], TResult = any>({
+export function workerFunctionClient<TRequestData = any, TResonseData = any>({
   eventBus,
   name,
 }: {
-  eventBus: IWorkerEventBus<FunctionRequest<TArgs>, TResult>,
+  eventBus: IWorkerEventBus<FunctionRequest<WorkerData<TRequestData>>, TResonseData>,
   name: string,
 }) {
-  return function _workerFunctionClient(
-    args: TArgs,
-    transferList?: ReadonlyArray<TransferListItem>,
+  function func(
+    data: WorkerData<TRequestData>,
     abortSignal?: AbortSignal,
   ) {
     return workerRequest({
       eventBus,
       data: {
-        func: name,
-        args,
+        data: {
+          func: name,
+          data: data.data,
+        },
+        transferList: data.transferList,
       },
-      transferList,
       abortSignal,
     })
   }
+  Object.defineProperty(func, 'name', {value: name, writable: false})
+  return func
 }

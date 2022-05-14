@@ -1,32 +1,29 @@
-import {parentPort, TransferListItem} from 'worker_threads'
-import {IWorkerEventBus} from '../contracts'
+import {parentPort} from 'worker_threads'
+import {IWorkerEventBus, WorkerData} from '../contracts'
 import {createWorkerEvent} from '../createWorkerEvent'
 import {FunctionRequest} from './contracts'
 
 type PromiseOrValue<T> = Promise<T> | T
 // interface IPromiseOrValue<T> extends Promise<PromiseOrValue<T>> { }
 
-export type WorkerFunctionServerResult<TResult> = PromiseOrValue<[
-  result: TResult,
-  transferList?: ReadonlyArray<TransferListItem>
-]>
+export type WorkerFunctionServerResult<TData> = PromiseOrValue<WorkerData<TData>>
 
-export type WorkerFunctionServer<TArgs extends any[] = any[], TResult = any>
-  = (...args: TArgs) => WorkerFunctionServerResult<TResult>
+export type WorkerFunctionServer<TRequestData = any, TResponseData = any>
+  = (data: WorkerData<TRequestData>) => WorkerFunctionServerResult<TResponseData>
 
-export function workerFunctionServer<TArgs extends any[] = any[], TResult = any>({
+export function workerFunctionServer<TRequestData = any, TResponseData = any>({
   eventBus,
   func,
   name,
 }: {
-  eventBus: IWorkerEventBus<TResult, FunctionRequest<TArgs>>,
-  func: WorkerFunctionServer<TArgs, TResult>,
+  eventBus: IWorkerEventBus<TResponseData, FunctionRequest<TRequestData>>,
+  func: WorkerFunctionServer<TRequestData, TResponseData>,
   name?: string,
 }) {
   return eventBus.subscribe(async (event) => {
     if (event.error) {
       console.error(event.error)
-      eventBus.emit(createWorkerEvent(void 0, event.error, void 0, event.route))
+      eventBus.emit(createWorkerEvent(void 0, event.error, event.route))
       return
     }
 
@@ -35,26 +32,27 @@ export function workerFunctionServer<TArgs extends any[] = any[], TResult = any>
     }
 
     try {
-      if (event.data.func !== name) {
+      if (event.data.data.func !== name) {
         return
       }
       if (!func) {
         eventBus.emit(createWorkerEvent(
           void 0,
-          new Error('Unknown func: ' + event.data.func),
-          void 0,
+          new Error('Unknown func: ' + event.data.data.func),
           event.route,
         ))
       }
-      const [result, transferList] = (await func.apply(null, event.data.args)) || []
+      const data = await func({
+        data        : event.data.data.data,
+        transferList: event.data.transferList,
+      }) || {}
       parentPort.postMessage(createWorkerEvent(
-        result,
+        data,
         void 0,
-        transferList,
         event.route,
-      ), transferList)
+      ), data.transferList)
     } catch (error) {
-      eventBus.emit(createWorkerEvent(void 0, error, void 0, event.route))
+      eventBus.emit(createWorkerEvent(void 0, error, event.route))
     }
   })
 }

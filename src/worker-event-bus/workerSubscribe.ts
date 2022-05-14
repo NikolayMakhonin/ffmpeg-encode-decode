@@ -1,67 +1,49 @@
-import {IUnsubscribe, IWorkerEventSubscriber} from './contracts'
+import {IUnsubscribe, IWorkerEventSubscriber, WorkerData} from './contracts'
 import {routePop} from './route'
-import {AbortError} from '../abort-controller/AbortError'
 
 export function workerSubscribe<TResponseData = any>({
   eventBus,
   requestId,
-  abortSignal,
+  callback,
 }: {
   eventBus: IWorkerEventSubscriber<TResponseData>,
   requestId: string,
-  abortSignal?: AbortSignal,
-}): Promise<TResponseData> {
-  return new Promise<TResponseData>((_resolve, _reject) => {
-    if (abortSignal.aborted) {
-      throw new AbortError()
+  callback: (data: WorkerData<TResponseData>, error?: Error) => void,
+}): IUnsubscribe {
+  let unsubscribeEventBus: IUnsubscribe
+
+  function unsubscribe() {
+    if (unsubscribeEventBus) {
+      unsubscribeEventBus()
     }
+  }
 
-    let unsubscribeEventBus: IUnsubscribe
-
-    function unsubscribe() {
-      abortSignal.removeEventListener('abort', unsubscribe)
-      if (unsubscribeEventBus) {
-        unsubscribeEventBus()
-      }
-    }
-
-    function resolve(responseData: TResponseData) {
-      unsubscribe()
-      _resolve(responseData)
-    }
-
-    function reject(err: Error) {
-      unsubscribe()
-      _reject(err)
-    }
-
-    abortSignal.addEventListener('abort', unsubscribe)
-
-    try {
-      unsubscribeEventBus = eventBus.subscribe(({data, error, route}) => {
-        try {
-          if (!routePop(route, requestId)) {
-            return
-          }
-        } catch (err) {
-          reject(err)
-        }
-        if (route.length) {
-          reject(new Error(`route.length == ${route.length}`))
-        }
-        if (error) {
-          reject(error)
+  try {
+    unsubscribeEventBus = eventBus.subscribe(({
+      data,
+      error,
+      route,
+    }) => {
+      try {
+        if (!routePop(route, requestId)) {
           return
         }
-        resolve(data)
-      })
-    } catch (err) {
-      unsubscribe()
-      throw err
-    }
+      } catch (err) {
+        callback(void 0, err)
+      }
+      if (route.length) {
+        callback(void 0, new Error(`route.length == ${route.length}`))
+      }
+      if (error) {
+        callback(void 0, error)
+        return
+      }
+      callback(data)
+    })
+  } catch (err) {
+    unsubscribe()
+    throw err
+  }
 
-    if (abortSignal.aborted) {
-      throw new AbortError()
-    }
-  })
+  return unsubscribe
 }

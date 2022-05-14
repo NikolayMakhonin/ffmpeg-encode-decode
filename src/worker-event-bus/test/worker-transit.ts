@@ -4,6 +4,8 @@ import path from 'path'
 import {workerToEventBus} from '../workerToEventBus'
 import {eventBusConnect} from '../eventBusConnect'
 import {eventBusToMessagePort} from '../eventBusToMessagePort'
+import {workerFunctionServer} from '../function/workerFunctionServer'
+import {workerFunctionClient} from '../function/workerFunctionClient'
 
 const func1Port = workerData.func1Port
 const func1EventBus = messagePortToEventBus(func1Port)
@@ -31,3 +33,12 @@ const worker2EventBus = workerToEventBus(worker2)
 const parentEventBus = messagePortToEventBus(parentPort)
 // eventBusConnect(worker3EventBus, parentEventBus)
 eventBusConnect(worker2EventBus, parentEventBus)
+
+workerFunctionServer({
+  eventBus: parentEventBus,
+  func: workerFunctionClient({
+    eventBus: worker2EventBus,
+    name: 'func2',
+  }),
+  name: 'func2',
+})

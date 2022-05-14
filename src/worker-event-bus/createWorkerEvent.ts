@@ -1,16 +1,13 @@
-import {WorkerEvent} from './contracts'
-import {TransferListItem} from 'worker_threads'
+import {WorkerData, WorkerEvent} from './contracts'
 
 export function createWorkerEvent<TData = any>(
-  data: TData,
+  data: WorkerData<TData>,
   error: Error,
-  transferList: ReadonlyArray<TransferListItem>,
   route: string[],
 ): WorkerEvent {
   return {
     data,
     error,
-    transferList,
     route,
   }
 }

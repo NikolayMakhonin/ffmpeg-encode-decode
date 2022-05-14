@@ -31,7 +31,7 @@ export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IW
       return unsubscribe
     },
     emit(event: WorkerEvent<TData>) {
-      messagePort.postMessage(event, event.transferList)
+      messagePort.postMessage(event, event.data.transferList)
     },
   }
 }

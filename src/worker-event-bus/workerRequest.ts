@@ -1,10 +1,9 @@
-import {IWorkerEventBus} from './contracts'
+import {IWorkerEventBus, WorkerData} from './contracts'
 import {useAbortController} from '../abort-controller/useAbortController'
 import {combineAbortSignals} from '../abort-controller/combineAbortSignals'
-import {workerSubscribe} from './workerSubscribe'
 import {workerSend} from './workerSend'
 import {getNextId} from './getNextId'
-import {TransferListItem} from 'worker_threads'
+import {workerWait} from './workerWait'
 
 export function workerRequest<
   TRequestData = any,
@@ -12,18 +11,16 @@ export function workerRequest<
 >({
   eventBus,
   data,
-  transferList,
   abortSignal,
 }: {
   eventBus: IWorkerEventBus<TRequestData, TResponseData>,
-  data: TRequestData,
-  transferList?: ReadonlyArray<TransferListItem>,
+  data: WorkerData<TRequestData>,
   abortSignal?: AbortSignal,
-}): Promise<TResponseData> {
+}): Promise<WorkerData<TResponseData>> {
   return useAbortController((signal) => {
     const requestId = getNextId()
 
-    const promise = workerSubscribe({
+    const promise = workerWait({
       eventBus,
       requestId,
       abortSignal: combineAbortSignals(abortSignal, signal),
@@ -32,7 +29,6 @@ export function workerRequest<
     workerSend({
       eventEmitter: eventBus,
       data,
-      transferList,
       requestId,
     })
 
