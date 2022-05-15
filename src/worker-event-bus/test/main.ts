@@ -13,7 +13,12 @@ export const func1 = workerFunctionClient<TestFuncArgs, Float32Array>({
   name    : 'func1',
 })
 
-let func1Port = eventBusToMessagePort(worker1EventBus)
+let func1Port = eventBusToMessagePort({
+  server: worker1EventBus,
+  requestFilter(data) {
+    return data?.data?.func === 'func1'
+  },
+})
 const workerTransit = new Worker(
   path.resolve('./dist/worker-event-bus/test/worker-transit.cjs'),
   {

@@ -1,11 +1,16 @@
-import {IUnsubscribe, IWorkerEventBus} from './contracts'
+import {IUnsubscribe, IWorkerEventBus, WorkerData} from './contracts'
 import {getNextId} from './getNextId'
 import {routePop, routePush} from './route'
 
-export function eventBusConnect<TData = any>(
-  eventBusServer: IWorkerEventBus<TData>,
-  eventBusClient: IWorkerEventBus<TData>,
-): IUnsubscribe {
+export function eventBusConnect<TRequestData = any, TResponseData = any>({
+  server,
+  client,
+  requestFilter,
+}: {
+  server: IWorkerEventBus<TRequestData, TResponseData>,
+  client: IWorkerEventBus<TResponseData, TRequestData>,
+  requestFilter: (event: WorkerData<TRequestData>) => boolean,
+}): IUnsubscribe {
   const connectionId = getNextId()
 
   let unsubscribeServer
@@ -20,20 +25,23 @@ export function eventBusConnect<TData = any>(
   }
 
   try {
-    unsubscribeServer = eventBusServer.subscribe((event) => {
+    unsubscribeServer = server.subscribe((event) => {
       try {
         if (!routePop(event.route, connectionId)) {
           return
         }
-        eventBusClient.emit(event)
+        client.emit(event)
       } catch (err) {
         console.error(err)
         return
       }
     })
-    unsubscribeClient = eventBusClient.subscribe((event) => {
+    unsubscribeClient = client.subscribe((event) => {
+      if (!requestFilter(event.data)) {
+        return
+      }
       routePush(event.route, connectionId)
-      eventBusServer.emit(event)
+      server.emit(event)
     })
   } catch (err) {
     unsubscribe()

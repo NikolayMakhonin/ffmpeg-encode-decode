@@ -3,6 +3,7 @@ import {workerFunctionServer, WorkerFunctionServerResult} from '../function/work
 import {messagePortToEventBus} from '../messagePortToEventBus'
 import {workerFunctionClient} from '../function/workerFunctionClient'
 import {TestFuncArgs} from './contracts'
+import {WorkerData} from '../contracts'
 
 const func1Port = workerData.func1Port
 const func1EventBus = messagePortToEventBus(func1Port)
@@ -12,18 +13,23 @@ const func1 = workerFunctionClient<TestFuncArgs, Float32Array>({
   name    : 'func1',
 })
 
-function func3(value: Float32Array, async: boolean, error: boolean): WorkerFunctionServerResult<Float32Array> {
-  value[2]++
-  if (async) {
+function func3(
+  data: WorkerData<TestFuncArgs>,
+): WorkerFunctionServerResult<Float32Array> {
+  data.data.value[2]++
+  if (data.data.async) {
     return (async () => {
-      value = await func1([value, async, error], [value.buffer])
-      return [value, [value.buffer]]
+      const result = await func1(data)
+      return result
     })()
   }
-  if (error) {
+  if (data.data.error) {
     throw new Error('func4')
   }
-  return [value, [value.buffer]]
+  return {
+    data        : data.data.value,
+    transferList: data.transferList,
+  }
 }
 
 workerFunctionServer({

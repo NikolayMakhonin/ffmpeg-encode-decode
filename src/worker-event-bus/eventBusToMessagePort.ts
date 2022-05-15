@@ -1,11 +1,21 @@
 import {MessagePort, MessageChannel} from 'worker_threads'
-import {IWorkerEventBus} from './contracts'
+import {IWorkerEventBus, WorkerData} from './contracts'
 import {messagePortToEventBus} from './messagePortToEventBus'
 import {eventBusConnect} from './eventBusConnect'
 
-export function eventBusToMessagePort<TData = any>(eventBusServer: IWorkerEventBus<TData>): MessagePort {
+export function eventBusToMessagePort<TRequestData = any>({
+  server,
+  requestFilter,
+}: {
+  server: IWorkerEventBus<TRequestData>,
+  requestFilter: (data: WorkerData<TRequestData>) => boolean,
+}): MessagePort {
   const channel = new MessageChannel()
-  const eventBusClient = messagePortToEventBus(channel.port1)
-  eventBusConnect(eventBusServer, eventBusClient)
+  const client = messagePortToEventBus(channel.port1)
+  eventBusConnect({
+    server,
+    client,
+    requestFilter,
+  })
   return channel.port2
 }

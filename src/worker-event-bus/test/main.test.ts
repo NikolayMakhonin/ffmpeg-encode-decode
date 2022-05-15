@@ -53,9 +53,14 @@ describe('worker-event-bus', function () {
     try {
       const value = createArray(...values)
       assert.strictEqual(value.length, values.length)
-      const result = await func([value, async, error], [value.buffer])
+      const result = await func({
+        data        : {value, async, error},
+        transferList: [value.buffer],
+      })
       assert.strictEqual(value.length, 0)
-      assert.deepStrictEqual(parseArray(result), checkResult)
+      assert.deepStrictEqual(parseArray(result.data), checkResult)
+      assert.strictEqual(result.transferList.length, 1)
+      assert.deepStrictEqual(parseArray(new Float32Array(result.transferList[0] as ArrayBuffer)), checkResult)
     } catch (err) {
       if (error) {
         if (async) {
@@ -83,7 +88,7 @@ describe('worker-event-bus', function () {
   it('simple', async function () {
     await testVariants({
       // funcName: ['func1', 'func2', 'func3'],
-      funcName: ['func1', 'func2'],
+      funcName: ['func1'], //, 'func2'],
       values  : [[1, 2, 3]],
       async   : [false, true],
       error   : [false, true],
