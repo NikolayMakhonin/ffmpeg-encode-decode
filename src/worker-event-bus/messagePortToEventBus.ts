@@ -24,6 +24,7 @@ export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IW
         messagePort.off('message', onMessage)
       }
 
+      messagePort.setMaxListeners(100000)
       messagePort.on('messageerror', onMessageError)
       messagePort.on('close', onClose)
       messagePort.on('message', onMessage)
@@ -31,7 +32,7 @@ export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IW
       return unsubscribe
     },
     emit(event: WorkerEvent<TData>) {
-      messagePort.postMessage(event, event.data.transferList)
+      messagePort.postMessage(event, event.data?.transferList)
     },
   }
 }

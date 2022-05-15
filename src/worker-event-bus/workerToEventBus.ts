@@ -31,6 +31,7 @@ export function workerToEventBus<TRequestData = any, TResponseData = any>(
         worker.off('message', onMessage)
       }
 
+      worker.setMaxListeners(100000)
       worker.on('error', onError)
       worker.on('messageerror', onMessageError)
       worker.on('exit', onExit)
@@ -39,7 +40,7 @@ export function workerToEventBus<TRequestData = any, TResponseData = any>(
       return unsubscribe
     },
     emit(event: WorkerEvent<TRequestData>) {
-      worker.postMessage(event, event.data.transferList)
+      worker.postMessage(event, event.data?.transferList)
     },
   }
 }

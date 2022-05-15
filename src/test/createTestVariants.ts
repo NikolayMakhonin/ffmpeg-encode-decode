@@ -30,7 +30,7 @@ function _createTestVariants<TArgs extends object>(
   [key in (keyof TAdditionalArgs | keyof TArgs)]: key extends keyof TArgs ? TArgs[key]
     : key extends keyof TAdditionalArgs ? TAdditionalArgs[key]
     : never
-}>) => Promise<void> | void {
+}>) => Promise<number> | number {
   return function _testVariants(args) {
     const argsKeys = Object.keys(args)
     const argsValues = Object.values(args) as any[]
@@ -96,7 +96,7 @@ function _createTestVariants<TArgs extends object>(
     }
 
     function onCompleted() {
-      console.log('variants: ' + iteration)
+      // console.log('variants: ' + iteration)
     }
 
     if (async) {
@@ -113,9 +113,11 @@ function _createTestVariants<TArgs extends object>(
           }
         }
         onCompleted()
-      })() as Promise<void>
+        return iteration
+      })() as Promise<number>
     }
 
+    // sync
     while (nextVariant()) {
       try {
         iteration++
@@ -123,10 +125,9 @@ function _createTestVariants<TArgs extends object>(
       } catch (err) {
         onError(err)
       }
-      onCompleted()
     }
-
-    return void 0
+    onCompleted()
+    return iteration
   }
 }
 

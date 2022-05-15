@@ -24,7 +24,7 @@ function func3(
     })()
   }
   if (data.data.error) {
-    throw new Error('func4')
+    throw new Error('func3')
   }
   return {
     data        : data.data.value,
