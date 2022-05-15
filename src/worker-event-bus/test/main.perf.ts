@@ -17,27 +17,96 @@ describe('worker-event-bus', function () {
   })
 
   it('func1', async function () {
-    const time0 = rdtsc()
-    await test({
-      funcName: 'func1',
-      values  : [1, 2, 3],
-      async   : false,
-      error   : false,
-      assert  : true,
-    })
-    console.log(rdtsc() - time0)
+    let timeMin
+    for (let i = 0; i < 10000; i++) {
+      const time0 = rdtsc()
+      await test({
+        funcName: 'func1',
+        values  : [1, 2, 3],
+        async   : false,
+        error   : false,
+        assert  : false,
+      })
+      const time = rdtsc() - time0
+      if (i === 0 || time < timeMin) {
+        timeMin = time
+      }
+    }
+    console.log(timeMin)
   })
 
-  it('stress', async function () {
-    const promises: (Promise<number>|number)[] = []
-    for (let i = 0; i < 1000; i++) {
-      promises.push(testVariants({
-        funcName: ['func1'],
-        values  : [[1, 2, 3]],
-        async   : [false, true],
-        error   : [false, true],
+  it('func2', async function () {
+    let timeMin
+    for (let i = 0; i < 10000; i++) {
+      const time0 = rdtsc()
+      await test({
+        funcName: 'func2',
+        values  : [1, 2, 3],
+        async   : false,
+        error   : false,
+        assert  : false,
+      })
+      const time = rdtsc() - time0
+      if (i === 0 || time < timeMin) {
+        timeMin = time
+      }
+    }
+    console.log(timeMin)
+  })
+
+  it('func2 error', async function () {
+    let timeMin
+    for (let i = 0; i < 10000; i++) {
+      const time0 = rdtsc()
+      await test({
+        funcName: 'func2',
+        values  : [1, 2, 3],
+        async   : false,
+        error   : true,
+        assert  : false,
+      })
+      const time = rdtsc() - time0
+      if (i === 0 || time < timeMin) {
+        timeMin = time
+      }
+    }
+    console.log(timeMin)
+  })
+
+  it('func2 async', async function () {
+    let timeMin
+    for (let i = 0; i < 10000; i++) {
+      const time0 = rdtsc()
+      await test({
+        funcName: 'func2',
+        values  : [1, 2, 3],
+        async   : true,
+        error   : false,
+        assert  : false,
+      })
+      const time = rdtsc() - time0
+      if (i === 0 || time < timeMin) {
+        timeMin = time
+      }
+    }
+    console.log(timeMin)
+  })
+
+  xit('stress', async function () {
+    const time0: bigint = rdtsc()
+    const promises: Promise<void>[] = []
+    const count = 1000
+    for (let i = 0; i < count; i++) {
+      promises.push(test({
+        funcName: 'func1',
+        values  : [1, 2, 3],
+        async   : false,
+        error   : false,
+        assert  : true,
       }))
     }
-    console.log('variants: ' + (await Promise.all(promises)).reduce((a, o) => a + o, 0))
+    await Promise.all(promises)
+
+    console.log((rdtsc() - time0) / BigInt(count))
   })
 })
