@@ -1,8 +1,8 @@
 import {workerFunctionClient} from '../function/workerFunctionClient'
 import {Worker} from 'worker_threads'
 import path from 'path'
-import {workerToEventBus} from '../workerToEventBus'
-import {eventBusToMessagePort} from '../eventBusToMessagePort'
+import {workerToEventBus} from '../event-bus/workerToEventBus'
+import {eventBusToMessagePort} from '../event-bus/eventBusToMessagePort'
 import {TestFuncArgs} from './contracts'
 
 const worker1 = new Worker(path.resolve('./dist/worker-event-bus/test/worker1.cjs'))

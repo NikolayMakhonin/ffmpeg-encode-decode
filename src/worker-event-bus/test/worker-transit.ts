@@ -1,9 +1,9 @@
 import {parentPort, Worker, workerData} from 'worker_threads'
-import {messagePortToEventBus} from '../messagePortToEventBus'
+import {messagePortToEventBus} from '../event-bus/messagePortToEventBus'
 import path from 'path'
-import {workerToEventBus} from '../workerToEventBus'
-import {eventBusConnect} from '../eventBusConnect'
-import {eventBusToMessagePort} from '../eventBusToMessagePort'
+import {workerToEventBus} from '../event-bus/workerToEventBus'
+import {eventBusConnect} from '../event-bus/eventBusConnect'
+import {eventBusToMessagePort} from '../event-bus/eventBusToMessagePort'
 import {FunctionRequest} from '../function/contracts'
 
 const func1Port = workerData.func1Port

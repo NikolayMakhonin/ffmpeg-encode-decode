@@ -1,7 +1,7 @@
-import {IUnsubscribe, IWorkerEventBus} from './contracts'
-import {workerFunctionServer} from './function/workerFunctionServer'
-import {workerFunctionClient} from './function/workerFunctionClient'
-import {FunctionRequest} from './function/contracts'
+import {IUnsubscribe, IWorkerEventBus} from '../common/contracts'
+import {workerFunctionServer} from './workerFunctionServer'
+import {workerFunctionClient} from './workerFunctionClient'
+import {FunctionRequest} from './contracts'
 
 export function workerFunctionConnect<TRequestData = any, TResponseData = any>(
   name: string,

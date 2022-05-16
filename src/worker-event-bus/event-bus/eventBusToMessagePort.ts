@@ -1,5 +1,5 @@
 import {MessagePort, MessageChannel} from 'worker_threads'
-import {IWorkerEventBus, WorkerData} from './contracts'
+import {IWorkerEventBus, WorkerData} from '../common/contracts'
 import {messagePortToEventBus} from './messagePortToEventBus'
 import {eventBusConnect} from './eventBusConnect'
 

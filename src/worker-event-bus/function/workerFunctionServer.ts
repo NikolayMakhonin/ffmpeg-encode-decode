@@ -1,6 +1,6 @@
 import {parentPort} from 'worker_threads'
-import {IWorkerEventBus, WorkerData} from '../contracts'
-import {createWorkerEvent} from '../createWorkerEvent'
+import {IWorkerEventBus, WorkerData} from '../common/contracts'
+import {createWorkerEvent} from '../common/createWorkerEvent'
 import {FunctionRequest} from './contracts'
 
 type PromiseOrValue<T> = Promise<T> | T

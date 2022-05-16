@@ -1,6 +1,6 @@
 import {Worker} from 'worker_threads'
-import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from './contracts'
-import {WorkerExitError} from './WorkerExitError'
+import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from '../common/contracts'
+import {ExitError} from '../errors/ExitError'
 
 export function workerToEventBus<TRequestData = any, TResponseData = any>(
   worker: Worker,
@@ -15,7 +15,7 @@ export function workerToEventBus<TRequestData = any, TResponseData = any>(
       }
       function onExit(code: number) {
         if (code) {
-          console.error(new WorkerExitError(code))
+          console.error(new ExitError(code))
         } else {
           console.warn(`Exit code: ${code}`)
         }

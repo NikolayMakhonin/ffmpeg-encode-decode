@@ -1,4 +1,4 @@
-import {WorkerData} from '../contracts'
+import {WorkerData} from '../common/contracts'
 
 export type FunctionRequest<TRequestData = any> = {
   func: string,

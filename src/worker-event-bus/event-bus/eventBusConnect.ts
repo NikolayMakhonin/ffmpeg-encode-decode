@@ -1,6 +1,6 @@
-import {IUnsubscribe, IWorkerEventBus, WorkerData} from './contracts'
-import {getNextId} from './getNextId'
-import {routePop, routePush} from './route'
+import {IUnsubscribe, IWorkerEventBus, WorkerData} from '../common/contracts'
+import {getNextId} from '../common/getNextId'
+import {routePop, routePush} from '../common/route'
 
 export function eventBusConnect<TRequestData = any, TResponseData = any>({
   server,

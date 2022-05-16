@@ -1,4 +1,4 @@
-import {IWorkerEventSubscriber, WorkerData} from './contracts'
+import {IWorkerEventSubscriber, WorkerData} from '../common/contracts'
 import {workerSubscribe} from './workerSubscribe'
 import {subscribeOnceAsPromise} from './subscribeOnceAsPromise'
 

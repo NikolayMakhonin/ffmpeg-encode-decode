@@ -1,7 +1,7 @@
 import {parentPort} from 'worker_threads'
 import {workerFunctionServer, WorkerFunctionServerResult} from '../function/workerFunctionServer'
-import {messagePortToEventBus} from '../messagePortToEventBus'
-import {WorkerData} from '../contracts'
+import {messagePortToEventBus} from '../event-bus/messagePortToEventBus'
+import {WorkerData} from '../common/contracts'
 import {TestFuncArgs} from './contracts'
 
 function func1(

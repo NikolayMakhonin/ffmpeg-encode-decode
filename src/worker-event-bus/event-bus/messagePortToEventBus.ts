@@ -1,6 +1,6 @@
 import {MessagePort} from 'worker_threads'
-import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from './contracts'
-import {CloseError} from './CloseError'
+import {IUnsubscribe, IWorkerEventBus, WorkerEvent} from '../common/contracts'
+import {CloseError} from '../errors/CloseError'
 
 export function messagePortToEventBus<TData = any>(messagePort: MessagePort): IWorkerEventBus<TData> {
   return {

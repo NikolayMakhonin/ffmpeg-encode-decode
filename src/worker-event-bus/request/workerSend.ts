@@ -1,5 +1,5 @@
-import {IWorkerEventEmitter, WorkerData} from './contracts'
-import {createWorkerEvent} from './createWorkerEvent'
+import {IWorkerEventEmitter, WorkerData} from '../common/contracts'
+import {createWorkerEvent} from '../common/createWorkerEvent'
 
 export function workerSend<TRequestData = any>({
   eventEmitter,

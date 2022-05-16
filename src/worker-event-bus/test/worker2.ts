@@ -1,9 +1,9 @@
 import {parentPort, workerData} from 'worker_threads'
 import {workerFunctionServer, WorkerFunctionServerResult} from '../function/workerFunctionServer'
-import {messagePortToEventBus} from '../messagePortToEventBus'
+import {messagePortToEventBus} from '../event-bus/messagePortToEventBus'
 import {workerFunctionClient} from '../function/workerFunctionClient'
 import {TestFuncArgs} from './contracts'
-import {WorkerData} from '../contracts'
+import {WorkerData} from '../common/contracts'
 
 const func1Port = workerData.func1Port
 const func1EventBus = messagePortToEventBus(func1Port)

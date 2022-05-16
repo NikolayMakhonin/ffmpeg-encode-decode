@@ -1,5 +1,5 @@
-import {IUnsubscribe, IWorkerEventSubscriber, WorkerData} from './contracts'
-import {routePop} from './route'
+import {IUnsubscribe, IWorkerEventSubscriber, WorkerData} from '../common/contracts'
+import {routePop} from '../common/route'
 
 export function workerSubscribe<TResponseData = any>({
   eventBus,

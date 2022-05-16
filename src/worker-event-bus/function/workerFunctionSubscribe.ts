@@ -1,8 +1,8 @@
-import {IWorkerEventBus, WorkerData} from '../common/contracts'
-import {workerRequest} from '../request/workerRequest'
+import {IUnsubscribeAsync, IWorkerEventBus, WorkerData} from '../common/contracts'
 import {FunctionRequest} from './contracts'
+import {workerRequestSubscribe} from '../request/workerRequestSubscribe'
 
-export function workerFunctionClient<TRequestData = any, TResponseData = any>({
+export function workerFunctionSubscribe<TRequestData = any, TResponseData = any>({
   eventBus,
   name,
 }: {
@@ -11,9 +11,10 @@ export function workerFunctionClient<TRequestData = any, TResponseData = any>({
 }) {
   function func(
     data: WorkerData<TRequestData>,
+    callback: (data: WorkerData<TResponseData>, error?: Error) => void,
     abortSignal?: AbortSignal,
-  ) {
-    return workerRequest({
+  ): Promise<IUnsubscribeAsync> {
+    return workerRequestSubscribe({
       eventBus,
       data: {
         data: {
@@ -22,6 +23,7 @@ export function workerFunctionClient<TRequestData = any, TResponseData = any>({
         },
         transferList: data.transferList,
       },
+      callback,
       abortSignal,
     })
   }

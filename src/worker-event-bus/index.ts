@@ -4,15 +4,15 @@ export {
   IWorkerEventEmitter,
   IWorkerEventSubscriber,
   IWorkerEventBus,
-} from './contracts'
+} from './common/contracts'
 
-export {WorkerExitError} from './WorkerExitError'
-export {workerToEventBus} from './workerToEventBus'
-export {messagePortToEventBus} from './messagePortToEventBus'
+export {ExitError} from './errors/ExitError'
+export {workerToEventBus} from './event-bus/workerToEventBus'
+export {messagePortToEventBus} from './event-bus/messagePortToEventBus'
 
-export {eventBusConnect} from './eventBusConnect'
-export {eventBusToMessagePort} from './eventBusToMessagePort'
+export {eventBusConnect} from './event-bus/eventBusConnect'
+export {eventBusToMessagePort} from './event-bus/eventBusToMessagePort'
 
-export {workerSend} from './workerSend'
-export {workerSubscribe} from './workerSubscribe'
-export {workerRequest} from './workerRequest'
+export {workerSend} from './request/workerSend'
+export {workerSubscribe} from './request/workerSubscribe'
+export {workerRequest} from './request/workerRequest'

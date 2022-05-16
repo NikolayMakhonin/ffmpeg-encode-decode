@@ -1,6 +1,9 @@
 import {TransferListItem} from 'worker_threads'
 
 export type IUnsubscribe = () => void
+
+export type IUnsubscribeAsync = (abortSignal?: AbortSignal) => Promise<void>
+
 export interface IEventEmitter<TEmitEvent> {
   emit(event: TEmitEvent)
 }

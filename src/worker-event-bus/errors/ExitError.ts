@@ -1,4 +1,4 @@
-export class WorkerExitError extends Error {
+export class ExitError extends Error {
   code: number
 
   constructor(code: number) {

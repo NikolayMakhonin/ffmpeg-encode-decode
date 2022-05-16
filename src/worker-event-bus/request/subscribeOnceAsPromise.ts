@@ -1,5 +1,5 @@
-import {IUnsubscribe} from './contracts'
-import {AbortError} from '../abort-controller/AbortError'
+import {IUnsubscribe} from '../common/contracts'
+import {AbortError} from '../../abort-controller/AbortError'
 
 export function subscribeOnceAsPromise<TData = any, TError = Error>({
   subscribe,
