@@ -1,4 +1,3 @@
-import {parentPort, TransferListItem} from 'worker_threads'
 import {
   IUnsubscribeAsync,
   IWorkerEventBus, WorkerData,
@@ -54,11 +53,9 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
       switch (event.data.data.type) {
         case 'call': {
           const abortController = new AbortController()
-          const abort = function abort(reason: any) {
-            abortMap.delete(requestId)
+          abortMap.set(requestId, function abort(reason: any) {
             abortController.abort(reason)
-          }
-          abortMap.set(requestId, abort)
+          })
 
           const result = await func(
             {
@@ -71,16 +68,13 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
             },
           )
 
+          abortMap.delete(requestId)
+
           if (typeof result !== 'function') {
-            abortMap.delete(requestId)
             emit(result, void 0)
           } else {
-            const unsubscribe = function unsubscribe(abortSignal: AbortSignal) {
-              unsubscribeMap.delete(requestId)
-              return result(abortSignal)
-            }
+            const unsubscribe = result
             unsubscribeMap.set(requestId, unsubscribe)
-
             emit(void 0)
           }
 
@@ -89,14 +83,7 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
         case 'abort': {
           const abort = abortMap.get(requestId)
           if (abort) {
-            abort(event.data.data.data)
-          }
-          emit({})
-          break
-        }
-        case 'abortUnsubscribe': {
-          const abort = abortUnsubscribeMap.get(requestId)
-          if (abort) {
+            abortMap.delete(requestId)
             abort(event.data.data.data)
           }
           emit({})
@@ -104,15 +91,23 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
         }
         case 'unsubscribe': {
           const unsubscribeAbortController = new AbortController()
-          const abortUnsubscribe = function abortUnsubscribe(reason: any) {
-            abortUnsubscribeMap.delete(requestId)
+          abortUnsubscribeMap.set(requestId, function abortUnsubscribe(reason: any) {
             unsubscribeAbortController.abort(reason)
-          }
-          abortUnsubscribeMap.set(requestId, abortUnsubscribe)
+          })
 
           const unsubscribe = unsubscribeMap.get(requestId)
           if (unsubscribe) {
+            unsubscribeMap.delete(requestId)
             await unsubscribe(unsubscribeAbortController.signal)
+          }
+          emit({})
+          break
+        }
+        case 'abortUnsubscribe': {
+          const abortUnsubscribe = abortUnsubscribeMap.get(requestId)
+          if (abortUnsubscribe) {
+            abortUnsubscribeMap.delete(requestId)
+            abortUnsubscribe(event.data.data.data)
           }
           emit({})
           break
