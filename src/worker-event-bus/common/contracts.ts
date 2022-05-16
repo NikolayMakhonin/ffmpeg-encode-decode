@@ -4,7 +4,7 @@ export type PromiseOrValue<T> = Promise<T> | T
 
 export type IUnsubscribe = () => void
 
-export type IUnsubscribeAsync = (abortSignal?: AbortSignal) => PromiseOrValue<void>
+export type IUnsubscribeAsync = (abortSignal: AbortSignal) => PromiseOrValue<void>
 
 export type Callback<TData = any, TError = Error> = (data: TData, error?: TError) => void
 
@@ -41,3 +41,17 @@ export interface IWorkerEventBus<TRequestData = any, TResponseData = any>
   extends IWorkerEventEmitter<TRequestData>, IWorkerEventSubscriber<TResponseData>
 { }
 
+type WorkerFuncPromise<TRequestData = any, TResponseData = any> = (
+  data: WorkerData<TRequestData>,
+  abortSignal?: AbortSignal,
+) => PromiseOrValue<WorkerData<TResponseData>>
+
+type WorkerFuncSubscribe<TRequestData = any, TResponseData = any> = (
+  data: WorkerData<TRequestData>,
+  abortSignal: AbortSignal,
+  callback: WorkerCallback<TResponseData>,
+) => PromiseOrValue<IUnsubscribeAsync>
+
+export type WorkerFunc<TRequestData = any, TResponseData = any>
+  = WorkerFuncPromise<TRequestData, TResponseData>
+  | WorkerFuncSubscribe<TRequestData, TResponseData>

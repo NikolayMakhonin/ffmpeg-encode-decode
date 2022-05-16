@@ -1,15 +1,17 @@
-import {parentPort} from 'worker_threads'
-import {IUnsubscribeAsync, IWorkerEventBus, PromiseOrValue, WorkerCallback, WorkerData} from '../common/contracts'
+import {parentPort, TransferListItem} from 'worker_threads'
+import {
+  IUnsubscribeAsync,
+  IWorkerEventBus, WorkerData,
+  WorkerFunc,
+} from '../common/contracts'
 import {createWorkerEvent} from '../common/createWorkerEvent'
 import {FunctionRequest} from './contracts'
+import {AbortController} from '../../abort-controller/AbortController'
 
-export type WorkerFunctionServerSubscribe<TRequestData = any, TResponseData = any>
-  = (
-    data: WorkerData<TRequestData>,
-    callback: WorkerCallback<TResponseData>,
-  ) => PromiseOrValue<IUnsubscribeAsync>
-
-const unsubscribes = new Map<string, IUnsubscribeAsync>()
+type AbortFunc = (reason: any) => void
+const abortMap = new Map<string, AbortFunc>()
+const unsubscribeMap = new Map<string, IUnsubscribeAsync>()
+const abortUnsubscribeMap = new Map<string, AbortFunc>()
 
 export function workerFunctionServer<TRequestData = any, TResponseData = any>({
   eventBus,
@@ -17,7 +19,7 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
   name,
 }: {
   eventBus: IWorkerEventBus<TResponseData, FunctionRequest<TRequestData>>,
-  func: WorkerFunctionServerSubscribe<TRequestData, TResponseData>,
+  func: WorkerFunc<TRequestData, TResponseData>,
   name?: string,
 }) {
   return eventBus.subscribe(async (event) => {
@@ -31,62 +33,98 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
       name = func.name
     }
 
-    try {
-      if (event.data.data.func !== name) {
-        return
-      }
-      if (!func) {
-        eventBus.emit(createWorkerEvent(
-          void 0,
-          new Error('Unknown func: ' + event.data.data.func),
-          event.route,
-        ))
-      }
-
-      let unsubscribe = unsubscribes.get(event.route[0])
-
-      if (unsubscribe) {
-        await unsubscribe()
-
-        parentPort.postMessage(createWorkerEvent<FunctionRequest<void>>(
-          {},
-          void 0,
-          event.route,
-        ))
-
-        return
-      }
-
-      unsubscribe = await func({
-        data        : event.data.data.data,
-        transferList: event.data.transferList,
-      }, (data, error) => {
-        parentPort.postMessage(createWorkerEvent(
-          data,
-          error,
-          event.route,
-        ), data.transferList)
-      })
-
-      if (!unsubscribe) {
-        eventBus.emit(createWorkerEvent(void 0, Error('unsubscribe == null'), event.route))
-        return
-      }
-
-      parentPort.postMessage(createWorkerEvent<FunctionRequest<void>>(
-        {
-          data: {
-            func: name,
-            data: void 0,
-          },
-        },
-        void 0,
+    function emit(data: WorkerData<any>, error?: Error) {
+      eventBus.emit(createWorkerEvent(
+        data,
+        error,
         event.route,
       ))
+    }
 
-      unsubscribes.set(event.route[0], unsubscribe)
+    if (event.data.data.func !== name) {
+      return
+    }
+    if (!func) {
+      emit(void 0, new Error('Unknown func: ' + event.data.data.func))
+    }
+
+    const requestId = event.route[0]
+
+    try {
+      switch (event.data.data.type) {
+        case 'call': {
+          const abortController = new AbortController()
+          const abort = function abort(reason: any) {
+            abortMap.delete(requestId)
+            abortController.abort(reason)
+          }
+          abortMap.set(requestId, abort)
+
+          const result = await func(
+            {
+              data        : event.data.data.data,
+              transferList: event.data.transferList,
+            },
+            abortController.signal,
+            (data, error) => {
+              emit(data, error)
+            },
+          )
+
+          if (typeof result !== 'function') {
+            abortMap.delete(requestId)
+            emit(result, void 0)
+          } else {
+            const unsubscribe = function unsubscribe(abortSignal: AbortSignal) {
+              unsubscribeMap.delete(requestId)
+              return result(abortSignal)
+            }
+            unsubscribeMap.set(requestId, unsubscribe)
+
+            emit(void 0)
+          }
+
+          break
+        }
+        case 'abort': {
+          const abort = abortMap.get(requestId)
+          if (abort) {
+            abort(event.data.data.data)
+          }
+          emit({})
+          break
+        }
+        case 'abortUnsubscribe': {
+          const abort = abortUnsubscribeMap.get(requestId)
+          if (abort) {
+            abort(event.data.data.data)
+          }
+          emit({})
+          break
+        }
+        case 'unsubscribe': {
+          const unsubscribeAbortController = new AbortController()
+          const abortUnsubscribe = function abortUnsubscribe(reason: any) {
+            abortUnsubscribeMap.delete(requestId)
+            unsubscribeAbortController.abort(reason)
+          }
+          abortUnsubscribeMap.set(requestId, abortUnsubscribe)
+
+          const unsubscribe = unsubscribeMap.get(requestId)
+          if (unsubscribe) {
+            await unsubscribe(unsubscribeAbortController.signal)
+          }
+          emit({})
+          break
+        }
+        default:
+          emit(void 0, new Error('Unknown FunctionRequestType: ' + event.data.data.type))
+      }
     } catch (error) {
-      eventBus.emit(createWorkerEvent(void 0, error, event.route))
+      abortMap.delete(requestId)
+      unsubscribeMap.delete(requestId)
+      abortUnsubscribeMap.delete(requestId)
+      emit(void 0, error)
     }
   })
 }
