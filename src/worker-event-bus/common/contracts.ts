@@ -1,8 +1,12 @@
 import {TransferListItem} from 'worker_threads'
 
+export type PromiseOrValue<T> = Promise<T> | T
+
 export type IUnsubscribe = () => void
 
-export type IUnsubscribeAsync = (abortSignal?: AbortSignal) => Promise<void>
+export type IUnsubscribeAsync = (abortSignal?: AbortSignal) => PromiseOrValue<void>
+
+export type Callback<TData = any, TError = Error> = (data: TData, error?: TError) => void
 
 export interface IEventEmitter<TEmitEvent> {
   emit(event: TEmitEvent)
@@ -18,6 +22,8 @@ export type WorkerData<TData = any> = {
   data?: TData
   transferList?: ReadonlyArray<TransferListItem>
 }
+
+export type WorkerCallback<TData = any> = Callback<WorkerData<TData>>
 
 export type WorkerEvent<TData = any> = {
   data?: WorkerData<TData>

@@ -1,4 +1,4 @@
-import {IUnsubscribe, IWorkerEventSubscriber, WorkerData} from '../common/contracts'
+import {IUnsubscribe, IWorkerEventSubscriber, WorkerCallback, WorkerData} from '../common/contracts'
 import {routePop} from '../common/route'
 
 export function workerSubscribe<TResponseData = any>({
@@ -8,7 +8,7 @@ export function workerSubscribe<TResponseData = any>({
 }: {
   eventBus: IWorkerEventSubscriber<TResponseData>,
   requestId: string,
-  callback: (data: WorkerData<TResponseData>, error?: Error) => void,
+  callback: WorkerCallback<TResponseData>,
 }): IUnsubscribe {
   let unsubscribeEventBus: IUnsubscribe
 

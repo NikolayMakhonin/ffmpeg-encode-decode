@@ -1,11 +1,11 @@
-import {IUnsubscribe} from '../common/contracts'
+import {Callback, IUnsubscribe} from '../common/contracts'
 import {AbortError} from '../../abort-controller/AbortError'
 
 export function subscribeOnceAsPromise<TData = any, TError = Error>({
   subscribe,
   abortSignal,
 }: {
-  subscribe: (callback: (data: TData, error: TError) => void) => IUnsubscribe,
+  subscribe: (callback: Callback<TData, TError>) => IUnsubscribe,
   abortSignal?: AbortSignal,
 }): Promise<TData> {
   return new Promise<TData>((_resolve, _reject) => {

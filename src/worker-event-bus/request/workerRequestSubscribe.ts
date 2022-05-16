@@ -1,4 +1,4 @@
-import {IUnsubscribeAsync, IWorkerEventBus, WorkerData} from '../common/contracts'
+import {IUnsubscribeAsync, IWorkerEventBus, WorkerCallback, WorkerData} from '../common/contracts'
 import {getNextId} from '../common/getNextId'
 import {workerSubscribe} from './workerSubscribe'
 import {workerRequest} from './workerRequest'
@@ -15,7 +15,7 @@ export async function workerRequestSubscribe<
   eventBus: IWorkerEventBus<TSubscribeData, TCallbackData>,
   data: WorkerData<TSubscribeData>,
   abortSignal?: AbortSignal,
-  callback: (data: WorkerData<TCallbackData>, error?: Error) => void,
+  callback: WorkerCallback<TCallbackData>,
 }): Promise<IUnsubscribeAsync> {
   const requestId = getNextId()
 
