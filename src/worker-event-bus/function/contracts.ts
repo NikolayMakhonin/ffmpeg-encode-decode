@@ -1,22 +1,24 @@
 import {WorkerData} from '../common/contracts'
 
-export type FunctionRequestType = 'call' | 'abort' | 'unsubscribe'
-
 export type FunctionRequest<TRequestData = any> = {
   func: string,
+  data: TRequestData,
+}
+
+export type WorkerFunctionClient<TRequestData = any, TResponseData = any>
+  = (data: WorkerData<TRequestData>) => Promise<WorkerData<TResponseData>>
+
+
+export type SubscribeAction = 'call' | 'abort' | 'unsubscribe'
+
+export type SubscribeRequest<TRequestData = any> = {
+  requestId: string,
 } & ({
   data: TRequestData,
   type: 'call',
 } | {
-  data: any,
-  type: 'abort',
-} | {
-  data: any,
-  type: 'abortUnsubscribe',
-} | {
   data: void,
-  type: 'unsubscribe',
+  type: 'abort' | 'abortUnsubscribe' | 'unsubscribe',
 })
 
-export type WorkerFunctionClient<TRequestData = any, TResponseData = any>
-  = (data: WorkerData<TRequestData>) => Promise<WorkerData<TResponseData>>
+export type AbortFunc = (reason: any) => void
