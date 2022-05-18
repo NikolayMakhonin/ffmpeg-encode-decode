@@ -5,10 +5,6 @@ export type FunctionRequest<TRequestData = any> = {
   data: TRequestData,
 }
 
-export type WorkerFunctionClient<TRequestData = any, TResponseData = any>
-  = (data: WorkerData<TRequestData>) => Promise<WorkerData<TResponseData>>
-
-
 export type SubscribeAction = 'call' | 'abort' | 'unsubscribe'
 
 export type SubscribeRequest<TRequestData = any> = {

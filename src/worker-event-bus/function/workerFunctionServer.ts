@@ -1,61 +1,15 @@
-import {Callback, IUnsubscribeAsync, IWorkerEventBus, WorkerData, WorkerFunc} from '../common/contracts'
+import {IUnsubscribe, IWorkerEventBus} from '../common/contracts'
 import {createWorkerEvent} from '../common/createWorkerEvent'
-import {AbortFunc, FunctionRequest, SubscribeRequest} from './contracts'
 import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
 import {TransferListItem} from 'worker_threads'
+import {getNextId} from '../common/getNextId'
+import {useAbortController} from '../../abort-controller/useAbortController'
+import {workerSend} from '../request/workerSend'
+import {workerSubscribe} from '../request/workerSubscribe'
+import {AbortError} from '../../abort-controller/AbortError'
+import {combineAbortSignals} from '../../abort-controller/combineAbortSignals'
 
 export type PromiseOrValue<T> = Promise<T> | T
-
-export type WorkerFunctionServer<TRequest = any, TResult = any, TError = any>
-  = (data: WorkerData<TRequest>, callback: Callback<WorkerData<any>, TError>)
-  => PromiseOrValue<WorkerData<TResult>>
-
-function _workerFunctionServer<TRequest = any, TResult = any>({
-  eventBus,
-  func,
-  name,
-}: {
-  eventBus: IWorkerEventBus<TResult, FunctionRequest<TRequest>>,
-  func: WorkerFunctionServer<TRequest, TResult>,
-  name?: string,
-}) {
-  return eventBus.subscribe(async (event) => {
-    function emit(data: WorkerData<any>, error?: Error) {
-      eventBus.emit(createWorkerEvent(
-        error ? data : data || {},
-        error,
-        event.route,
-      ))
-    }
-
-    if (event.error) {
-      console.error(event.error)
-      emit(void 0, event.error)
-      return
-    }
-
-    if (!name) {
-      name = func.name
-    }
-
-    if (event.data.data.func !== name) {
-      return
-    }
-    if (!func) {
-      emit(void 0, new Error('Unknown func: ' + event.data.data.func))
-    }
-
-    try {
-      const data = await func({
-        data        : event.data.data.data,
-        transferList: event.data.transferList,
-      }, emit)
-      emit(data)
-    } catch (error) {
-      emit(void 0, error)
-    }
-  })
-}
 
 export type TaskFunc<TRequest, TResult, TCallbackData> = (
   request: TRequest,
@@ -69,102 +23,288 @@ export type WorkerData<TData = any> = {
 }
 
 export type WorkerTaskFunc<TRequest, TResult, TCallbackData>
-  = TaskFunc<WorkerData<TRequest>, WorkerData<TCallbackData>, WorkerData<TResult>>
+  = TaskFunc<WorkerData<TRequest>, WorkerData<TResult>, WorkerData<TCallbackData>>
 
-export type WorkerTaskFuncResult<TResult> = PromiseOrValue<WorkerData<TResult>>
+export type WorkerFunctionServerResult<TResult> = PromiseOrValue<WorkerData<TResult>>
+
+export type TaskFunctionRequest<TRequest = any> = {
+  task: string,
+} & ({
+  action: 'start',
+  request: TRequest,
+} | {
+  action: 'abort',
+  reason: any,
+})
+
+export type TaskFunctionResponse<TResult = any, TCallbackData = any> = {
+  event: 'started',
+} | {
+  event: 'callback',
+  data: TCallbackData,
+} | {
+  event: 'completed',
+  result: TResult,
+} | {
+  event: 'error',
+  error: any,
+}
+
+export type AbortFunc = (reason: any) => void
 
 export function workerFunctionServer<TRequest = any, TResult = any, TCallbackData = any>({
   eventBus,
-  func,
+  task,
   name,
 }: {
-  eventBus: IWorkerEventBus<TResult, FunctionRequest<SubscribeRequest<TRequest>>>,
-  func: WorkerTaskFunc<TRequest, TCallbackData, TResult>,
+  eventBus: IWorkerEventBus<
+    TaskFunctionResponse<TResult, TCallbackData>,
+    TaskFunctionRequest<TRequest>
+  >,
+  task: WorkerTaskFunc<TRequest, TResult, TCallbackData>,
   name?: string,
 }) {
   const abortMap = new Map<string, AbortFunc>()
 
-  _workerFunctionServer<SubscribeRequest<TRequest>, TResult>({
-    eventBus,
-    async func(data, callback) {
-      switch (data.data.type) {
-        case 'call': {
-          let promiseOrValue: PromiseOrValue<WorkerData<TResult>>
+  return eventBus.subscribe(async (event) => {
+    function emitValue(data: WorkerData<TaskFunctionResponse<TResult, TCallbackData>>) {
+      eventBus.emit(createWorkerEvent(
+        data || {},
+        void 0,
+        event.route,
+      ))
+    }
+
+    function emitError(error?: Error) {
+      eventBus.emit(createWorkerEvent(
+        void 0,
+        error,
+        event.route,
+      ))
+    }
+
+    if (event.error) {
+      console.error(event.error)
+      emitError(event.error)
+      return
+    }
+
+    if (!name) {
+      name = task.name
+    }
+
+    if (event.data.data.task !== name) {
+      return
+    }
+
+    try {
+      const requestId = event.route[0]
+
+      switch (event.data.data.action) {
+        case 'start': {
+          let promiseOrResult: PromiseOrValue<WorkerData<TResult>>
           try {
             const abortController = new AbortController()
-            abortMap.set(data.data.requestId, function abort(reason: any) {
+            abortMap.set(requestId, function abort(reason: any) {
               abortController.abort(reason)
             })
 
-            promiseOrValue = func(
+            promiseOrResult = task(
               {
-                data        : data.data.data,
-                transferList: data.transferList,
+                data        : event.data.data.request,
+                transferList: event.data.transferList,
               },
               abortController.signal,
-              (_data) => {
-                callback(_data)
+              function callback(data) {
+                emitValue({
+                  data: {
+                    event: 'callback',
+                    data : data?.data,
+                  },
+                  transferList: data?.transferList,
+                })
               },
             )
+
+            let result: WorkerData<TResult>
+            if (promiseOrResult && typeof (promiseOrResult as Promise<any>).then === 'function') {
+              emitValue({
+                data: {
+                  event: 'started',
+                },
+              })
+
+              result = await promiseOrResult
+            } else {
+              result = promiseOrResult as WorkerData<TResult>
+            }
+
+            emitValue({
+              data: {
+                event : 'completed',
+                result: result?.data,
+              },
+              transferList: result?.transferList,
+            })
+          } catch (error) {
+            emitValue({
+              data: {
+                event: 'error',
+                error,
+              },
+            })
           } finally {
-            abortMap.delete(data.data.requestId)
+            abortMap.delete(requestId)
           }
-
-          if (promiseOrValue && typeof (promiseOrValue as Promise<any>).then === 'function') {
-            callback({
-              data: {
-                requestId,
-                type: 'started',
-              },
-            })
-
-            ;(async () => {
-              try {
-                const result = await promiseOrValue
-                callback({
-                  data: {
-                    requestId,
-                    type: 'completed',
-                    result,
-                  },
-                })
-              } catch (err) {
-                callback(void 0, err)
-              }
-            })()
-          } else {
-            callback({
-              data: {
-                requestId,
-                type  : 'completed',
-                result: promiseOrValue,
-              },
-            })
-          }
-
-          if (typeof result !== 'function') {
-            return result
-          }
-
-          const unsubscribe = result
-          unsubscribeMap.set(data.data.requestId, unsubscribe)
-
           break
         }
         case 'abort': {
-          const abort = abortMap.get(data.data.requestId)
+          const abort = abortMap.get(requestId)
           if (abort) {
-            abortMap.delete(data.data.requestId)
-            abort(data.data.data)
+            abortMap.delete(requestId)
+            abort(event.data.data.reason)
           }
           break
         }
         default:
-          throw new Error('Unknown FunctionRequestType: ' + (data.data as any).type)
+          emitError(new Error('Unknown action: ' + (event.data.data as any).action))
+          break
+      }
+    } catch (error) {
+      console.error(error)
+      emitError(error)
+    }
+  })
+}
+
+export type WorkerFunctionClient<TRequest = any, TResult = any, TCallbackData = any>
+  = (
+  request: WorkerData<TRequest>,
+  abortSignal?: AbortSignal,
+  callback?: (data: WorkerData<TCallbackData>) => void,
+) => Promise<WorkerData<TResult>>
+
+export function workerFunctionClient<TRequest = any, TResult = any, TCallbackData = any>({
+  eventBus,
+  name,
+}: {
+  eventBus: IWorkerEventBus<
+    TaskFunctionRequest<TRequest>,
+    TaskFunctionResponse<TResult, TCallbackData>
+  >,
+  name: string,
+}) {
+  function task(
+    request: WorkerData<TRequest>,
+    abortSignal?: AbortSignal,
+    callback?: (data: WorkerData<TCallbackData>) => void,
+  ): Promise<WorkerData<TResult>> {
+    const abortController = new AbortController()
+    return new Promise<WorkerData<TResult>>((_resolve, _reject) => {
+      if (abortSignal?.aborted) {
+        reject(new AbortError())
+        return
+      }
+      const signal = combineAbortSignals(abortController.signal, abortSignal)
+
+      const requestId = getNextId()
+
+      let unsubscribeEventBus: IUnsubscribe
+
+      function unsubscribe() {
+        signal?.removeEventListener('abort', abort)
+        if (unsubscribeEventBus) {
+          unsubscribeEventBus()
+        }
       }
 
-      return null
-    },
-    name,
-  })
+      function resolve(data: WorkerData<TResult>) {
+        unsubscribe()
+        _resolve(data)
+      }
+
+      function reject(err: Error) {
+        unsubscribe()
+        _reject(err)
+      }
+
+      function abort(this: AbortSignal) {
+        try {
+          signal?.removeEventListener('abort', abort)
+          abortController.abort()
+
+          workerSend<TaskFunctionRequest<TRequest>>({
+            eventEmitter: eventBus,
+            data        : {
+              data: {
+                task  : name,
+                action: 'abort',
+                reason: (this as any).reason,
+              },
+              transferList: request?.transferList,
+            },
+            requestId,
+          })
+        } catch (err) {
+          reject(err)
+        }
+      }
+
+      signal?.addEventListener('abort', abort)
+
+      try {
+        unsubscribeEventBus = workerSubscribe({
+          eventBus,
+          requestId,
+          callback(data, error) {
+            if (error) {
+              reject(error)
+              return
+            }
+            switch (data.data.event) {
+              case 'started':
+                console.log('started: ' + name)
+                break
+              case 'error':
+                reject(error)
+                break
+              case 'callback':
+                callback({
+                  data        : data.data.data,
+                  transferList: data.transferList,
+                })
+                break
+              case 'completed':
+                resolve({
+                  data        : data.data.result,
+                  transferList: data.transferList,
+                })
+                break
+              default:
+                throw new Error('Unknown event: ' + (data.data as any).event)
+            }
+          },
+        })
+
+        workerSend<TaskFunctionRequest<TRequest>>({
+          eventEmitter: eventBus,
+          data        : {
+            data: {
+              task   : name,
+              action : 'start',
+              request: request?.data,
+            },
+            transferList: request?.transferList,
+          },
+          requestId,
+        })
+      } catch (err) {
+        abortController.abort(err)
+        unsubscribe()
+        throw err
+      }
+    })
+  }
+  Object.defineProperty(task, 'name', {value: name, writable: false})
+  return task
 }

@@ -1,4 +1,4 @@
-import {workerFunctionClient} from '../function/workerFunctionClient'
+import {workerFunctionClient} from '../function/workerFunctionServer'
 import {Worker} from 'worker_threads'
 import path from 'path'
 import {workerToEventBus} from '../event-bus/workerToEventBus'

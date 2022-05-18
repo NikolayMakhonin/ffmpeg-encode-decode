@@ -18,18 +18,17 @@ describe('worker-event-bus', function () {
   it('simple', async function () {
     console.log('variants: ' + await testVariants({
       funcName: ['func1', 'func2', 'func3'],
-      values  : [[1, 2, 3]],
       async   : [false, true],
       error   : [false, true],
+      abort   : [false, 'error'], // 'stop'
     }))
   })
 
-  it('stress', async function () {
+  xit('stress', async function () {
     const promises: (Promise<number>|number)[] = []
     for (let i = 0; i < 1000; i++) {
       promises.push(testVariants({
         funcName: ['func1', 'func2', 'func3'],
-        values  : [[1, 2, 3]],
         async   : [false, true],
         error   : [false, true],
       }))
