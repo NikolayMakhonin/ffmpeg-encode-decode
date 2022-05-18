@@ -1,28 +1,26 @@
 import {Callback, IUnsubscribeAsync, IWorkerEventBus, WorkerData, WorkerFunc} from '../common/contracts'
 import {createWorkerEvent} from '../common/createWorkerEvent'
 import {AbortFunc, FunctionRequest, SubscribeRequest} from './contracts'
-import {AbortController} from '../../abort-controller/AbortController'
+import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
+import {TransferListItem} from 'worker_threads'
 
-type PromiseOrValue<T> = Promise<T> | T
-// interface IPromiseOrValue<T> extends Promise<PromiseOrValue<T>> { }
+export type PromiseOrValue<T> = Promise<T> | T
 
-export type WorkerFunctionServerResult<TData> = PromiseOrValue<WorkerData<TData>>
+export type WorkerFunctionServer<TRequest = any, TResult = any, TError = any>
+  = (data: WorkerData<TRequest>, callback: Callback<WorkerData<any>, TError>)
+  => PromiseOrValue<WorkerData<TResult>>
 
-export type WorkerFunctionServer<TRequestData = any, TResponseData = any>
-  = (data: WorkerData<TRequestData>, callback: Callback<WorkerData<TResponseData>, Error>)
-    => WorkerFunctionServerResult<TResponseData>
-
-function _workerFunctionServer<TRequestData = any, TResponseData = any>({
+function _workerFunctionServer<TRequest = any, TResult = any>({
   eventBus,
   func,
   name,
 }: {
-  eventBus: IWorkerEventBus<TResponseData, FunctionRequest<TRequestData>>,
-  func: WorkerFunctionServer<TRequestData, TResponseData>,
+  eventBus: IWorkerEventBus<TResult, FunctionRequest<TRequest>>,
+  func: WorkerFunctionServer<TRequest, TResult>,
   name?: string,
 }) {
   return eventBus.subscribe(async (event) => {
-    function emit(data: WorkerData<TResponseData>, error?: Error) {
+    function emit(data: WorkerData<any>, error?: Error) {
       eventBus.emit(createWorkerEvent(
         error ? data : data || {},
         error,
@@ -59,39 +57,90 @@ function _workerFunctionServer<TRequestData = any, TResponseData = any>({
   })
 }
 
-export function workerFunctionServer<TRequestData = any, TResponseData = any>({
+export type TaskFunc<TRequest, TResult, TCallbackData> = (
+  request: TRequest,
+  abortSignal: AbortSignal,
+  callback: (data: TCallbackData) => void,
+) => PromiseOrValue<TResult>
+
+export type WorkerData<TData = any> = {
+  data?: TData
+  transferList?: ReadonlyArray<TransferListItem>
+}
+
+export type WorkerTaskFunc<TRequest, TResult, TCallbackData>
+  = TaskFunc<WorkerData<TRequest>, WorkerData<TCallbackData>, WorkerData<TResult>>
+
+export type WorkerTaskFuncResult<TResult> = PromiseOrValue<WorkerData<TResult>>
+
+export function workerFunctionServer<TRequest = any, TResult = any, TCallbackData = any>({
   eventBus,
   func,
   name,
 }: {
-  eventBus: IWorkerEventBus<TResponseData, FunctionRequest<SubscribeRequest<TRequestData>>>,
-  func: WorkerFunc<TRequestData, TResponseData>,
+  eventBus: IWorkerEventBus<TResult, FunctionRequest<SubscribeRequest<TRequest>>>,
+  func: WorkerTaskFunc<TRequest, TCallbackData, TResult>,
   name?: string,
 }) {
   const abortMap = new Map<string, AbortFunc>()
-  const unsubscribeMap = new Map<string, IUnsubscribeAsync>()
-  const abortUnsubscribeMap = new Map<string, AbortFunc>()
 
-  _workerFunctionServer<SubscribeRequest<TRequestData>, TResponseData>({
+  _workerFunctionServer<SubscribeRequest<TRequest>, TResult>({
     eventBus,
     async func(data, callback) {
       switch (data.data.type) {
         case 'call': {
-          const abortController = new AbortController()
-          abortMap.set(data.data.requestId, function abort(reason: any) {
-            abortController.abort(reason)
-          })
+          let promiseOrValue: PromiseOrValue<WorkerData<TResult>>
+          try {
+            const abortController = new AbortController()
+            abortMap.set(data.data.requestId, function abort(reason: any) {
+              abortController.abort(reason)
+            })
 
-          const result = await func(
-            {
-              data: data.data.data,
-              transferList: data.transferList,
-            },
-            abortController.signal,
-            callback,
-          )
+            promiseOrValue = func(
+              {
+                data        : data.data.data,
+                transferList: data.transferList,
+              },
+              abortController.signal,
+              (_data) => {
+                callback(_data)
+              },
+            )
+          } finally {
+            abortMap.delete(data.data.requestId)
+          }
 
-          abortMap.delete(data.data.requestId)
+          if (promiseOrValue && typeof (promiseOrValue as Promise<any>).then === 'function') {
+            callback({
+              data: {
+                requestId,
+                type: 'started',
+              },
+            })
+
+            ;(async () => {
+              try {
+                const result = await promiseOrValue
+                callback({
+                  data: {
+                    requestId,
+                    type: 'completed',
+                    result,
+                  },
+                })
+              } catch (err) {
+                callback(void 0, err)
+              }
+            })()
+          } else {
+            callback({
+              data: {
+                requestId,
+                type  : 'completed',
+                result: promiseOrValue,
+              },
+            })
+          }
 
           if (typeof result !== 'function') {
             return result
@@ -107,27 +156,6 @@ export function workerFunctionServer<TRequestData = any, TResponseData = any>({
           if (abort) {
             abortMap.delete(data.data.requestId)
             abort(data.data.data)
-          }
-          break
-        }
-        case 'unsubscribe': {
-          const unsubscribeAbortController = new AbortController()
-          abortUnsubscribeMap.set(data.data.requestId, function abortUnsubscribe(reason: any) {
-            unsubscribeAbortController.abort(reason)
-          })
-
-          const unsubscribe = unsubscribeMap.get(data.data.requestId)
-          if (unsubscribe) {
-            unsubscribeMap.delete(data.data.requestId)
-            await unsubscribe(unsubscribeAbortController.signal)
-          }
-          break
-        }
-        case 'abortUnsubscribe': {
-          const abortUnsubscribe = abortUnsubscribeMap.get(data.data.requestId)
-          if (abortUnsubscribe) {
-            abortUnsubscribeMap.delete(data.data.requestId)
-            abortUnsubscribe(data.data.data)
           }
           break
         }

@@ -2,6 +2,23 @@ import {TransferListItem} from 'worker_threads'
 
 export type PromiseOrValue<T> = Promise<T> | T
 
+export type TaskFunc<TRequest, TCallbackData, TResult> = (
+  request: TRequest,
+  abortSignal?: AbortSignal,
+  callback?: (data: TCallbackData) => void,
+) => PromiseOrValue<TResult>
+
+export type WorkerData<TData = any> = {
+  data?: TData
+  transferList?: ReadonlyArray<TransferListItem>
+}
+
+export type WorkerTaskFunc<TRequest, TCallbackData, TResult>
+  = TaskFunc<WorkerData<TRequest>, WorkerData<TCallbackData>, WorkerData<TResult>>
+
+export type WorkerTaskFuncResult<TResult> = PromiseOrValue<WorkerData<TResult>>
+
+
 export type IUnsubscribe = () => void
 
 export type IUnsubscribeAsync = (abortSignal: AbortSignal) => PromiseOrValue<void>
@@ -17,11 +34,6 @@ export interface IEventSubscriber<TSubscribeEvent> {
 export interface IEventBus<TEmitEvent, TSubscribeEvent>
   extends IEventEmitter<TEmitEvent>, IEventSubscriber<TSubscribeEvent>
 { }
-
-export type WorkerData<TData = any> = {
-  data?: TData
-  transferList?: ReadonlyArray<TransferListItem>
-}
 
 export type WorkerCallback<TData = any> = Callback<WorkerData<TData>>
 

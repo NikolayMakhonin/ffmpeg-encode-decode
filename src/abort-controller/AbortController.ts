@@ -11,7 +11,7 @@ interface AbortController {
   abort(reason?: any): void;
 }
 
-declare var AbortController: {
+declare const AbortController: {
   prototype: AbortController;
   new(): AbortController;
 }
@@ -31,7 +31,7 @@ interface AbortSignal extends EventTarget {
   removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 
-declare var AbortSignal: {
+declare const AbortSignal: {
   prototype: AbortSignal;
   new(): AbortSignal;
   // abort(): AbortSignal; - To be re-added in the future

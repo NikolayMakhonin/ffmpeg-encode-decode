@@ -4,7 +4,7 @@ export function createWorkerEvent<TData = any>(
   data: WorkerData<TData>,
   error: Error,
   route: string[],
-): WorkerEvent {
+): WorkerEvent<TData> {
   return {
     data,
     error,
