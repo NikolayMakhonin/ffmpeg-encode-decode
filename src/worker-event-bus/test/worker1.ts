@@ -21,8 +21,12 @@ function func1(
     return (async () => {
       await delay(100)
       if (abortSignal.aborted) {
-        throw new Error('abort')
-        // throw (abortSignal as any).reason // TODO
+        // throw new Error('abort')
+        const reason = (abortSignal as any).reason
+        if (reason) {
+          throw reason
+        }
+        return void 0
       }
       data.data.value[0]++
       const result = createTestFuncResult(data.data.value)

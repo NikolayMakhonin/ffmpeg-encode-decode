@@ -24,7 +24,9 @@ function func2(
   if (data.data.async) {
     return (async () => {
       const result = await func1(data, abortSignal, callback)
-      result.data[1]++
+      if (result.data) {
+        result.data[1]++
+      }
       return result
     })()
   }

@@ -1,10 +1,10 @@
-import {AbortController, AbortSignal} from './AbortController'
+// import {AbortController, AbortSignal} from './AbortController'
 
 export function combineAbortSignals(...abortSignals: AbortSignal[]): AbortSignal {
   const abortController = new AbortController()
 
-  function onAbort() {
-    abortController.abort()
+  function onAbort(this: AbortSignal) {
+    abortController.abort((this as any).reason)
   }
 
   for (let i = 0; i < abortSignals.length; i++) {
@@ -13,7 +13,7 @@ export function combineAbortSignals(...abortSignals: AbortSignal[]): AbortSignal
       continue
     }
     if (abortSignal.aborted) {
-      onAbort()
+      onAbort.call(abortSignal)
       break
     } else {
       abortSignal.addEventListener('abort', onAbort)

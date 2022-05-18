@@ -17,10 +17,10 @@ describe('worker-event-bus', function () {
 
   it('simple', async function () {
     console.log('variants: ' + await testVariants({
-      funcName: ['func1', 'func2', 'func3'],
-      async   : [false, true],
+      funcName: ['func2', 'func1', 'func3'],
+      async   : [true, false],
       error   : [false, true],
-      abort   : [false, 'error'], // 'stop'
+      abort   : ['stop', 'error', false],
       assert  : [true],
     }))
   })
@@ -32,7 +32,7 @@ describe('worker-event-bus', function () {
         funcName: ['func1', 'func2', 'func3'],
         async   : [false, true],
         error   : [false, true],
-        abort   : [false, 'error'], // 'stop'
+        abort   : [false, 'error', 'stop'],
         assert  : [true],
       }))
     }

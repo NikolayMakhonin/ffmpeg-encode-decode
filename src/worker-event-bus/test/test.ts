@@ -1,6 +1,6 @@
 import {TestFunc} from './contracts'
 import {func1, func2, func3} from './main'
-import {AbortController} from '../../abort-controller/AbortController'
+// import {AbortController} from '../../abort-controller/AbortController'
 import {WorkerData} from '../common/contracts'
 
 function createArray(...values: number[]): Float32Array {
@@ -9,7 +9,7 @@ function createArray(...values: number[]): Float32Array {
 }
 
 function parseArray(array: Float32Array): number[] {
-  return Array.from(array.values())
+  return array && Array.from(array.values())
 }
 
 export async function test({
@@ -127,22 +127,34 @@ export async function test({
   try {
     result = await promise
   } catch (err) {
-    errorMessage = err.message
+    assert.ok(err)
+    errorMessage = typeof err === 'string'
+      ? err
+      : err.message
+    if (errorMessage.length > 20) {
+      throw err
+    }
   }
 
   if (_assert) {
-    if (checkResult.result) {
-      assert.strictEqual(result.transferList.length, 1)
-      assert.strictEqual(result.transferList[0], result.data.buffer)
-    } else {
-      assert.strictEqual(result, void 0)
-    }
     const actualResult = {
       callbacks,
-      result: result && parseArray(result.data),
+      result: parseArray(result?.data),
       errorMessage,
     }
     assert.deepStrictEqual(actualResult, checkResult)
+
+    if (checkResult.result) {
+      assert.strictEqual(result.transferList.length, 1)
+      assert.strictEqual(result.transferList[0], result.data.buffer)
+    } else if (checkResult.errorMessage) {
+      assert.deepStrictEqual(result, void 0)
+    } else {
+      assert.deepStrictEqual(result, {
+        data        : void 0,
+        transferList: void 0,
+      })
+    }
   }
 
   console.debug('=============== END ===============')

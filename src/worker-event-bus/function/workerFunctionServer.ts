@@ -1,6 +1,6 @@
 import {IUnsubscribe, IWorkerEventBus} from '../common/contracts'
 import {createWorkerEvent} from '../common/createWorkerEvent'
-import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
+// import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
 import {TransferListItem} from 'worker_threads'
 import {getNextId} from '../common/getNextId'
 import {workerSend} from '../request/workerSend'
@@ -233,13 +233,15 @@ export function workerFunctionClient<TRequest = any, TResult = any, TCallbackDat
           signal?.removeEventListener('abort', abort)
           abortController.abort()
 
+          const reason = (this as any).reason
+
           workerSend<TaskFunctionRequest<TRequest>>({
             eventEmitter: eventBus,
             data        : {
               data: {
                 task  : name,
                 action: 'abort',
-                reason: (this as any).reason,
+                reason,
               },
               transferList: request?.transferList,
             },
