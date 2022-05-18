@@ -37,8 +37,8 @@ declare const AbortSignal: {
   // abort(): AbortSignal; - To be re-added in the future
 }
 
-export const __AbortController: typeof AbortController = _AbortController
-export const __AbortSignal: typeof AbortSignal = _AbortSignal
+const __AbortController: typeof AbortController = _AbortController
+const __AbortSignal: typeof AbortSignal = _AbortSignal
 
 export {
   __AbortController as AbortController,

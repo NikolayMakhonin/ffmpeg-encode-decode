@@ -25,6 +25,7 @@ export async function test({
   abort: false | 'error' | 'stop',
   assert: boolean,
 }) {
+  console.debug('=============== START ===============')
   type TValues = number[]
   const values: TValues = [10, 20, 30]
   let func: TestFunc
@@ -34,8 +35,8 @@ export async function test({
     errorMessage?: string,
   }
   
-  let errorMessage = error ? 'func1'
-    : abort === 'error' ? 'abort'
+  let errorMessage = error ? (async ? 'func1' : funcName)
+    : abort === 'error' && async ? 'abort'
       : void 0
   
   switch (funcName) {
@@ -43,8 +44,10 @@ export async function test({
       func = func1
       if (_assert) {
         checkResult = {
-          callbacks: error || abort && async ? [[11, 20, 30]] : [[11, 20, 30], [12, 20, 30]],
-          result   : error || abort && async ? void 0 : [12, 20, 30],
+          callbacks: error || abort && async
+            ? [[10, 20, 30], [11, 20, 30]]
+            : [[10, 20, 30], [11, 20, 30]],
+          result: error || abort && async ? void 0 : [12, 20, 30],
           errorMessage,
         }
       }
@@ -54,8 +57,12 @@ export async function test({
       if (_assert) {
         checkResult = {
           callbacks: async
-            ? (error || abort ? [[11, 21, 30]] : [[11, 21, 30], [12, 22, 30]])
-            : (error ? [[10, 21, 30]] : [[10, 21, 30], [10, 22, 30]]),
+            ? (error || abort
+              ? [[10, 20, 30], [10, 21, 30], [10, 21, 30], [11, 21, 30]]
+              : [[10, 20, 30], [10, 21, 30], [10, 21, 30], [11, 21, 30]])
+            : (error
+              ? [[10, 20, 30], [10, 21, 30]]
+              : [[10, 20, 30], [10, 21, 30]]),
           result: error || abort && async ? void 0
             : (async ? [12, 22, 30] : [10, 22, 30]),
           errorMessage,
@@ -67,8 +74,12 @@ export async function test({
       if (_assert) {
         checkResult = {
           callbacks: async
-            ? (error || abort ? [[11, 20, 31]] : [[11, 20, 31], [12, 20, 32]])
-            : (error ? [[10, 20, 31]] : [[10, 20, 31], [10, 20, 32]]),
+            ? (error || abort
+              ? [[10, 20, 30], [10, 20, 31], [10, 20, 31], [11, 20, 31]]
+              : [[10, 20, 30], [10, 20, 31], [10, 20, 31], [11, 20, 31]])
+            : (error
+              ? [[10, 20, 30], [10, 20, 31]]
+              : [[10, 20, 30], [10, 20, 31]]),
           result: error || abort && async ? void 0
             : (async ? [12, 20, 32] : [10, 20, 32]),
           errorMessage,
@@ -120,12 +131,19 @@ export async function test({
   }
 
   if (_assert) {
-    assert.strictEqual(result.transferList, result.data.buffer)
-    assert.strictEqual(result.transferList.length, 1)
-    assert.deepStrictEqual({
+    if (checkResult.result) {
+      assert.strictEqual(result.transferList.length, 1)
+      assert.strictEqual(result.transferList[0], result.data.buffer)
+    } else {
+      assert.strictEqual(result, void 0)
+    }
+    const actualResult = {
       callbacks,
-      result: parseArray(result.data),
+      result: result && parseArray(result.data),
       errorMessage,
-    }, checkResult)
+    }
+    assert.deepStrictEqual(actualResult, checkResult)
   }
+
+  console.debug('=============== END ===============')
 }

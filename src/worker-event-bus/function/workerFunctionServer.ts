@@ -3,7 +3,6 @@ import {createWorkerEvent} from '../common/createWorkerEvent'
 import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
 import {TransferListItem} from 'worker_threads'
 import {getNextId} from '../common/getNextId'
-import {useAbortController} from '../../abort-controller/useAbortController'
 import {workerSend} from '../request/workerSend'
 import {workerSubscribe} from '../request/workerSubscribe'
 import {AbortError} from '../../abort-controller/AbortError'
@@ -67,6 +66,7 @@ export function workerFunctionServer<TRequest = any, TResult = any, TCallbackDat
   const abortMap = new Map<string, AbortFunc>()
 
   return eventBus.subscribe(async (event) => {
+    console.debug('server: ', event)
     function emitValue(data: WorkerData<TaskFunctionResponse<TResult, TCallbackData>>) {
       eventBus.emit(createWorkerEvent(
         data || {},
@@ -257,6 +257,7 @@ export function workerFunctionClient<TRequest = any, TResult = any, TCallbackDat
           eventBus,
           requestId,
           callback(data, error) {
+            console.debug('client: ', data, error)
             if (error) {
               reject(error)
               return
@@ -266,7 +267,7 @@ export function workerFunctionClient<TRequest = any, TResult = any, TCallbackDat
                 console.log('started: ' + name)
                 break
               case 'error':
-                reject(error)
+                reject(data.data.error)
                 break
               case 'callback':
                 callback({

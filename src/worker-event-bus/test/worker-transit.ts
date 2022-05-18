@@ -4,15 +4,15 @@ import path from 'path'
 import {workerToEventBus} from '../event-bus/workerToEventBus'
 import {eventBusConnect} from '../event-bus/eventBusConnect'
 import {eventBusToMessagePort} from '../event-bus/eventBusToMessagePort'
-import {FunctionRequest} from '../function/contracts'
+import {TaskFunctionRequest} from '../function/workerFunctionServer'
 
 const func1Port = workerData.func1Port
-const func1EventBus = messagePortToEventBus<FunctionRequest>(func1Port)
+const func1EventBus = messagePortToEventBus<TaskFunctionRequest>(func1Port)
 
 let func1PortForward = eventBusToMessagePort({
   server: func1EventBus,
   requestFilter(data) {
-    return data?.data?.func === 'func1'
+    return data?.data?.task === 'func1'
   },
 })
 const worker2 = new Worker(
@@ -27,7 +27,7 @@ const worker2EventBus = workerToEventBus(worker2)
 func1PortForward = eventBusToMessagePort({
   server: func1EventBus,
   requestFilter(data) {
-    return data?.data?.func === 'func1'
+    return data?.data?.task === 'func1'
   },
 })
 const worker3 = new Worker(
@@ -44,13 +44,13 @@ eventBusConnect({
   server: worker3EventBus,
   client: parentEventBus,
   requestFilter(data) {
-    return data?.data?.func === 'func3'
+    return data?.data?.task === 'func3'
   },
 })
 eventBusConnect({
   server: worker2EventBus,
   client: parentEventBus,
   requestFilter(data) {
-    return data?.data?.func === 'func2'
+    return data?.data?.task === 'func2'
   },
 })

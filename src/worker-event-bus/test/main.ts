@@ -16,7 +16,7 @@ export const func1 = workerFunctionClient<TestFuncArgs, Float32Array>({
 let func1Port = eventBusToMessagePort({
   server: worker1EventBus,
   requestFilter(data) {
-    return data?.data?.func === 'func1'
+    return data?.data?.task === 'func1'
   },
 })
 const workerTransit = new Worker(

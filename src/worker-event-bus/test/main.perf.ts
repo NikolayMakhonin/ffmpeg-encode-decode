@@ -22,10 +22,10 @@ describe('worker-event-bus', function () {
       const time0 = rdtsc()
       await test({
         funcName: 'func1',
-        values  : [1, 2, 3],
         async   : false,
         error   : false,
         assert  : false,
+        abort   : false,
       })
       const time = rdtsc() - time0
       if (i === 0 || time < timeMin) {
@@ -41,10 +41,10 @@ describe('worker-event-bus', function () {
       const time0 = rdtsc()
       await test({
         funcName: 'func2',
-        values  : [1, 2, 3],
         async   : false,
         error   : false,
         assert  : false,
+        abort   : false,
       })
       const time = rdtsc() - time0
       if (i === 0 || time < timeMin) {
@@ -60,10 +60,10 @@ describe('worker-event-bus', function () {
       const time0 = rdtsc()
       await test({
         funcName: 'func2',
-        values  : [1, 2, 3],
         async   : false,
         error   : true,
         assert  : false,
+        abort   : false,
       })
       const time = rdtsc() - time0
       if (i === 0 || time < timeMin) {
@@ -79,10 +79,10 @@ describe('worker-event-bus', function () {
       const time0 = rdtsc()
       await test({
         funcName: 'func2',
-        values  : [1, 2, 3],
         async   : true,
         error   : false,
         assert  : false,
+        abort   : false,
       })
       const time = rdtsc() - time0
       if (i === 0 || time < timeMin) {
@@ -99,10 +99,10 @@ describe('worker-event-bus', function () {
     for (let i = 0; i < count; i++) {
       promises.push(test({
         funcName: 'func1',
-        values  : [1, 2, 3],
         async   : false,
         error   : false,
         assert  : true,
+        abort   : false,
       }))
     }
     await Promise.all(promises)
