@@ -1,12 +1,12 @@
 import {IUnsubscribe, IWorkerEventBus} from '../common/contracts'
 import {createWorkerEvent} from '../common/createWorkerEvent'
-// import {AbortController, AbortSignal} from '../../abort-controller/AbortController'
 import {TransferListItem} from 'worker_threads'
 import {getNextId} from '../common/getNextId'
 import {workerSend} from '../request/workerSend'
 import {workerSubscribe} from '../request/workerSubscribe'
 import {AbortError} from '../../abort-controller/AbortError'
 import {combineAbortSignals} from '../../abort-controller/combineAbortSignals'
+import {AbortControllerImpl} from '../../abort-controller/AbortController'
 
 export type PromiseOrValue<T> = Promise<T> | T
 
@@ -104,7 +104,7 @@ export function workerFunctionServer<TRequest = any, TResult = any, TCallbackDat
         case 'start': {
           let promiseOrResult: PromiseOrValue<WorkerData<TResult>>
           try {
-            const abortController = new AbortController()
+            const abortController = new AbortControllerImpl()
             abortMap.set(requestId, function abort(reason: any) {
               abortController.abort(reason)
             })
@@ -199,7 +199,7 @@ export function workerFunctionClient<TRequest = any, TResult = any, TCallbackDat
     abortSignal?: AbortSignal,
     callback?: (data: WorkerData<TCallbackData>) => void,
   ): Promise<WorkerData<TResult>> {
-    const abortController = new AbortController()
+    const abortController = new AbortControllerImpl()
     return new Promise<WorkerData<TResult>>((_resolve, _reject) => {
       if (abortSignal?.aborted) {
         reject(new AbortError())

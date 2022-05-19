@@ -28,7 +28,7 @@
     ],
     "lib": [
       "DOM",
-      "ES6",
+      "ESNext",
       "ES2020.Promise"
     ],
     "baseUrl": "."

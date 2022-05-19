@@ -1,46 +1,17 @@
-import {
-  AbortController as _AbortController,
-  AbortSignal as _AbortSignal,
-} from 'abortcontroller-polyfill/dist/abortcontroller'
+import { AbortSignalImpl } from './AbortSignal'
 
-/** A controller object that allows you to abort one or more DOM requests as and when desired. */
-interface AbortController {
-  /** Returns the AbortSignal object associated with this object. */
-  readonly signal: AbortSignal;
-  /** Invoking this method will set this object's AbortSignal's aborted flag and signal to any observers that the associated activity is to be aborted. */
-  abort(reason?: any): void;
-}
+export class AbortControllerImpl implements AbortController {
+  readonly signal: AbortSignalImpl
 
-declare const AbortController: {
-  prototype: AbortController;
-  new(): AbortController;
-}
+  constructor() {
+    // @ts-ignore
+    this.signal = new AbortSignalImpl()
+  }
 
-interface AbortSignalEventMap {
-  'abort': Event;
-}
-
-/** A signal object that allows you to communicate with a DOM request (such as a Fetch) and abort it if required via an AbortController object. */
-interface AbortSignal extends EventTarget {
-  /** Returns true if this AbortSignal's AbortController has signaled to abort, and false otherwise. */
-  readonly aborted: boolean;
-  onabort: ((this: AbortSignal, ev: Event) => any) | null;
-  addEventListener<K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-  removeEventListener<K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-}
-
-declare const AbortSignal: {
-  prototype: AbortSignal;
-  new(): AbortSignal;
-  // abort(): AbortSignal; - To be re-added in the future
-}
-
-const __AbortController: typeof AbortController = _AbortController
-const __AbortSignal: typeof AbortSignal = _AbortSignal
-
-export {
-  __AbortController as AbortController,
-  __AbortSignal as AbortSignal,
+  abort(): void
+  abort(reason?: any): void
+  abort(reason?: any): void {
+    // @ts-ignore
+    this.signal._abort(reason)
+  }
 }

@@ -1,7 +1,7 @@
-// import {AbortController, AbortSignal} from './AbortController'
+import {AbortControllerImpl} from './AbortController'
 
 export function combineAbortSignals(...abortSignals: AbortSignal[]): AbortSignal {
-  const abortController = new AbortController()
+  const abortController = new AbortControllerImpl()
 
   function onAbort(this: AbortSignal) {
     abortController.abort((this as any).reason)
