@@ -11,16 +11,27 @@ import {createFFmpegTransformWorker, getFFmpegLoad, getFFmpegTransform} from '..
 let logSize = 0
 const ffmpegTransformEventBus = createFFmpegTransformWorker()
 const ffmpegLoad = getFFmpegLoad(ffmpegTransformEventBus)
-ffmpegLoad({
-  data: {
-    log: false,
-    logger({type, message}) {
-      logSize += `[${type}] ${message}\n`.length
-      console.log('Log: ' + logSize)
-      // console.log(`[${type}] ${message}`)
+ffmpegLoad(
+  {
+    data: {
+      log: false,
+      logger({type, message}) {
+        logSize += `[${type}] ${message}\n`.length
+        console.log('Log: ' + logSize)
+        // console.log(`[${type}] ${message}`)
+      },
     },
   },
-})
+  null,
+  ({data: {type, message}}) => {
+    logSize += `[${type}] ${message}\n`.length
+    console.log('Log: ' + logSize)
+    // console.log(`[${type}] ${message}`)
+  },
+)
+  .catch(err => {
+    console.error(err)
+  })
 
 const ffmpegTransform = getFFmpegTransform(ffmpegTransformEventBus)
 

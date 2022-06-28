@@ -1,6 +1,6 @@
 import {parentPort, workerData} from 'worker_threads'
 import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
-import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
+import {FFmpegLoadEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
 import {
   WorkerData,
   workerFunctionServer,
@@ -33,11 +33,18 @@ function getFFmpeg(options?: FFmpegOptions) {
 }
 
 async function ffmpegLoad(
-  data: WorkerData<CreateFFmpegOptions>,
+  data: WorkerData<Omit<CreateFFmpegOptions, 'logger'>>,
+  abortSignal, // TODO
+  callback: (data: WorkerData<FFmpegLoadEvent>) => void,
 ): WorkerFunctionServerResultAsync<void> {
-  const {
-    data: options,
-  } = data
+  const options: CreateFFmpegOptions = {
+    ...data.data,
+  }
+  if (options.log) {
+    options.logger = ({type, message}) => {
+      callback({data: {type, message}})
+    }
+  }
   await getFFmpeg(options)
   return {}
 }

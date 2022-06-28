@@ -8,7 +8,9 @@
     <ui>bdd</ui>
     <extra-mocha-options />
     <test-kind>PATTERN</test-kind>
-    <test-pattern>./src/**/*.test.ts</test-pattern>
+    <test-pattern>
+./src/**/*.test.*
+</test-pattern>
     <method v="2" />
   </configuration>
 </component>

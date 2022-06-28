@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">=14.17.6",
-    "yarn": "^1.22"
+    "pnpm": "^7.1.6"
   },
   "repository": {
     "type": "git",
@@ -38,19 +38,19 @@
     "access": "public"
   },
   "scripts": {
-    "prepublishOnly": "yarn build && yarn run test:ci",
+    "prepublishOnly": "pnpm build && pnpm run test:ci",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "build:js": "rollup -c && cpy \"**/assets/**\" \"../dist/\" --parents --cwd=src",
     "build:types": "tsc --outDir dist --declaration",
-    "build": "rimraf dist && yarn run build:js && yarn run build:types",
+    "build": "rimraf dist && pnpm run build:js",
     "coverage-check": "nyc check-coverage --report-dir tmp/coverage/lcov --lines 50 --functions 50 --branches 50 --statements 50",
     "test": "mocha ./src/**/*.test.ts",
-    "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && yarn run coverage-check",
+    "test:coverage": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts && pnpm run coverage-check",
     "test:watch": "mocha --watch ./src/**/*.test.ts",
-    "test:ci": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.cjs && yarn run coverage-check",
+    "test:ci": "rimraf tmp/coverage && nyc --all mocha ./src/**/*.test.ts ./dist/**/*.test.cjs && pnpm run coverage-check",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "ci:test": "yarn install --frozen-lockfile && yarn build && yarn run test:ci"
+    "ci:test": "pnpm install --frozen-lockfile && pnpm build && pnpm run test:ci"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "3.1.9",

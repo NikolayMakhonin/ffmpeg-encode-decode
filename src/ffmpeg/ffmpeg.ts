@@ -44,7 +44,7 @@ export async function ffmpegDecode(
         ],
       },
     ],
-    transferList: [inputData],
+    transferList: [inputData.buffer],
   })
 
   // decodeOutputSize += outputData.byteLength
@@ -104,7 +104,7 @@ export async function ffmpegEncode(
         ],
       },
     ],
-    transferList: [pcmData],
+    transferList: [pcmData.buffer],
   })
 
   // encodeOutputSize += outputData.byteLength

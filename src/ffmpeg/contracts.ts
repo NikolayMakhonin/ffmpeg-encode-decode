@@ -10,6 +10,8 @@ export type FFmpegOptions = CreateFFmpegOptions & {
   preload?: boolean,
 }
 
+export type FFmpegLoadEvent = {type: string, message: string}
+
 export type FFmpegTransformArgs = [
   inputData: Uint8Array,
   data: {
