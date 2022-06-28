@@ -1,4 +1,4 @@
-import {FFmpegTransformArgs} from './contracts'
+import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
 import path from 'path'
 import {Worker} from 'worker_threads'
 import {
@@ -9,25 +9,25 @@ import {
 
 export function createFFmpegTransformWorker(
 
-): WorkerFunctionClientEventBus<FFmpegTransformArgs, Uint8Array, never> {
+): WorkerFunctionClientEventBus<any, any, any> {
   const worker = new Worker(path.resolve('./dist/ffmpeg/test/ffmpegTransformWorker.cjs'))
   const workerEventBus = workerToEventBus(worker)
   return workerEventBus
 }
 
 export function getFFmpegLoad(
-  workerEventBus: WorkerFunctionClientEventBus<FFmpegTransformArgs, Uint8Array, never>,
+  workerEventBus: WorkerFunctionClientEventBus<FFmpegOptions, void, void>,
 ) {
-  return workerFunctionClient<FFmpegTransformArgs, Uint8Array, never>({
+  return workerFunctionClient<FFmpegOptions, void, void>({
     eventBus: workerEventBus,
     name    : 'ffmpegLoad',
   })
 }
 
 export function getFFmpegTransform(
-  workerEventBus: WorkerFunctionClientEventBus<FFmpegTransformArgs, Uint8Array, never>,
+  workerEventBus: WorkerFunctionClientEventBus<FFmpegTransformArgs, Uint8Array, void>,
 ) {
-  return workerFunctionClient<FFmpegTransformArgs, Uint8Array, never>({
+  return workerFunctionClient<FFmpegTransformArgs, Uint8Array, void>({
     eventBus: workerEventBus,
     name    : 'ffmpegTransform',
   })

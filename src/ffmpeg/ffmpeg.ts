@@ -28,28 +28,31 @@ export async function ffmpegDecode(
   const outputFile = 'output.pcm'
   // decodeInputSize += inputData.byteLength
 
-  const outputData = await ffmpegTransform(
-    inputData,
-    {
-      inputFile,
-      outputFile,
-      params: [
-        '-i', inputFile,
-        '-f', 'f32le',
-        '-ac', channels + '',
-        '-ar', sampleRate + '',
-        '-acodec', 'pcm_f32le',
+  const outputData = await ffmpegTransform({
+    data: [
+      inputData,
+      {
+        inputFile,
         outputFile,
-      ],
-    },
-  )
+        params: [
+          '-i', inputFile,
+          '-f', 'f32le',
+          '-ac', channels + '',
+          '-ar', sampleRate + '',
+          '-acodec', 'pcm_f32le',
+          outputFile,
+        ],
+      },
+    ],
+    transferList: [inputData],
+  })
 
   // decodeOutputSize += outputData.byteLength
   // decodeCount++
   // console.log(`Decode: ${decodeCount}, ${decodeInputSize}, ${decodeOutputSize}`)
 
   return {
-    data: new Float32Array(outputData.buffer, outputData.byteOffset, outputData.byteLength / 4),
+    data: new Float32Array(outputData.data.buffer, outputData.data.byteOffset, outputData.data.byteLength / 4),
     channels,
     sampleRate,
   }
@@ -84,27 +87,30 @@ export async function ffmpegEncode(
   // encodeInputSize += pcmData.byteLength
 
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
-  const outputData = await ffmpegTransform(
-    pcmData,
-    {
-      inputFile,
-      outputFile,
-      params: [
-        '-f', 'f32le',
-        '-ac', samples.channels + '',
-        '-ar', samples.sampleRate + '',
-        '-i', 'input.pcm',
-        '-ac', (channels || samples.channels) + '',
-        ...params || [],
+  const outputData = await ffmpegTransform({
+    data: [
+      pcmData,
+      {
+        inputFile,
         outputFile,
-      ],
-    },
-  )
+        params: [
+          '-f', 'f32le',
+          '-ac', samples.channels + '',
+          '-ar', samples.sampleRate + '',
+          '-i', 'input.pcm',
+          '-ac', (channels || samples.channels) + '',
+          ...params || [],
+          outputFile,
+        ],
+      },
+    ],
+    transferList: [pcmData],
+  })
 
   // encodeOutputSize += outputData.byteLength
   // encodeCount++
   // console.log(`Encode: ${encodeCount}, ${encodeInputSize}, ${encodeOutputSize}`)
 
-  return outputData
+  return outputData.data
 }
 
