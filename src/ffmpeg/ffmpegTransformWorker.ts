@@ -49,7 +49,7 @@ async function ffmpegLoad(
   return {}
 }
 
-const ffmpegTransformRunCount: number = 0
+let ffmpegTransformRunCount: number = 0
 let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
   data: WorkerData<FFmpegTransformArgs>,
@@ -98,10 +98,12 @@ async function ffmpegTransform(
     }
   } finally {
     ffmpegTransformRunning = false
-    if (ffmpegTransformRunCount >= 15000) {
+    if (ffmpegTransformRunCount >= 15000) { // maximum 27054 according to stress test
       console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
       process.exit(0)
     }
+    ffmpegTransformRunCount++
+    console.log('ffmpegTransformRunCount = ' + ffmpegTransformRunCount)
   }
 }
 

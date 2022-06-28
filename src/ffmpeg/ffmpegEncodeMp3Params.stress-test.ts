@@ -6,7 +6,7 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
   this.timeout(24 * 60 * 60 * 1000)
 
   it('vbr joint stereo stress', async function () {
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100000; i++) { // should be more than 3007 iterations
       console.log('iteration: ' + i)
       await ffmpegTestVariants({
         encode: {
