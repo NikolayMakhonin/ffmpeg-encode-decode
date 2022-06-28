@@ -50,7 +50,8 @@ export interface IWorkerEventSubscriber<TResponseData = any>
   extends IEventSubscriber<WorkerEvent<TResponseData>>
 { }
 export interface IWorkerEventBus<TRequestData = any, TResponseData = any>
-  extends IWorkerEventEmitter<TRequestData>, IWorkerEventSubscriber<TResponseData>
+  extends IWorkerEventEmitter<TRequestData>,
+    IWorkerEventSubscriber<TResponseData>
 { }
 
 type WorkerFuncPromise<TRequestData = any, TResponseData = any> = (

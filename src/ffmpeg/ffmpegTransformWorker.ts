@@ -1,11 +1,17 @@
 import {parentPort, workerData} from 'worker_threads'
 import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
 import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
+import {
+  WorkerData,
+  workerFunctionServer,
+  WorkerFunctionServerResultAsync,
+  messagePortToEventBus,
+} from '@flemist/worker-server'
 
 let ffmpegOptions: FFmpegOptions = workerData
 
 let ffmpegLoadPromise: Promise<FFmpeg>
-export function getFFmpeg(options?: FFmpegOptions) {
+function getFFmpeg(options?: FFmpegOptions) {
   if (!ffmpegLoadPromise) {
     ffmpegOptions = options
     if (options.logger) {
@@ -26,28 +32,36 @@ export function getFFmpeg(options?: FFmpegOptions) {
   return ffmpegLoadPromise
 }
 
-async function ffmpegLoad(options?: CreateFFmpegOptions) {
+async function ffmpegLoad(
+  data: WorkerData<CreateFFmpegOptions>,
+): WorkerFunctionServerResultAsync<void> {
+  const {
+    data: options,
+  } = data
   await getFFmpeg(options)
+  return {}
 }
 
-let ffmpegTransformRunCount: number = 0
+const ffmpegTransformRunCount: number = 0
 let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
-  inputData: Uint8Array,
-  {
-    inputFile,
-    outputFile,
-    params,
-  }: {
-    inputFile?: string,
-    outputFile?: string,
-    params?: string[],
-  },
-) {
+  data: WorkerData<FFmpegTransformArgs>,
+): WorkerFunctionServerResultAsync<Uint8Array> {
   if (ffmpegTransformRunning) {
     throw new Error('ffmpegTransform is running')
   }
   ffmpegTransformRunning = true
+
+  const {
+    data: [
+      inputData,
+      {
+        inputFile,
+        outputFile,
+        params,
+      },
+    ],
+  } = data
 
   try {
     const ffmpeg = await getFFmpeg(ffmpegOptions)
@@ -71,7 +85,10 @@ async function ffmpegTransform(
     ffmpeg.FS('unlink', inputFile)
     ffmpeg.FS('unlink', outputFile)
 
-    return [outputData, [outputData.buffer]]
+    return {
+      data        : outputData,
+      transferList: [outputData.buffer],
+    }
   } finally {
     ffmpegTransformRunning = false
     if (ffmpegTransformRunCount >= 15000) {
@@ -81,41 +98,12 @@ async function ffmpegTransform(
   }
 }
 
-const methods: {
-  [key in string]: (...args: any[]) => any
-} = {
-  ffmpegLoad,
-  ffmpegTransform,
-}
-
-parentPort.on('message', async ({
-  requestId,
-  value: {
-    method,
-    args,
-  },
-}: {
-  requestId: number,
-  value: {
-    method: string,
-    args: FFmpegTransformArgs
-  },
-}) => {
-  try {
-    const func = methods[method]
-    if (!func) {
-      throw new Error('Unknown method: ' + method)
-    }
-    const [result, transferList] = (await func.apply(null, args)) || []
-    parentPort.postMessage({
-      requestId,
-      value: result,
-    }, transferList)
-  } catch (err) {
-    parentPort.postMessage({
-      requestId,
-      error: err,
-    })
-  }
+workerFunctionServer({
+  eventBus: messagePortToEventBus(parentPort),
+  task    : ffmpegTransform,
 })
 
+workerFunctionServer({
+  eventBus: messagePortToEventBus(parentPort),
+  task    : ffmpegLoad,
+})
