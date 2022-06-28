@@ -6,6 +6,7 @@ import {
   workerFunctionClient,
   WorkerFunctionClientEventBus,
 } from '@flemist/worker-server'
+import {CreateFFmpegOptions} from "@flemist/ffmpeg.wasm-st";
 
 export function createFFmpegTransformWorker(
 
@@ -16,9 +17,9 @@ export function createFFmpegTransformWorker(
 }
 
 export function getFFmpegLoad(
-  workerEventBus: WorkerFunctionClientEventBus<FFmpegOptions, void, FFmpegLoadEvent>,
+  workerEventBus: WorkerFunctionClientEventBus<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegLoadEvent>,
 ) {
-  return workerFunctionClient<FFmpegOptions, void, FFmpegLoadEvent>({
+  return workerFunctionClient<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegLoadEvent>({
     eventBus: workerEventBus,
     name    : 'ffmpegLoad',
   })

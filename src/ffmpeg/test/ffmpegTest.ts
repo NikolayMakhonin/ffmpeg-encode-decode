@@ -15,11 +15,6 @@ ffmpegLoad(
   {
     data: {
       log: false,
-      logger({type, message}) {
-        logSize += `[${type}] ${message}\n`.length
-        console.log('Log: ' + logSize)
-        // console.log(`[${type}] ${message}`)
-      },
     },
   },
   null,
