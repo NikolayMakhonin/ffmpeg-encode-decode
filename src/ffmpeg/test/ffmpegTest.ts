@@ -5,30 +5,23 @@ import {shareSamples, testAudioFunc} from '../../common/test/generateTestSamples
 import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
-import {saveFile} from '../../common/test/saveFile'
-import {createFFmpegTransformWorker, getFFmpegLoad, getFFmpegTransform} from '../getFFmpegTransform'
+import {FFmpegTransformClient, getFFmpegTransform} from '../FFmpegTransformWorkerClient'
 
 let logSize = 0
-const ffmpegTransformEventBus = createFFmpegTransformWorker()
-const ffmpegLoad = getFFmpegLoad(ffmpegTransformEventBus)
-ffmpegLoad(
+const ffmpegTransformClient = new FFmpegTransformClient(
+  './dist/ffmpeg/ffmpegTransformWorker.cjs',
   {
-    data: {
-      log: false,
+    preload: true,
+    log    : false,
+    logger({data: {type, message}}) {
+      logSize += `[${type}] ${message}\n`.length
+      console.log('Log: ' + logSize)
+      // console.log(`[${type}] ${message}`)
     },
   },
-  null,
-  ({data: {type, message}}) => {
-    logSize += `[${type}] ${message}\n`.length
-    console.log('Log: ' + logSize)
-    // console.log(`[${type}] ${message}`)
-  },
 )
-  .catch(err => {
-    console.error(err)
-  })
 
-const ffmpegTransform = getFFmpegTransform(ffmpegTransformEventBus)
+const ffmpegTransform = getFFmpegTransform(ffmpegTransformClient)
 
 export async function ffmpegTestEncode({
   inputType,

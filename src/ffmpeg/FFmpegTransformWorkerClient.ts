@@ -1,90 +1,117 @@
-// import {Worker} from 'worker_threads'
-// import {FFmpegOptions, FFmpegTransformArgs} from './contracts'
-// import {IWorkerEventBus} from '../worker-event-bus/common/contracts'
-// import {workerToEventBus} from '../worker-event-bus/event-bus/workerToEventBus'
-// import {workerRequest} from '../worker-event-bus/request/workerRequest'
-//
-// export class FFmpegTransformWorkerClient {
-//   options?: FFmpegOptions
-//   private readonly _workerFilePath: string
-//   private _workerEventBus: IWorkerEventBus = null
-//
-//   constructor(workerFilePath: string, options?: FFmpegOptions) {
-//     this._workerFilePath = workerFilePath
-//     this.options = options
-//   }
-//
-//   private getWorkerEventBus() {
-//     if (!this._workerEventBus) {
-//       const worker = new Worker(this._workerFilePath, {
-//         workerData: {
-//           options: {
-//             ...this.options || {},
-//             logger: !!this.options.logger,
-//           },
-//         },
-//       })
-//       this._workerEventBus = workerToEventBus(worker)
-//       this._workerEventBus.subscribe((response) => {
-//         if (response && response.callbackId === 'logger') {
-//           this.options.logger(response.value)
-//         }
-//       })
-//     }
-//
-//     return this._workerEventBus
-//   }
-//
-//   async load(): Promise<void> {
-//     await this.getWorkerEventBus().emit({
-//       method: 'load',
-//     })
-//   }
-//
-//   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
-//     try {
-//       this._runCount++
-//       const result = await workerRequest({
-//         eventBus: this.getWorkerEventBus(),
-//         data    : {
-//           method: 'ffmpegTransform',
-//           args,
-//         },
-//         transferList: args[0].buffer instanceof SharedArrayBuffer
-//           ? null
-//           : [args[0].buffer],
-//         config: {
-//           responseFilter(response, requestId) {
-//             return response?.requestId === requestId
-//           },
-//           getResponseData(response) {
-//             if (response.error) {
-//               throw response.error
-//             }
-//             return response.value
-//           },
-//           createRequest(value, requestId) {
-//             return {
-//               requestId,
-//               value,
-//             }
-//           },
-//         },
-//       })
-//       return result
-//     } finally {
-//       if (this._runCount >= 15000) {
-//         const runCount = this._runCount
-//         await this.terminate()
-//         this.getWorkerEventBus()
-//         console.log(`Unload ffmpegTransform worker after ${runCount} calls`)
-//       }
-//     }
-//   }
-//
-//   async terminate() {
-//     await this._workerEventBus.worker?.terminate()
-//     this._workerEventBus = null
-//     this._runCount = 0
-//   }
-// }
+import {Worker} from 'worker_threads'
+import {FFmpegInitEvent, FFmpegInitOptions, FFmpegOptions, FFmpegTransformArgs} from './contracts'
+import {
+  IWorkerEventBus, WorkerData,
+  WorkerFunctionClient,
+  workerFunctionClient,
+  WorkerFunctionClientEventBus,
+  workerToEventBus,
+} from '@flemist/worker-server'
+import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
+import path from 'path'
+
+function getWorkerFFmpegInit(
+  workerEventBus: WorkerFunctionClientEventBus<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegInitEvent>,
+) {
+  return workerFunctionClient<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegInitEvent>({
+    eventBus: workerEventBus,
+    name    : 'ffmpegInit',
+  })
+}
+
+function getWorkerFFmpegTransform(
+  workerEventBus: WorkerFunctionClientEventBus<FFmpegTransformArgs, Uint8Array, void>,
+) {
+  return workerFunctionClient<FFmpegTransformArgs, Uint8Array, void>({
+    eventBus: workerEventBus,
+    name    : 'ffmpegTransform',
+  })
+}
+
+export class FFmpegTransformClient {
+  options?: FFmpegOptions
+  private readonly _workerFilePath: string
+  private _worker: Worker = null
+  private _workerEventBus: IWorkerEventBus = null
+  private _ffmpegInit: WorkerFunctionClient<FFmpegInitOptions, void, FFmpegInitEvent>
+  private _ffmpegTransform: WorkerFunctionClient<FFmpegTransformArgs, Uint8Array, void>
+
+  constructor(workerFilePath: string, options?: FFmpegOptions) {
+    this._workerFilePath = workerFilePath
+    this.options = options || {}
+    if (this.options.preload) {
+      void this.init()
+    }
+  }
+
+  _initPromise: Promise<void>
+  private init() {
+    if (!this._initPromise) {
+      this._initPromise = this._init()
+    }
+    return this._initPromise
+  }
+
+  private async _init() {
+    this._worker = new Worker(path.resolve(this._workerFilePath))
+    this._workerEventBus = workerToEventBus(this._worker)
+
+    this._ffmpegInit = getWorkerFFmpegInit(this._workerEventBus)
+    this._ffmpegTransform = getWorkerFFmpegTransform(this._workerEventBus)
+
+    const options = {
+      ...this.options,
+      logger: !!this.options.logger,
+    }
+    await this._ffmpegInit(
+      {
+        data: options,
+      },
+      null,
+      (event) => {
+        this.options.logger(event)
+      },
+    )
+  }
+
+  _runCount: number = 0
+  async ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
+    await this._init()
+    try {
+      this._runCount++
+      const result = await this._ffmpegTransform({
+        data        : args,
+        transferList: args[0].buffer instanceof SharedArrayBuffer
+          ? null
+          : [args[0].buffer],
+      })
+      return result
+    } finally {
+      if (this._runCount >= 15) { // TODO: 15000 // default: 15000, maximum 27054 according to stress test
+        const runCount = this._runCount
+        await this.terminate()
+        await this.init()
+        console.log(`Unload ffmpegTransform worker after ${runCount} calls`)
+      }
+    }
+  }
+
+  async terminate() {
+    if (this._worker) {
+      await this._worker?.terminate()
+      this._worker = null
+      this._workerEventBus = null
+      this._runCount = 0
+      this._initPromise = null
+      this._ffmpegInit = null
+      this._ffmpegTransform = null
+    }
+  }
+}
+
+export function getFFmpegTransform(client: FFmpegTransformClient) {
+  return async function ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
+    const result = await client.ffmpegTransform(...args)
+    return result.data
+  }
+}

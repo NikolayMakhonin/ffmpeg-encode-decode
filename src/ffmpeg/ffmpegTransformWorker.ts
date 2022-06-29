@@ -1,6 +1,6 @@
-import {parentPort, workerData} from 'worker_threads'
-import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
-import {FFmpegLoadEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
+import {parentPort} from 'worker_threads'
+import {createFFmpeg, FFmpeg} from '@flemist/ffmpeg.wasm-st'
+import {CreateFFmpegOptionsExt, FFmpegInitEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
 import {
   WorkerData,
   workerFunctionServer,
@@ -8,48 +8,42 @@ import {
   messagePortToEventBus,
 } from '@flemist/worker-server'
 
-let ffmpegOptions: FFmpegOptions = workerData
-
-let ffmpegLoadPromise: Promise<FFmpeg>
-function getFFmpeg(options?: FFmpegOptions) {
-  if (!ffmpegLoadPromise) {
-    ffmpegOptions = options
-    if (options.logger) {
-      options.logger = function logger(value) {
-        parentPort.postMessage({
-          callbackId: 'logger',
-          value,
-        })
-      }
-    } else {
-      delete options.logger
-    }
-
-    const ffmpeg = createFFmpeg(options)
-    ffmpegLoadPromise = ffmpeg.load().then(() => ffmpeg)
+let ffmpegOptions: CreateFFmpegOptionsExt
+let getFFmpegPromise: Promise<FFmpeg>
+function getFFmpeg() {
+  if (!ffmpegOptions) {
+    throw new Error('You should call ffmpegInit before')
+  }
+  if (!getFFmpegPromise) {
+    const ffmpeg = createFFmpeg(ffmpegOptions)
+    getFFmpegPromise = ffmpeg.load().then(() => ffmpeg)
   }
 
-  return ffmpegLoadPromise
+  return getFFmpegPromise
 }
 
-async function ffmpegLoad(
-  data: WorkerData<Omit<CreateFFmpegOptions, 'logger'>>,
+async function ffmpegInit(
+  data: WorkerData<Omit<FFmpegOptions, 'logger'>>,
   abortSignal, // TODO
-  callback: (data: WorkerData<FFmpegLoadEvent>) => void,
+  callback: (data: WorkerData<FFmpegInitEvent>) => void,
 ): WorkerFunctionServerResultAsync<void> {
-  const options: CreateFFmpegOptions = {
+  ffmpegOptions = {
     ...data.data,
   }
-  if (options.log) {
-    options.logger = ({type, message}) => {
+  if (ffmpegOptions.logger) {
+    ffmpegOptions.logger = ({type, message}) => {
       callback({data: {type, message}})
     }
   }
-  await getFFmpeg(options)
+  else {
+    delete ffmpegOptions.logger
+  }
+  if (ffmpegOptions.preload) {
+    await getFFmpeg()
+  }
   return {}
 }
 
-let ffmpegTransformRunCount: number = 0
 let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
   data: WorkerData<FFmpegTransformArgs>,
@@ -71,7 +65,7 @@ async function ffmpegTransform(
   } = data
 
   try {
-    const ffmpeg = await getFFmpeg(ffmpegOptions)
+    const ffmpeg = await getFFmpeg()
     // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
     ffmpeg.FS(
       'writeFile',
@@ -98,12 +92,6 @@ async function ffmpegTransform(
     }
   } finally {
     ffmpegTransformRunning = false
-    if (ffmpegTransformRunCount >= 15000) { // maximum 27054 according to stress test
-      console.log(`Unload ffmpegTransform worker after ${this._runCount} calls`)
-      process.exit(0)
-    }
-    ffmpegTransformRunCount++
-    console.log('ffmpegTransformRunCount = ' + ffmpegTransformRunCount)
   }
 }
 
@@ -114,5 +102,5 @@ workerFunctionServer({
 
 workerFunctionServer({
   eventBus: messagePortToEventBus(parentPort),
-  task    : ffmpegLoad,
+  task    : ffmpegInit,
 })
