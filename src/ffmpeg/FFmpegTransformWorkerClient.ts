@@ -87,7 +87,7 @@ export class FFmpegTransformClient {
       })
       return result
     } finally {
-      if (this._runCount >= 15) { // TODO: 15000 // default: 15000, maximum 27054 according to stress test
+      if (this._runCount >= 1000) { // TODO: 15000 // default: 15000, maximum 27054 according to stress test
         const runCount = this._runCount
         await this.terminate()
         await this.init()
