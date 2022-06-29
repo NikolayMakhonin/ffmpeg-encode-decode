@@ -76,7 +76,7 @@ export class FFmpegTransformClient {
 
   _runCount: number = 0
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
-    await this._init()
+    await this.init()
     try {
       this._runCount++
       const result = await this._ffmpegTransform({
