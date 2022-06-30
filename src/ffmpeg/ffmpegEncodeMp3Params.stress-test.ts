@@ -32,18 +32,17 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
   })
 
   it('vbr joint stereo stress MT', async function () {
-    for (let i = 0; i < 1000; i++) { // should be more than 30 iterations
-      console.log('iteration: ' + i)
-
+    for (let i = 0; i < 1000; i++) { // should be more than 31 iterations
+      const timeStart = Date.now()
       const promises = []
       for (let j = 0; j < 100; j++) {
         const promise = ffmpegTestVariants({
           encode: {
             encodeArgs: {
               outputFormat: 'mp3',
-              params: ffmpegEncodeMp3Params({
-                vbrQuality: 5,
-                mode: 'vbr',
+              params      : ffmpegEncodeMp3Params({
+                vbrQuality : 5,
+                mode       : 'vbr',
                 jointStereo: true,
               }),
             },
@@ -62,6 +61,22 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
       }
 
       await Promise.all(promises)
+
+      console.log(`iterations: ${i + 1}, ${Date.now() - timeStart} ms`)
     }
+
+    // CPU 8 cores
+    // <threads>: <time per iteration (100 ffmpegTestVariants calls)>
+    // 1: 39926 ms
+    // 2: 21995 ms
+    // 3: 16300 ms
+    // 4: 13622 ms
+    // 5: 13164 ms
+    // 6: 12501 ms
+    // 7: 12199 ms
+    // 8: 12122 ms
+    // 9: 12147 ms
+    // 10: 12228 ms
+
   })
 })
