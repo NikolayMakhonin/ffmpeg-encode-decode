@@ -1,7 +1,14 @@
 import {Worker} from 'worker_threads'
-import {FFmpegInitEvent, FFmpegInitOptions, FFmpegOptions, FFmpegTransformArgs} from './contracts'
 import {
-  IWorkerEventBus, WorkerData,
+  FFmpegInitEvent,
+  FFmpegInitOptions,
+  FFmpegOptions,
+  FFmpegTransformArgs,
+  IFFmpegTransformClient
+} from './contracts'
+import {
+  IWorkerEventBus,
+  WorkerData,
   WorkerFunctionClient,
   workerFunctionClient,
   WorkerFunctionClientEventBus,
@@ -28,9 +35,9 @@ function getWorkerFFmpegTransform(
   })
 }
 
-export class FFmpegTransformClient {
-  options?: FFmpegOptions
+export class FFmpegTransformClient implements IFFmpegTransformClient {
   private readonly _workerFilePath: string
+  options?: FFmpegOptions
   private _worker: Worker = null
   private _workerEventBus: IWorkerEventBus = null
   private _ffmpegInit: WorkerFunctionClient<FFmpegInitOptions, void, FFmpegInitEvent>
@@ -75,12 +82,13 @@ export class FFmpegTransformClient {
   }
 
   _runCount: number = 0
+
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
     await this.init()
     try {
       this._runCount++
       const result = await this._ffmpegTransform({
-        data        : args,
+        data: args,
         transferList: args[0].buffer instanceof SharedArrayBuffer
           ? null
           : [args[0].buffer],
@@ -106,12 +114,5 @@ export class FFmpegTransformClient {
       this._ffmpegInit = null
       this._ffmpegTransform = null
     }
-  }
-}
-
-export function getFFmpegTransform(client: FFmpegTransformClient) {
-  return async function ffmpegTransform(...args: FFmpegTransformArgs): Promise<Uint8Array> {
-    const result = await client.ffmpegTransform(...args)
-    return result.data
   }
 }

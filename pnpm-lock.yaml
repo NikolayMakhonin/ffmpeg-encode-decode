@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@flemist/async-utils': ^0.0.8
   '@flemist/ffmpeg.wasm-core-st': ^0.10.0
   '@flemist/ffmpeg.wasm-st': ^0.10.1
   '@flemist/worker-server': link:D:/projects/my/node/modules/worker-server
@@ -38,6 +39,7 @@ specifiers:
   typescript: ^4.7.4
 
 dependencies:
+  '@flemist/async-utils': 0.0.8
   '@flemist/ffmpeg.wasm-st': 0.10.1
   '@flemist/worker-server': link:../worker-server
   abortcontroller-polyfill: 1.7.3
@@ -305,6 +307,21 @@ packages:
       - supports-color
     dev: true
 
+  /@flemist/abort-controller-fast/0.0.5:
+    resolution: {integrity: sha512-ewpqfmNx+V5dqTzVBxi7syhhsFRk5ktNOd0d85tKyGkqwzoMyJSYGBPmycYhlUDSsIN/3Nb2EaE0tPOtfw6PNQ==}
+    dependencies:
+      tslib: 2.4.0
+    dev: false
+
+  /@flemist/async-utils/0.0.8:
+    resolution: {integrity: sha512-BV98b5/6a5EefJBhT8aa6RVfrT0GNo3L+OlUeo38is8jVPlggejWilUuXFfDx+0gfpLD49VlYjdlLet2FD5kFQ==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/abort-controller-fast': 0.0.5
+      '@flemist/time-controller': 0.0.1
+      tslib: 2.4.0
+    dev: false
+
   /@flemist/ffmpeg.wasm-core-st/0.10.0:
     resolution: {integrity: sha512-BGZM8vQcnWhrkotXQOKCiNRkfULa7I/XgI9WT+fSLFQpFhjWVqcH1xHY/3QfyRmDRZ8fAcGoE4l+u+rZ9xnGZg==}
     requiresBuild: true
@@ -321,6 +338,21 @@ packages:
       resolve-url: 0.2.1
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /@flemist/pairing-heap/0.0.1:
+    resolution: {integrity: sha512-bsXb0bYvrhkibbWAURawIvcR09l5sgRsnFAAwGXr1F1TPZqBL9KMzB0QTlwmokKkd3ci5GqsUUWE1BzK80l6Rg==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      tslib: 2.4.0
+    dev: false
+
+  /@flemist/time-controller/0.0.1:
+    resolution: {integrity: sha512-z2rddW0+5+fPc+rf3Irq1w1SCzxjYGmv6BrG98nuOXcByK0v+oIsAfslFQudUqJHxZ59fZ6WbzAlgRsLoFDYIw==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/pairing-heap': 0.0.1
+      tslib: 2.4.0
     dev: false
 
   /@humanwhocodes/config-array/0.9.5:

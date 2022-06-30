@@ -88,6 +88,7 @@
     "@flemist/ffmpeg.wasm-core-st": "^0.10.0"
   },
   "dependencies": {
+    "@flemist/async-utils": "^0.0.8",
     "@flemist/ffmpeg.wasm-st": "^0.10.1",
     "@flemist/worker-server": "link:D:/projects/my/node/modules/worker-server",
     "abortcontroller-polyfill": "^1.7.3",

@@ -5,12 +5,14 @@ import {shareSamples, testAudioFunc} from '../../common/test/generateTestSamples
 import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
-import {FFmpegTransformClient, getFFmpegTransform} from '../FFmpegTransformWorkerClient'
+import {getFFmpegTransform} from '../getFFmpegTransform'
+import {FFmpegTransformClientMT} from '../FFmpegTransformClientMT'
 
 let logSize = 0
-const ffmpegTransformClient = new FFmpegTransformClient(
+export const ffmpegTransformClient = new FFmpegTransformClientMT(
   './dist/ffmpeg/ffmpegTransformWorker.cjs',
   {
+    threads: 4,
     preload: true,
     log    : false,
     logger({data: {type, message}}) {
