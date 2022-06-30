@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import {createTestVariantsAsync, createTestVariantsSync} from './createTestVariants'
-import {delay} from './delay'
+import {delay} from "@flemist/async-utils";
 
 describe('test > testVariants', function () {
 	describe('sync', function () {

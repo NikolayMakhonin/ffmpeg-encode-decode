@@ -1,6 +1,7 @@
 # copy of .gitignore
 /dist/**/test/**
 /dist/**/*.test.*
+/dist/**/*.stress.*
 /tmp/
 /node_modules/
 

@@ -8,6 +8,7 @@ import {
   WorkerFunctionServerResultAsync,
   messagePortToEventBus,
 } from '@flemist/worker-server'
+import {IAbortSignalFast} from "@flemist/abort-controller-fast";
 
 let ffmpegOptions: CreateFFmpegOptionsExt
 let getFFmpegPromise: Promise<FFmpeg>
@@ -25,7 +26,7 @@ function getFFmpeg() {
 
 async function ffmpegInit(
   data: WorkerData<Omit<FFmpegOptions, 'logger'>>,
-  abortSignal, // TODO
+  abortSignal: IAbortSignalFast,
   callback: (data: WorkerData<FFmpegInitEvent>) => void,
 ): WorkerFunctionServerResultAsync<void> {
   ffmpegOptions = {
