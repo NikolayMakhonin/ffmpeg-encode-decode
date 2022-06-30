@@ -1,3 +1,4 @@
+/* eslint-disable array-element-newline */
 import {AudioSamples} from '../common/contracts'
 import {FFmpegTransform} from './contracts'
 

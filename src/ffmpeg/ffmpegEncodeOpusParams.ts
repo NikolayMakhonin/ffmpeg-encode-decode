@@ -1,3 +1,4 @@
+/* eslint-disable array-element-newline */
 export type OpusBitrate = 6 | 8 | 16 | 24 | 32 | 40 | 48 | 64 | 80 | 96 | 128 | 160 | 192 | 256
 export type OpusCompression = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 export type OpusApplication = 'voip' | 'audio' | 'lowdelay'
