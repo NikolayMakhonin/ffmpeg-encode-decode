@@ -93,7 +93,7 @@
     "typescript": "^4.7.4"
   },
   "optionalDependencies": {
-    "@flemist/ffmpeg.wasm-core-st": "^0.10.0"
+    "@flemist/ffmpeg.wasm-core-st": "^0.10.2"
   },
   "dependencies": {
     "@flemist/abort-controller-fast": "^0.0.5",

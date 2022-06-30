@@ -1,14 +1,9 @@
 import {testSamplesMono, testSamplesStereo} from './testSamples'
 import {testAudioFunc} from './generateTestSamples'
 import {checkSamples} from './checkSamples'
-import {ffmpegTransformClient} from '../../ffmpeg/test/ffmpegTest'
 
 describe('io > audio > ffmpeg > testSamples', function () {
-  this.timeout(60000)
-
-  after(async () => {
-    await ffmpegTransformClient.terminate()
-  })
+  this.timeout(10000)
 
   it('testSamplesStereo', function () {
     checkSamples({

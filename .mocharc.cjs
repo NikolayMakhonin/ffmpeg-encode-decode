@@ -10,5 +10,6 @@ module.exports = {
   ignore       : ['./**/*.d.ts'],
   'node-option': [
     // 'prof',
+    'trace-warnings',
   ],
 }

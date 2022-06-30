@@ -4,7 +4,7 @@ specifiers:
   '@flemist/abort-controller-fast': ^0.0.5
   '@flemist/async-utils': ^0.0.8
   '@flemist/copy-glob-flat': 0.0.5
-  '@flemist/ffmpeg.wasm-core-st': ^0.10.0
+  '@flemist/ffmpeg.wasm-core-st': ^0.10.2
   '@flemist/ffmpeg.wasm-st': ^0.10.1
   '@flemist/test-utils': 0.0.7
   '@flemist/test-variants': 0.0.16
@@ -49,7 +49,7 @@ dependencies:
   tslib: 2.4.0
 
 optionalDependencies:
-  '@flemist/ffmpeg.wasm-core-st': 0.10.0
+  '@flemist/ffmpeg.wasm-core-st': 0.10.2
 
 devDependencies:
   '@flemist/copy-glob-flat': 0.0.5
@@ -344,8 +344,8 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /@flemist/ffmpeg.wasm-core-st/0.10.0:
-    resolution: {integrity: sha512-BGZM8vQcnWhrkotXQOKCiNRkfULa7I/XgI9WT+fSLFQpFhjWVqcH1xHY/3QfyRmDRZ8fAcGoE4l+u+rZ9xnGZg==}
+  /@flemist/ffmpeg.wasm-core-st/0.10.2:
+    resolution: {integrity: sha512-Hu3GFJw/OEBZSvUPGREEW0rZFCLUJn2tXOhSgfcema44AH8GoVYuTEeIulyyai7Xs/H+Eb2ljRRF600POHygig==}
     requiresBuild: true
     dev: false
     optional: true
