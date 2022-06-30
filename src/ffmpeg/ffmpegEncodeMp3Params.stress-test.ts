@@ -32,7 +32,7 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
   })
 
   it('vbr joint stereo stress MT', async function () {
-    for (let i = 0; i < 1000; i++) { // should be more than 31 iterations
+    for (let i = 0; i < 10000; i++) { // should be more than (31 * threads) iterations
       const timeStart = Date.now()
       const promises = []
       for (let j = 0; j < 100; j++) {
