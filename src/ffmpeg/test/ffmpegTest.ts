@@ -12,7 +12,7 @@ let logSize = 0
 export const ffmpegTransformClient = new FFmpegTransformClientMT(
   './dist/ffmpeg/ffmpegTransformWorker.cjs',
   {
-    threads : 6,
+    threads : 3,
     preload : true,
     log     : false,
     loglevel: 'warning',
