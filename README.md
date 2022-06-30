@@ -86,6 +86,10 @@ export async function example() {
 }
 ```
 
+# License
+
+[Unlimited Free](LICENSE)
+
 [npm-image]: https://img.shields.io/npm/v/@flemist/ffmpeg-encode-decode.svg
 [npm-url]: https://npmjs.org/package/@flemist/ffmpeg-encode-decode
 [downloads-image]: https://img.shields.io/npm/dm/@flemist/ffmpeg-encode-decode.svg

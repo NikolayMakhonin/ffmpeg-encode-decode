@@ -1,12 +1,14 @@
+'use strict'
+
 module.exports = {
   require: [
     'tsconfig-paths/register',
     'ts-node/register',
-    './src/helpers/test/register.ts',
+    '@flemist/test-utils/register',
   ],
   'watch-files': ['./src/**'],
-  "node-option": [
-    // "experimental-wasm-threads",
-    // "experimental-wasm-bulk-memory",
+  ignore       : ['./**/*.d.ts'],
+  'node-option': [
+    // 'prof',
   ],
 }

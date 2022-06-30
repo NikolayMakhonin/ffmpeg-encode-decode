@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {parentPort, threadId} from 'worker_threads'
 import {createFFmpeg, FFmpeg} from '@flemist/ffmpeg.wasm-st'
 import {CreateFFmpegOptionsExt, FFmpegInitEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
@@ -7,7 +8,6 @@ import {
   WorkerFunctionServerResultAsync,
   messagePortToEventBus,
 } from '@flemist/worker-server'
-import {options} from "tsconfig-paths/lib/options";
 
 let ffmpegOptions: CreateFFmpegOptionsExt
 let getFFmpegPromise: Promise<FFmpeg>
