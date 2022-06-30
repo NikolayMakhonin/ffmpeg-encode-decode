@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="ci:test" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="lint:wizard" type="js.build_tools.npm" nameIsGenerated="true">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
-      <script value="ci:test" />
+      <script value="lint:wizard" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

@@ -1,8 +1,12 @@
 import {ffmpegEncodeVorbisParams} from './ffmpegEncodeVorbisParams'
-import {ffmpegTestVariants} from './test/ffmpegTest'
+import {ffmpegTestVariants, ffmpegTransformClient} from './test/ffmpegTest'
 
 describe('io > audio > ffmpeg > ffmpegEncodeVorbisParams', function () {
   this.timeout(60000)
+
+  after(async () => {
+    await ffmpegTransformClient.terminate()
+  })
 
   it('abr', async function () {
     await ffmpegTestVariants({

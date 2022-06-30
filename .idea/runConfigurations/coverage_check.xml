@@ -1,9 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="coverage-check" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="coverage:check" 
+type="js.build_tools.npm"
+nameIsGenerated="true">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
-      <script value="coverage-check" />
+      <script value="coverage:check" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

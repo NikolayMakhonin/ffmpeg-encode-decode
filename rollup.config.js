@@ -1,13 +1,15 @@
 import resolve from '@rollup/plugin-node-resolve'
 import multiInput from 'rollup-plugin-multi-input'
-import del from 'rollup-plugin-delete'
+// import del from 'rollup-plugin-delete'
 import typescript from '@rollup/plugin-typescript'
 import alias from '@rollup/plugin-alias'
 import replace from '@rollup/plugin-replace'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
-import path from "path"
+import tsTransformPaths from '@zerollup/ts-transform-paths'
+import path from 'path'
 import pkg from './package.json'
+import { createFilter } from '@rollup/pluginutils'
 
 const dev = !!process.env.ROLLUP_WATCH
 
@@ -37,7 +39,7 @@ const onwarnRollup = (warning, onwarn) => {
     ]
       .map(o => o?.toString()?.trim())
       .filter(o => o)
-      .join('\r\n') + '\r\n'
+      .join('\r\n') + '\r\n',
   )
 
   return false
@@ -46,27 +48,31 @@ const onwarnRollup = (warning, onwarn) => {
 const aliasOptions = {
   entries: [
     {
-      find: 'src',
-      replacement: path.resolve(__dirname, 'src')
+      find       : 'src',
+      replacement: path.resolve(__dirname, 'src'),
+    },
+    {
+      find       : '~',
+      replacement: path.resolve(__dirname),
     },
   ],
 }
 
-const serverConfig = {
-  cache: true,
-  input: [
-    'src/**/*.ts'
-  ],
+const nodeConfig = ({
+  input, outputDir, relative, format, extension,
+}) => ({
+  cache : true,
+  input,
   output: {
-    dir: 'dist',
-    format: 'cjs',
-    exports: 'named',
-    entryFileNames: `[name].cjs`,
-    chunkFileNames: '[name].cjs',
+    dir           : outputDir,
+    format        : format,
+    exports       : 'named',
+    entryFileNames: '[name].' + extension,
+    chunkFileNames: '[name].' + extension,
+    sourcemap     : dev,
   },
   plugins: [
-    del({ targets: 'dist/*' }),
-    multiInput(),
+    multiInput({relative}),
     alias(aliasOptions),
     json(),
     replace({
@@ -77,13 +83,53 @@ const serverConfig = {
       transformMixedEsModules: true,
     }),
     typescript({
-      sourceMap: dev,
+      sourceMap     : dev,
+      declarationDir: outputDir,
+      declaration   : true,
+      transformers  : {
+        before: [
+          {
+            type   : 'program',
+            factory: (program) => {
+              return tsTransformPaths(program).before
+            },
+          },
+        ],
+        afterDeclarations: [
+          {
+            type   : 'program',
+            factory: (program) => {
+              return tsTransformPaths(program).afterDeclarations
+            },
+          },
+        ],
+      },
     }),
   ],
-  onwarn: onwarnRollup,
-  external: Object.keys(pkg.dependencies)
-    .concat(Object.keys(pkg.devDependencies))
-    .concat(require('module').builtinModules || Object.keys(process.binding('natives'))),
-}
+  onwarn  : onwarnRollup,
+  external: createFilter([
+    'src/**/*.{js,cjs,mjs}',
+    ...[
+      ...Object.keys(pkg.dependencies),
+      ...Object.keys(pkg.devDependencies),
+      ...require('module').builtinModules || Object.keys(process.binding('natives')),
+    ].map(o => `**/node_modules/${o}/**`),
+  ]),
+})
 
-export default [serverConfig]
+export default [
+  nodeConfig({
+    input    : ['src/**/*.ts'],
+    outputDir: 'dist',
+    relative : 'src',
+    format   : 'es',
+    extension: 'mjs',
+  }),
+  nodeConfig({
+    input    : ['src/**/*.ts'],
+    outputDir: 'dist',
+    relative : 'src',
+    format   : 'cjs',
+    extension: 'cjs',
+  }),
+]

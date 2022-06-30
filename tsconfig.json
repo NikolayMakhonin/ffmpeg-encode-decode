@@ -5,16 +5,16 @@
     },
   },
   "include": [
+    "@types/**/*",
     "src/**/*"
   ],
   "exclude": [
-    "node_modules/*",
-    "dist/*"
+    "node_modules/**/*",
+    "dist/**/*"
   ],
   "compilerOptions": {
     "target": "es6",
     "module": "es6",
-    "allowJs": true,
     "isolatedModules": false,
     "declaration": false,
     "emitDeclarationOnly": true,
@@ -22,15 +22,24 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
     "newLine": "LF",
     "typeRoots": [
-      "node_modules/@types"
+      "node_modules/@types",
+      "@types"
     ],
     "lib": [
       "DOM",
-      "ES6",
-      "ES2020.Promise"
+      "ESNext"
     ],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "src/*": [
+        "src/*"
+      ],
+      "~/*": [
+        "./*"
+      ]
+    }
   }
 }

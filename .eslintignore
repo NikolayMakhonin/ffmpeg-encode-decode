@@ -1,0 +1,12 @@
+# copy of .gitignore
+/dist/**/test/**
+/dist/**/*.test.*
+/dist/**/*.stress.*
+/tmp/
+/node_modules/
+
+# additional rules
+/.idea/
+/.github/
+/dist/
+/docs/

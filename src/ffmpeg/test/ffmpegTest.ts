@@ -5,18 +5,26 @@ import {shareSamples, testAudioFunc} from '../../common/test/generateTestSamples
 import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
-import {saveFile} from '../../common/test/saveFile'
-import {createFFmpegTransform} from '../createFFmpegTransform'
+import {getFFmpegTransform} from '../getFFmpegTransform'
+import {FFmpegTransformClientMT} from '../FFmpegTransformClientMT'
 
 let logSize = 0
-const ffmpegTransform = createFFmpegTransform({
-  log: false,
-  logger({type, message}) {
-    logSize += `[${type}] ${message}\n`.length
-    console.log('Log: ' + logSize)
-    // console.log(`[${type}] ${message}`)
+export const ffmpegTransformClient = new FFmpegTransformClientMT(
+  './dist/ffmpeg/ffmpegTransformWorker.cjs',
+  {
+    threads : 6,
+    preload : true,
+    log     : false,
+    loglevel: 'warning',
+    logger({data: {threadId, type, message}}) {
+      logSize += `[${type}] ${message}\n`.length
+      console.log(`Log (${threadId}): ` + logSize)
+      console.log(`[${threadId}] [${type}] ${message}`)
+    },
   },
-})
+)
+
+const ffmpegTransform = getFFmpegTransform(ffmpegTransformClient)
 
 export async function ffmpegTestEncode({
   inputType,
@@ -88,7 +96,7 @@ export async function ffmpegTestDecode({
   },
 }) {
   const samples = await ffmpegDecode(ffmpegTransform, inputData, decodeArgs)
-  
+
   // const _data = await ffmpegEncode(samples, {
   //   outputFormat: 'mp3',
   //   params      : ffmpegEncodeMp3Params({
@@ -97,7 +105,7 @@ export async function ffmpegTestDecode({
   //   }),
   // })
   // await saveFile('mpeg.mp3', _data)
-  
+
   checkSamples({
     samples,
     checkAudioFunc       : testAudioFunc,

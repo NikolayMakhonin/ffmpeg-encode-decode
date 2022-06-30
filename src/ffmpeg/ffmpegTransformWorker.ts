@@ -1,86 +1,115 @@
-import {parentPort, workerData} from 'worker_threads'
-import {createFFmpeg, CreateFFmpegOptions, FFmpeg} from '@flemist/ffmpeg.wasm-st'
-import {FFmpegTransformArgs} from './contracts'
+/* eslint-disable */
+import {parentPort, threadId} from 'worker_threads'
+import {createFFmpeg, FFmpeg} from '@flemist/ffmpeg.wasm-st'
+import {CreateFFmpegOptionsExt, FFmpegInitEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
+import {
+  WorkerData,
+  workerFunctionServer,
+  WorkerFunctionServerResultAsync,
+  messagePortToEventBus,
+} from '@flemist/worker-server'
+import {IAbortSignalFast} from "@flemist/abort-controller-fast";
 
-let ffmpegLoadPromise: Promise<FFmpeg>
-export function getFFmpeg(options?: CreateFFmpegOptions) {
-  if (!ffmpegLoadPromise) {
-    if (options.logger) {
-      options.logger = function logger(value) {
-        parentPort.postMessage({
-          type: 'logger',
-          value,
-        })
+let ffmpegOptions: CreateFFmpegOptionsExt
+let getFFmpegPromise: Promise<FFmpeg>
+function getFFmpeg() {
+  if (!ffmpegOptions) {
+    throw new Error('You should call ffmpegInit before')
+  }
+  if (!getFFmpegPromise) {
+    const ffmpeg = createFFmpeg(ffmpegOptions)
+    getFFmpegPromise = ffmpeg.load().then(() => ffmpeg)
+  }
+
+  return getFFmpegPromise
+}
+
+async function ffmpegInit(
+  data: WorkerData<Omit<FFmpegOptions, 'logger'>>,
+  abortSignal: IAbortSignalFast,
+  callback: (data: WorkerData<FFmpegInitEvent>) => void,
+): WorkerFunctionServerResultAsync<void> {
+  ffmpegOptions = {
+    ...data.data,
+  }
+  if (ffmpegOptions.logger) {
+    ffmpegOptions.logger = ({type, message}) => {
+      if (type === 'info'
+        && !(ffmpegOptions.loglevel === 'info'
+        || ffmpegOptions.loglevel === 'verbose'
+        || ffmpegOptions.loglevel === 'debug')
+      ) {
+        return
       }
-    } else {
-      delete options.logger
+      callback({data: {threadId, type, message}})
     }
-
-    const ffmpeg = createFFmpeg(options)
-    ffmpegLoadPromise = ffmpeg.load().then(() => ffmpeg)
   }
-
-  return ffmpegLoadPromise
+  else {
+    delete ffmpegOptions.logger
+  }
+  if (ffmpegOptions.preload) {
+    await getFFmpeg()
+  }
+  return {}
 }
 
+let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
-  inputData: Uint8Array,
-  {
-    inputFile,
-    outputFile,
-    params,
-  }: {
-    inputFile?: string,
-    outputFile?: string,
-    params?: string[],
-  },
-): Promise<Uint8Array> {
-  const ffmpeg = await getFFmpeg(workerData)
-  // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
-  ffmpeg.FS(
-    'writeFile',
-    inputFile,
-    inputData,
-  )
-
-  await ffmpeg.run(
-    '-loglevel', workerData.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
-    ...params,
-  )
-
-  const outputData = ffmpeg.FS(
-    'readFile',
-    outputFile,
-  )
-
-  ffmpeg.FS('unlink', inputFile)
-  ffmpeg.FS('unlink', outputFile)
-
-  return outputData
-}
-
-let isRunning: boolean = false
-parentPort.on('message', async (value: FFmpegTransformArgs) => {
-  if (isRunning) {
-    parentPort.postMessage({
-      type : 'ffmpegTransform',
-      value: new Error('ffmpegTransform is running'),
-    })
+  data: WorkerData<FFmpegTransformArgs>,
+): WorkerFunctionServerResultAsync<Uint8Array> {
+  if (ffmpegTransformRunning) {
+    throw new Error('ffmpegTransform is running')
   }
-  isRunning = true
+  ffmpegTransformRunning = true
+
+  const {
+    data: [
+      inputData,
+      {
+        inputFile,
+        outputFile,
+        params,
+      },
+    ],
+  } = data
 
   try {
-    const result = await ffmpegTransform(...value)
-    parentPort.postMessage({
-      type : 'ffmpegTransform',
-      value: result,
-    }, [result])
-  } catch (err) {
-    parentPort.postMessage({
-      type : 'ffmpegTransform',
-      value: err,
-    })
+    const ffmpeg = await getFFmpeg()
+    // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
+    ffmpeg.FS(
+      'writeFile',
+      inputFile,
+      inputData,
+    )
+
+    await ffmpeg.run(
+      '-loglevel', ffmpegOptions.loglevel || 'error', // '-v', 'quiet', '-nostats', '-hide_banner',
+      ...params,
+    )
+
+    const outputData = ffmpeg.FS(
+      'readFile',
+      outputFile,
+    )
+
+    ffmpeg.FS('unlink', inputFile)
+    ffmpeg.FS('unlink', outputFile)
+
+    return {
+      data        : outputData,
+      transferList: [outputData.buffer],
+    }
   } finally {
-    isRunning = false
+    ffmpegTransformRunning = false
   }
+}
+
+workerFunctionServer({
+  eventBus: messagePortToEventBus(parentPort),
+  task    : ffmpegTransform,
+})
+
+workerFunctionServer({
+  eventBus: messagePortToEventBus(parentPort),
+  task    : ffmpegInit,
 })

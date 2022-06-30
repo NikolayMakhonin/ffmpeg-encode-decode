@@ -1,12 +1,13 @@
+/* eslint-disable array-element-newline */
 import {AudioSamples} from '../common/contracts'
 import {FFmpegTransform} from './contracts'
 
-let encodeInputSize = 0
-let encodeOutputSize = 0
-let encodeCount = 0
-let decodeInputSize = 0
-let decodeOutputSize = 0
-let decodeCount = 0
+// let encodeInputSize = 0
+// let encodeOutputSize = 0
+// let encodeCount = 0
+// let decodeInputSize = 0
+// let decodeOutputSize = 0
+// let decodeCount = 0
 
 export type FFmpegDecodeArgs = {
   /** same as file extension */
@@ -26,7 +27,7 @@ export async function ffmpegDecode(
 ): Promise<AudioSamples> {
   const inputFile = 'input' + (inputFormat ? '.' + inputFormat : '')
   const outputFile = 'output.pcm'
-  decodeInputSize += inputData.byteLength
+  // decodeInputSize += inputData.byteLength
 
   const outputData = await ffmpegTransform(
     inputData,
@@ -45,8 +46,8 @@ export async function ffmpegDecode(
   )
 
   // decodeOutputSize += outputData.byteLength
-  decodeCount++
-  console.log(`Decode: ${decodeCount}, ${decodeInputSize}, ${decodeOutputSize}`)
+  // decodeCount++
+  // console.log(`Decode: ${decodeCount}, ${decodeInputSize}, ${decodeOutputSize}`)
 
   return {
     data: new Float32Array(outputData.buffer, outputData.byteOffset, outputData.byteLength / 4),
@@ -81,6 +82,8 @@ export async function ffmpegEncode(
     samples.data.byteLength,
   )
 
+  // encodeInputSize += pcmData.byteLength
+
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
   const outputData = await ffmpegTransform(
     pcmData,
@@ -99,10 +102,9 @@ export async function ffmpegEncode(
     },
   )
 
-  encodeInputSize += pcmData.byteLength
-  encodeOutputSize += outputData.byteLength
-  encodeCount++
-  console.log(`Encode: ${encodeCount}, ${encodeInputSize}, ${encodeOutputSize}`)
+  // encodeOutputSize += outputData.byteLength
+  // encodeCount++
+  // console.log(`Encode: ${encodeCount}, ${encodeInputSize}, ${encodeOutputSize}`)
 
   return outputData
 }

@@ -1,8 +1,12 @@
 import {ffmpegEncodeOpusParams} from './ffmpegEncodeOpusParams'
-import {ffmpegTestVariants} from './test/ffmpegTest'
+import {ffmpegTestVariants, ffmpegTransformClient} from './test/ffmpegTest'
 
 xdescribe('io > audio > ffmpeg > ffmpegEncodeOpusParams', function () {
   this.timeout(60000)
+
+  after(async () => {
+    await ffmpegTransformClient.terminate()
+  })
 
   it('audio', async function () {
     await ffmpegTestVariants({

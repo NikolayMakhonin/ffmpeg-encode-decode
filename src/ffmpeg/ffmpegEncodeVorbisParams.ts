@@ -20,7 +20,8 @@ export function ffmpegEncodeVorbisParams(options: {
 
   if (vbr) {
     result.push('-q:a', vbrQuality + '')
-  } else {
+  }
+  else {
     result.push('-b:a', bitrate + 'k')
   }
 

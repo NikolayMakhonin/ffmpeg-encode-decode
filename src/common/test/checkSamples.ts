@@ -25,7 +25,8 @@ function getFirstMaximum({
       if (i === windowSize - 1 || avg > prevAvg) {
         prevAvg = avg
         maximumStart = i
-      } else if (prevAvg > 0.1 && avg < prevAvg) {
+      }
+      else if (prevAvg > 0.1 && avg < prevAvg) {
         maximumEnd = i - 1
         break
       }
