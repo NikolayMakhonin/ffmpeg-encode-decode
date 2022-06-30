@@ -75,7 +75,7 @@
     "@zerollup/ts-transform-paths": "1.7.18",
     "cpy-cli": "=3.1.1",
     "eslint": "8.18.0",
-    "eslint-config-pro": "3.0.15",
+    "eslint-config-pro": "3.0.16",
     "eslint-nibble": "8.0.2",
     "fs-extra": "10.1.0",
     "globby": "=11.1.0",
