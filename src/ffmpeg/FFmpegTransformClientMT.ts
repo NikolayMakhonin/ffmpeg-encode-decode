@@ -24,7 +24,7 @@ export class FFmpegTransformClientMT implements IFFmpegTransformClient {
       },
     })
     if (this.options.preload) {
-      this._clientPool.allocate()
+      void this._clientPool.allocate()
     }
   }
 
