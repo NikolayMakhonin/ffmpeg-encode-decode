@@ -88,7 +88,8 @@ function _createTestVariants<TArgs extends object>(
         // eslint-disable-next-line no-debugger
         debugger
         test(variantArgs)
-      } catch {
+      }
+      catch {
         // eslint-disable-next-line no-debugger
         debugger
       }
@@ -108,7 +109,8 @@ function _createTestVariants<TArgs extends object>(
             if (promise && typeof promise.then === 'function') {
               await promise
             }
-          } catch (err) {
+          }
+          catch (err) {
             onError(err)
           }
         }
@@ -122,7 +124,8 @@ function _createTestVariants<TArgs extends object>(
       try {
         iteration++
         test(variantArgs)
-      } catch (err) {
+      }
+      catch (err) {
         onError(err)
       }
     }

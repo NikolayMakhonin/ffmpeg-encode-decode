@@ -30,7 +30,8 @@ export function testAudioFunc(time: number, channel: number, splitMono?: boolean
       default:
         throw new Error('channel === ' + channel)
     }
-  } else {
+  }
+  else {
     switch (channel) {
       case 0:
         if (time <= 2) {

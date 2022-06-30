@@ -48,7 +48,8 @@ export class FFmpegWrapper implements FFmpeg {
         throw new Error(`run count > ${this.maxRunCount}`)
       }
       return this._ffmpeg.run(...args)
-    } finally {
+    }
+    finally {
       this.runInProcess = false
     }
   }

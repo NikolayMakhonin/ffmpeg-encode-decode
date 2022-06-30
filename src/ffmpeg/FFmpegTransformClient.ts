@@ -94,7 +94,8 @@ export class FFmpegTransformClient implements IFFmpegTransformClient {
           : [args[0].buffer],
       })
       return result
-    } finally {
+    }
+    finally {
       if (this._runCount >= 15000) { // default: 15000, maximum 27054 according to stress test
         const runCount = this._runCount
         await this.terminate()

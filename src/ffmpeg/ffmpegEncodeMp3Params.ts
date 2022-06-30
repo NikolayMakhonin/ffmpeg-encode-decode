@@ -19,7 +19,8 @@ export function ffmpegEncodeMp3Params(options: {
 
   if (mode === 'vbr') {
     result.push('-q:a', vbrQuality + '')
-  } else {
+  }
+  else {
     result.push('-b:a', bitrate + 'k')
   }
 
