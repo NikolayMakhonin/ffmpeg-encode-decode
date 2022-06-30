@@ -4,7 +4,7 @@ import {checkSamples} from './checkSamples'
 import {ffmpegTransformClient} from '../../ffmpeg/test/ffmpegTest'
 
 describe('io > audio > ffmpeg > testSamples', function () {
-  this.timeout(10000)
+  this.timeout(60000)
 
   after(async () => {
     await ffmpegTransformClient.terminate()
