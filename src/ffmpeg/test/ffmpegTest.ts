@@ -12,13 +12,14 @@ let logSize = 0
 export const ffmpegTransformClient = new FFmpegTransformClientMT(
   './dist/ffmpeg/ffmpegTransformWorker.cjs',
   {
-    threads: 4,
-    preload: true,
-    log    : false,
-    logger({data: {type, message}}) {
+    threads : 4,
+    preload : true,
+    log     : false,
+    loglevel: 'warning',
+    logger({data: {threadId, type, message}}) {
       logSize += `[${type}] ${message}\n`.length
-      console.log('Log: ' + logSize)
-      // console.log(`[${type}] ${message}`)
+      console.log(`Log (${threadId}): ` + logSize)
+      console.log(`[${threadId}] [${type}] ${message}`)
     },
   },
 )

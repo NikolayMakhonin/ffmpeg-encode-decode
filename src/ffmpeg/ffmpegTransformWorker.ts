@@ -1,4 +1,4 @@
-import {parentPort} from 'worker_threads'
+import {parentPort, threadId} from 'worker_threads'
 import {createFFmpeg, FFmpeg} from '@flemist/ffmpeg.wasm-st'
 import {CreateFFmpegOptionsExt, FFmpegInitEvent, FFmpegOptions, FFmpegTransformArgs} from './contracts'
 import {
@@ -7,6 +7,7 @@ import {
   WorkerFunctionServerResultAsync,
   messagePortToEventBus,
 } from '@flemist/worker-server'
+import {options} from "tsconfig-paths/lib/options";
 
 let ffmpegOptions: CreateFFmpegOptionsExt
 let getFFmpegPromise: Promise<FFmpeg>
@@ -32,7 +33,14 @@ async function ffmpegInit(
   }
   if (ffmpegOptions.logger) {
     ffmpegOptions.logger = ({type, message}) => {
-      callback({data: {type, message}})
+      if (type === 'info'
+        && !(ffmpegOptions.loglevel === 'info'
+        || ffmpegOptions.loglevel === 'verbose'
+        || ffmpegOptions.loglevel === 'debug')
+      ) {
+        return
+      }
+      callback({data: {threadId, type, message}})
     }
   }
   else {

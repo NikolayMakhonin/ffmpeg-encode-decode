@@ -4,7 +4,7 @@ import {
   FFmpegInitOptions,
   FFmpegOptions,
   FFmpegTransformArgs,
-  IFFmpegTransformClient
+  IFFmpegTransformClient,
 } from './contracts'
 import {
   IWorkerEventBus,
@@ -88,7 +88,7 @@ export class FFmpegTransformClient implements IFFmpegTransformClient {
     try {
       this._runCount++
       const result = await this._ffmpegTransform({
-        data: args,
+        data        : args,
         transferList: args[0].buffer instanceof SharedArrayBuffer
           ? null
           : [args[0].buffer],

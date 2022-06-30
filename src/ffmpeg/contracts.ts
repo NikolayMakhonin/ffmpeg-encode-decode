@@ -5,7 +5,7 @@ import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
 
 export type FFmpegLogLevel = 'quiet' | 'panic' | 'fatal' | 'error' | 'warning' | 'info' | 'verbose' | 'debug'
 
-export type FFmpegInitEvent = {type: string, message: string}
+export type FFmpegInitEvent = {threadId: number, type: string, message: string}
 
 export type CreateFFmpegOptionsExt = CreateFFmpegOptions & {
   preload?: boolean,
