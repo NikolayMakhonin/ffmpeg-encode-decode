@@ -4,7 +4,7 @@ specifiers:
   '@flemist/async-utils': ^0.0.8
   '@flemist/ffmpeg.wasm-core-st': ^0.10.0
   '@flemist/ffmpeg.wasm-st': ^0.10.1
-  '@flemist/worker-server': link:D:/projects/my/node/modules/worker-server
+  '@flemist/worker-server': ^0.0.1
   '@rollup/plugin-alias': 3.1.9
   '@rollup/plugin-commonjs': '=21.1.0'
   '@rollup/plugin-json': 4.1.0
@@ -41,7 +41,7 @@ specifiers:
 dependencies:
   '@flemist/async-utils': 0.0.8
   '@flemist/ffmpeg.wasm-st': 0.10.1
-  '@flemist/worker-server': link:../worker-server
+  '@flemist/worker-server': 0.0.1
   abortcontroller-polyfill: 1.7.3
   tslib: 2.4.0
 
@@ -313,6 +313,15 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@flemist/async-utils/0.0.3:
+    resolution: {integrity: sha512-fV9d6Y14HcLDDKd6QqmN3KFgRQMq2Gp9o+13OhWkrw9+xKZIQ9LL9MJ0GfLM8xDk9vtXdpXWc5e7ibtKmuTi+A==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/abort-controller-fast': 0.0.5
+      '@flemist/time-controller': 0.0.1
+      tslib: 2.4.0
+    dev: false
+
   /@flemist/async-utils/0.0.8:
     resolution: {integrity: sha512-BV98b5/6a5EefJBhT8aa6RVfrT0GNo3L+OlUeo38is8jVPlggejWilUuXFfDx+0gfpLD49VlYjdlLet2FD5kFQ==}
     engines: {node: '>=10.4.0', pnpm: ^7.1.6}
@@ -352,6 +361,15 @@ packages:
     engines: {node: '>=10.4.0', pnpm: ^7.1.6}
     dependencies:
       '@flemist/pairing-heap': 0.0.1
+      tslib: 2.4.0
+    dev: false
+
+  /@flemist/worker-server/0.0.1:
+    resolution: {integrity: sha512-QsClINjhldIlkxvIVnwSG7BbujsvS+FuOYnRVqYwTbbF2jm219XbKeBmMYIgwsUHfiRo3eCxVosDgvGAYpbRVQ==}
+    engines: {node: '>=12.11.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/abort-controller-fast': 0.0.5
+      '@flemist/async-utils': 0.0.3
       tslib: 2.4.0
     dev: false
 

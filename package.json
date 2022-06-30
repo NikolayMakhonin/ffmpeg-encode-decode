@@ -90,7 +90,7 @@
   "dependencies": {
     "@flemist/async-utils": "^0.0.8",
     "@flemist/ffmpeg.wasm-st": "^0.10.1",
-    "@flemist/worker-server": "link:D:/projects/my/node/modules/worker-server",
+    "@flemist/worker-server": "^0.0.1",
     "abortcontroller-polyfill": "^1.7.3",
     "tslib": "^2.4.0"
   }

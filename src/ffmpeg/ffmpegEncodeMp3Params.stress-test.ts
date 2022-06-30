@@ -1,9 +1,13 @@
 import './test/processExitDebug'
 import {ffmpegEncodeMp3Params} from './ffmpegEncodeMp3Params'
-import {ffmpegTestVariants} from './test/ffmpegTest'
+import {ffmpegTestVariants, ffmpegTransformClient} from './test/ffmpegTest'
 
 describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
   this.timeout(24 * 60 * 60 * 1000)
+
+  after(async () => {
+    await ffmpegTransformClient.terminate()
+  })
 
   it('vbr joint stereo stress', async function () {
     for (let i = 0; i < 100000; i++) { // should be more than 3007 iterations
