@@ -38,8 +38,12 @@ export type FFmpegTransform = (...args: FFmpegTransformArgs) => Promise<Uint8Arr
 //   load(): Promise<void>
 //   run<T>(func: (ffmpeg: FFmpeg) => T|Promise<T>): Promise<T>
 // }
-export interface IFFmpegTransformClient {
-  ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
 
-  terminate(): Promise<void>;
+export interface IWorkerClient {
+  init(): Promise<void>|void;
+  terminate(): Promise<void>|void;
+}
+
+export interface IFFmpegTransformClient extends IWorkerClient {
+  ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
 }

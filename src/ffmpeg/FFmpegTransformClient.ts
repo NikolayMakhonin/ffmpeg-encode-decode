@@ -1,4 +1,3 @@
-import {Worker} from 'worker_threads'
 import {
   FFmpegClientOptions,
   FFmpegInitEvent,
@@ -12,11 +11,10 @@ import {
   WorkerFunctionClient,
   workerFunctionClient,
   WorkerFunctionClientEventBus,
-  workerToEventBus,
 } from '@flemist/worker-server'
 import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
-import path from 'path'
 import {ffmpegTransformWorkerPath} from './paths.cjs'
+import {WorkerClient} from 'src/ffmpeg/WorkerClient'
 
 function getWorkerFFmpegInit(
   workerEventBus: WorkerFunctionClientEventBus<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegInitEvent>,
@@ -36,37 +34,31 @@ function getWorkerFFmpegTransform(
   })
 }
 
-export class FFmpegTransformClient implements IFFmpegTransformClient {
-  private readonly _workerFilePath: string
-  options?: FFmpegClientOptions
-  private _worker: Worker = null
-  private _workerEventBus: IWorkerEventBus = null
+export class FFmpegTransformClient
+  extends WorkerClient<FFmpegClientOptions>
+  implements IFFmpegTransformClient {
+
+  private _runCount: number = 0
   private _ffmpegInit: WorkerFunctionClient<FFmpegInitOptions, void, FFmpegInitEvent>
   private _ffmpegTransform: WorkerFunctionClient<FFmpegTransformArgs, Uint8Array, void>
 
-  constructor(options?: FFmpegClientOptions) {
-    this._workerFilePath = ffmpegTransformWorkerPath
-    this.options = options || {}
-    if (this.options.preload) {
-      void this.init()
-    }
+  constructor({
+    preInit,
+    options,
+  }: {
+    preInit: boolean,
+    options?: FFmpegClientOptions,
+  }) {
+    super({
+      workerFilePath: ffmpegTransformWorkerPath,
+      options       : options || {},
+      preInit,
+    })
   }
 
-  _initPromise: Promise<void>
-  private init() {
-    if (!this._initPromise) {
-      this._initPromise = this._init()
-    }
-    return this._initPromise
-  }
-
-  private async _init() {
-    this._worker = new Worker(path.resolve(this._workerFilePath))
-    this._workerEventBus = workerToEventBus(this._worker)
-
-    this._ffmpegInit = getWorkerFFmpegInit(this._workerEventBus)
-    this._ffmpegTransform = getWorkerFFmpegTransform(this._workerEventBus)
-
+  protected async _init(workerEventBus: IWorkerEventBus) {
+    this._ffmpegInit = getWorkerFFmpegInit(workerEventBus)
+    this._ffmpegTransform = getWorkerFFmpegTransform(workerEventBus)
     const options = {
       ...this.options,
       logger: !!this.options.logger,
@@ -81,8 +73,6 @@ export class FFmpegTransformClient implements IFFmpegTransformClient {
       },
     )
   }
-
-  _runCount: number = 0
 
   async ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
     await this.init()
@@ -106,15 +96,9 @@ export class FFmpegTransformClient implements IFFmpegTransformClient {
     }
   }
 
-  async terminate() {
-    if (this._worker) {
-      await this._worker?.terminate()
-      this._worker = null
-      this._workerEventBus = null
-      this._runCount = 0
-      this._initPromise = null
-      this._ffmpegInit = null
-      this._ffmpegTransform = null
-    }
+  protected _terminate() {
+    this._runCount = 0
+    this._ffmpegInit = null
+    this._ffmpegTransform = null
   }
 }

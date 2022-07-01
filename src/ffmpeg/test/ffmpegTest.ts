@@ -9,9 +9,10 @@ import {getFFmpegTransform} from '../getFFmpegTransform'
 import {FFmpegTransformClientMT} from '../FFmpegTransformClientMT'
 
 let logSize = 0
-export const ffmpegTransformClient = new FFmpegTransformClientMT(
-  {
-    threads : 3,
+export const ffmpegTransformClient = new FFmpegTransformClientMT({
+  threads: 3,
+  preInit: true,
+  options: {
     preload : true,
     log     : false,
     loglevel: 'warning',
@@ -21,7 +22,7 @@ export const ffmpegTransformClient = new FFmpegTransformClientMT(
       console.log(`[${threadId}] [${type}] ${message}`)
     },
   },
-)
+})
 
 const ffmpegTransform = getFFmpegTransform(ffmpegTransformClient)
 
