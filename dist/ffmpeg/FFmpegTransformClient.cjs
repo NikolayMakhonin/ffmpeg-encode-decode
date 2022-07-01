@@ -6,6 +6,7 @@ var tslib = require('tslib');
 var worker_threads = require('worker_threads');
 var workerServer = require('@flemist/worker-server');
 var path = require('path');
+var paths_cjs = require('./paths.cjs');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -24,11 +25,11 @@ function getWorkerFFmpegTransform(workerEventBus) {
     });
 }
 class FFmpegTransformClient {
-    constructor(workerFilePath, options) {
+    constructor(options) {
         this._worker = null;
         this._workerEventBus = null;
         this._runCount = 0;
-        this._workerFilePath = workerFilePath;
+        this._workerFilePath = paths_cjs.ffmpegTransformWorkerPath;
         this.options = options || {};
         if (this.options.preload) {
             void this.init();

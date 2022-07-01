@@ -2,6 +2,7 @@ import { __awaiter } from 'tslib';
 import { Worker } from 'worker_threads';
 import { workerToEventBus, workerFunctionClient } from '@flemist/worker-server';
 import path from 'path';
+import { ffmpegTransformWorkerPath } from './paths.cjs';
 
 function getWorkerFFmpegInit(workerEventBus) {
     return workerFunctionClient({
@@ -16,11 +17,11 @@ function getWorkerFFmpegTransform(workerEventBus) {
     });
 }
 class FFmpegTransformClient {
-    constructor(workerFilePath, options) {
+    constructor(options) {
         this._worker = null;
         this._workerEventBus = null;
         this._runCount = 0;
-        this._workerFilePath = workerFilePath;
+        this._workerFilePath = ffmpegTransformWorkerPath;
         this.options = options || {};
         if (this.options.preload) {
             void this.init();

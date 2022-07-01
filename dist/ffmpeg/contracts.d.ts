@@ -13,6 +13,7 @@ export declare type CreateFFmpegOptionsExt = CreateFFmpegOptions & {
 export declare type FFmpegOptions = Omit<CreateFFmpegOptionsExt, 'logger'> & {
     logger?: (event: WorkerData<FFmpegInitEvent>) => void;
 };
+export declare type FFmpegClientOptions = FFmpegOptions & {};
 export declare type FFmpegInitOptions = Omit<FFmpegOptions, 'logger'> & {
     logger?: boolean;
 };

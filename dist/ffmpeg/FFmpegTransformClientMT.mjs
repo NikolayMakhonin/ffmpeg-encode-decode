@@ -4,10 +4,10 @@ import { ObjectPool } from '@flemist/async-utils';
 import 'worker_threads';
 import '@flemist/worker-server';
 import 'path';
+import './paths.cjs';
 
 class FFmpegTransformClientMT {
-    constructor(workerFilePath, options) {
-        this._workerFilePath = workerFilePath;
+    constructor(options) {
         this.options = options || {};
         this._clientPool = new ObjectPool({
             maxSize: options.threads || 1,
@@ -24,7 +24,7 @@ class FFmpegTransformClientMT {
         }
     }
     _createClient() {
-        return new FFmpegTransformClient(this._workerFilePath, this.options);
+        return new FFmpegTransformClient(this.options);
     }
     ffmpegTransform(...args) {
         return this._clientPool.use((client) => {

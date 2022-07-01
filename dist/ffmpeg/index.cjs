@@ -13,6 +13,7 @@ require('tslib');
 require('worker_threads');
 require('@flemist/worker-server');
 require('path');
+require('./paths.cjs');
 require('@flemist/async-utils');
 
 

@@ -8,10 +8,10 @@ var asyncUtils = require('@flemist/async-utils');
 require('worker_threads');
 require('@flemist/worker-server');
 require('path');
+require('./paths.cjs');
 
 class FFmpegTransformClientMT {
-    constructor(workerFilePath, options) {
-        this._workerFilePath = workerFilePath;
+    constructor(options) {
         this.options = options || {};
         this._clientPool = new asyncUtils.ObjectPool({
             maxSize: options.threads || 1,
@@ -28,7 +28,7 @@ class FFmpegTransformClientMT {
         }
     }
     _createClient() {
-        return new ffmpeg_FFmpegTransformClient.FFmpegTransformClient(this._workerFilePath, this.options);
+        return new ffmpeg_FFmpegTransformClient.FFmpegTransformClient(this.options);
     }
     ffmpegTransform(...args) {
         return this._clientPool.use((client) => {

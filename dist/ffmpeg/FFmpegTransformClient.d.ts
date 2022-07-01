@@ -1,13 +1,13 @@
-import { FFmpegOptions, FFmpegTransformArgs, IFFmpegTransformClient } from './contracts';
+import { FFmpegClientOptions, FFmpegTransformArgs, IFFmpegTransformClient } from './contracts';
 import { WorkerData } from '@flemist/worker-server';
 export declare class FFmpegTransformClient implements IFFmpegTransformClient {
     private readonly _workerFilePath;
-    options?: FFmpegOptions;
+    options?: FFmpegClientOptions;
     private _worker;
     private _workerEventBus;
     private _ffmpegInit;
     private _ffmpegTransform;
-    constructor(workerFilePath: string, options?: FFmpegOptions);
+    constructor(options?: FFmpegClientOptions);
     _initPromise: Promise<void>;
     private init;
     private _init;
