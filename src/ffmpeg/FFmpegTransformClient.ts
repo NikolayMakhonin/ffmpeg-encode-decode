@@ -79,9 +79,7 @@ export class FFmpegTransformClient
       this._runCount++
       const result = await this._ffmpegTransform({
         data        : args,
-        transferList: args[0].buffer instanceof SharedArrayBuffer
-          ? null
-          : [args[0].buffer],
+        transferList: [args[0].buffer],
       })
       return result
     }

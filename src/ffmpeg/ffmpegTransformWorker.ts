@@ -56,6 +56,7 @@ async function ffmpegInit(
 let ffmpegTransformRunning: boolean = false
 async function ffmpegTransform(
   data: WorkerData<FFmpegTransformArgs>,
+  abortSignal: IAbortSignalFast,
 ): WorkerFunctionServerResultAsync<Uint8Array> {
   if (ffmpegTransformRunning) {
     throw new Error('ffmpegTransform is running')
