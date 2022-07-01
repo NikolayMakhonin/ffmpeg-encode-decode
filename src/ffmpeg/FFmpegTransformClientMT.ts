@@ -1,6 +1,5 @@
 import {FFmpegClientOptions, FFmpegTransformArgs, IFFmpegTransformClient} from './contracts'
-import {WorkerData} from '@flemist/worker-server'
-import {WorkerClientMT} from './WorkerClientMT'
+import {WorkerClientMT, WorkerData} from '@flemist/worker-server'
 import {FFmpegTransformClient} from './FFmpegTransformClient'
 
 export class FFmpegTransformClientMT

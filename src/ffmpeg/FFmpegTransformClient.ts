@@ -6,7 +6,7 @@ import {
   IFFmpegTransformClient,
 } from './contracts'
 import {
-  IWorkerEventBus,
+  IWorkerEventBus, WorkerClient,
   WorkerData,
   WorkerFunctionClient,
   workerFunctionClient,
@@ -14,7 +14,6 @@ import {
 } from '@flemist/worker-server'
 import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
 import {ffmpegTransformWorkerPath} from './paths.cjs'
-import {WorkerClient} from 'src/ffmpeg/WorkerClient'
 
 function getWorkerFFmpegInit(
   workerEventBus: WorkerFunctionClientEventBus<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegInitEvent>,
