@@ -1,17 +1,14 @@
 import { FFmpegClientOptions, FFmpegTransformArgs, IFFmpegTransformClient } from './contracts';
-import { WorkerData } from '@flemist/worker-server';
-export declare class FFmpegTransformClient implements IFFmpegTransformClient {
-    private readonly _workerFilePath;
-    options?: FFmpegClientOptions;
-    private _worker;
-    private _workerEventBus;
+import { IWorkerEventBus, WorkerClient, WorkerData } from '@flemist/worker-server';
+export declare class FFmpegTransformClient extends WorkerClient<FFmpegClientOptions> implements IFFmpegTransformClient {
+    private _runCount;
     private _ffmpegInit;
     private _ffmpegTransform;
-    constructor(options?: FFmpegClientOptions);
-    _initPromise: Promise<void>;
-    private init;
-    private _init;
-    _runCount: number;
+    constructor({ preInit, options, }: {
+        preInit: boolean;
+        options?: FFmpegClientOptions;
+    });
+    protected _init(workerEventBus: IWorkerEventBus): Promise<void>;
     ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
-    terminate(): Promise<void>;
+    protected _terminate(): void;
 }

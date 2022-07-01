@@ -1,4 +1,4 @@
-import { WorkerData } from '@flemist/worker-server';
+import { WorkerData, IWorkerClient } from '@flemist/worker-server';
 import { CreateFFmpegOptions } from '@flemist/ffmpeg.wasm-st';
 export declare type FFmpegLogLevel = 'quiet' | 'panic' | 'fatal' | 'error' | 'warning' | 'info' | 'verbose' | 'debug';
 export declare type FFmpegInitEvent = {
@@ -26,7 +26,6 @@ export declare type FFmpegTransformArgs = [
     }
 ];
 export declare type FFmpegTransform = (...args: FFmpegTransformArgs) => Promise<Uint8Array>;
-export interface IFFmpegTransformClient {
+export interface IFFmpegTransformClient extends IWorkerClient {
     ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
-    terminate(): Promise<void>;
 }

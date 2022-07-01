@@ -3,14 +3,8 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var tslib = require('tslib');
-var worker_threads = require('worker_threads');
 var workerServer = require('@flemist/worker-server');
-var path = require('path');
 var paths_cjs = require('./paths.cjs');
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 
 function getWorkerFFmpegInit(workerEventBus) {
     return workerServer.workerFunctionClient({
@@ -24,29 +18,19 @@ function getWorkerFFmpegTransform(workerEventBus) {
         name: 'ffmpegTransform',
     });
 }
-class FFmpegTransformClient {
-    constructor(options) {
-        this._worker = null;
-        this._workerEventBus = null;
+class FFmpegTransformClient extends workerServer.WorkerClient {
+    constructor({ preInit, options, }) {
+        super({
+            workerFilePath: paths_cjs.ffmpegTransformWorkerPath,
+            options: options || {},
+            preInit,
+        });
         this._runCount = 0;
-        this._workerFilePath = paths_cjs.ffmpegTransformWorkerPath;
-        this.options = options || {};
-        if (this.options.preload) {
-            void this.init();
-        }
     }
-    init() {
-        if (!this._initPromise) {
-            this._initPromise = this._init();
-        }
-        return this._initPromise;
-    }
-    _init() {
+    _init(workerEventBus) {
         return tslib.__awaiter(this, void 0, void 0, function* () {
-            this._worker = new worker_threads.Worker(path__default["default"].resolve(this._workerFilePath));
-            this._workerEventBus = workerServer.workerToEventBus(this._worker);
-            this._ffmpegInit = getWorkerFFmpegInit(this._workerEventBus);
-            this._ffmpegTransform = getWorkerFFmpegTransform(this._workerEventBus);
+            this._ffmpegInit = getWorkerFFmpegInit(workerEventBus);
+            this._ffmpegTransform = getWorkerFFmpegTransform(workerEventBus);
             const options = Object.assign(Object.assign({}, this.options), { logger: !!this.options.logger });
             yield this._ffmpegInit({
                 data: options,
@@ -78,19 +62,10 @@ class FFmpegTransformClient {
             }
         });
     }
-    terminate() {
-        var _a;
-        return tslib.__awaiter(this, void 0, void 0, function* () {
-            if (this._worker) {
-                yield ((_a = this._worker) === null || _a === void 0 ? void 0 : _a.terminate());
-                this._worker = null;
-                this._workerEventBus = null;
-                this._runCount = 0;
-                this._initPromise = null;
-                this._ffmpegInit = null;
-                this._ffmpegTransform = null;
-            }
-        });
+    _terminate() {
+        this._runCount = 0;
+        this._ffmpegInit = null;
+        this._ffmpegTransform = null;
     }
 }
 

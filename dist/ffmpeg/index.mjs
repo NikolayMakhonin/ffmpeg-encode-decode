@@ -6,8 +6,5 @@ export { FFmpegTransformClient } from './FFmpegTransformClient.mjs';
 export { FFmpegTransformClientMT } from './FFmpegTransformClientMT.mjs';
 export { getFFmpegTransform } from './getFFmpegTransform.mjs';
 import 'tslib';
-import 'worker_threads';
 import '@flemist/worker-server';
-import 'path';
 import './paths.cjs';
-import '@flemist/async-utils';

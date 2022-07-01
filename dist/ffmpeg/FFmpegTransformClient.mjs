@@ -1,7 +1,5 @@
 import { __awaiter } from 'tslib';
-import { Worker } from 'worker_threads';
-import { workerToEventBus, workerFunctionClient } from '@flemist/worker-server';
-import path from 'path';
+import { WorkerClient, workerFunctionClient } from '@flemist/worker-server';
 import { ffmpegTransformWorkerPath } from './paths.cjs';
 
 function getWorkerFFmpegInit(workerEventBus) {
@@ -16,29 +14,19 @@ function getWorkerFFmpegTransform(workerEventBus) {
         name: 'ffmpegTransform',
     });
 }
-class FFmpegTransformClient {
-    constructor(options) {
-        this._worker = null;
-        this._workerEventBus = null;
+class FFmpegTransformClient extends WorkerClient {
+    constructor({ preInit, options, }) {
+        super({
+            workerFilePath: ffmpegTransformWorkerPath,
+            options: options || {},
+            preInit,
+        });
         this._runCount = 0;
-        this._workerFilePath = ffmpegTransformWorkerPath;
-        this.options = options || {};
-        if (this.options.preload) {
-            void this.init();
-        }
     }
-    init() {
-        if (!this._initPromise) {
-            this._initPromise = this._init();
-        }
-        return this._initPromise;
-    }
-    _init() {
+    _init(workerEventBus) {
         return __awaiter(this, void 0, void 0, function* () {
-            this._worker = new Worker(path.resolve(this._workerFilePath));
-            this._workerEventBus = workerToEventBus(this._worker);
-            this._ffmpegInit = getWorkerFFmpegInit(this._workerEventBus);
-            this._ffmpegTransform = getWorkerFFmpegTransform(this._workerEventBus);
+            this._ffmpegInit = getWorkerFFmpegInit(workerEventBus);
+            this._ffmpegTransform = getWorkerFFmpegTransform(workerEventBus);
             const options = Object.assign(Object.assign({}, this.options), { logger: !!this.options.logger });
             yield this._ffmpegInit({
                 data: options,
@@ -70,19 +58,10 @@ class FFmpegTransformClient {
             }
         });
     }
-    terminate() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this._worker) {
-                yield ((_a = this._worker) === null || _a === void 0 ? void 0 : _a.terminate());
-                this._worker = null;
-                this._workerEventBus = null;
-                this._runCount = 0;
-                this._initPromise = null;
-                this._ffmpegInit = null;
-                this._ffmpegTransform = null;
-            }
-        });
+    _terminate() {
+        this._runCount = 0;
+        this._ffmpegInit = null;
+        this._ffmpegTransform = null;
     }
 }
 

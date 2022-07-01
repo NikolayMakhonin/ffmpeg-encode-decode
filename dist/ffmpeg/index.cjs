@@ -10,11 +10,8 @@ var ffmpeg_FFmpegTransformClient = require('./FFmpegTransformClient.cjs');
 var ffmpeg_FFmpegTransformClientMT = require('./FFmpegTransformClientMT.cjs');
 var ffmpeg_getFFmpegTransform = require('./getFFmpegTransform.cjs');
 require('tslib');
-require('worker_threads');
 require('@flemist/worker-server');
-require('path');
 require('./paths.cjs');
-require('@flemist/async-utils');
 
 
 
