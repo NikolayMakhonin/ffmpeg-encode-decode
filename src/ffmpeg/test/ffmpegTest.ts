@@ -10,7 +10,6 @@ import {FFmpegTransformClientMT} from '../FFmpegTransformClientMT'
 
 let logSize = 0
 export const ffmpegTransformClient = new FFmpegTransformClientMT(
-  './dist/ffmpeg/ffmpegTransformWorker.cjs',
   {
     threads : 3,
     preload : true,

@@ -1,4 +1,4 @@
-import {FFmpegOptions, FFmpegTransformArgs, IFFmpegTransformClient} from './contracts'
+import {FFmpegClientOptions, FFmpegTransformArgs, IFFmpegTransformClient} from './contracts'
 import {FFmpegTransformClient} from './FFmpegTransformClient'
 import {WorkerData} from '@flemist/worker-server'
 import {
@@ -7,11 +7,9 @@ import {
 } from '@flemist/async-utils'
 
 export class FFmpegTransformClientMT implements IFFmpegTransformClient {
-  private readonly _workerFilePath: string
-  options?: FFmpegOptions
+  options?: FFmpegClientOptions
   private readonly _clientPool: IObjectPool<IFFmpegTransformClient>
-  constructor(workerFilePath: string, options?: FFmpegOptions & { threads: number }) {
-    this._workerFilePath = workerFilePath
+  constructor(options?: FFmpegClientOptions & { threads: number }) {
     this.options = options || {}
     this._clientPool = new ObjectPool<IFFmpegTransformClient>({
       maxSize    : options.threads || 1,
@@ -29,7 +27,7 @@ export class FFmpegTransformClientMT implements IFFmpegTransformClient {
   }
 
   private _createClient(): FFmpegTransformClient {
-    return new FFmpegTransformClient(this._workerFilePath, this.options)
+    return new FFmpegTransformClient(this.options)
   }
 
   ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {

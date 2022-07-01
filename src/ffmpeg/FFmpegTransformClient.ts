@@ -1,8 +1,8 @@
 import {Worker} from 'worker_threads'
 import {
+  FFmpegClientOptions,
   FFmpegInitEvent,
   FFmpegInitOptions,
-  FFmpegOptions,
   FFmpegTransformArgs,
   IFFmpegTransformClient,
 } from './contracts'
@@ -16,6 +16,7 @@ import {
 } from '@flemist/worker-server'
 import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
 import path from 'path'
+import {ffmpegTransformWorkerPath} from './paths.cjs'
 
 function getWorkerFFmpegInit(
   workerEventBus: WorkerFunctionClientEventBus<Omit<CreateFFmpegOptions, 'logger'>, void, FFmpegInitEvent>,
@@ -37,14 +38,14 @@ function getWorkerFFmpegTransform(
 
 export class FFmpegTransformClient implements IFFmpegTransformClient {
   private readonly _workerFilePath: string
-  options?: FFmpegOptions
+  options?: FFmpegClientOptions
   private _worker: Worker = null
   private _workerEventBus: IWorkerEventBus = null
   private _ffmpegInit: WorkerFunctionClient<FFmpegInitOptions, void, FFmpegInitEvent>
   private _ffmpegTransform: WorkerFunctionClient<FFmpegTransformArgs, Uint8Array, void>
 
-  constructor(workerFilePath: string, options?: FFmpegOptions) {
-    this._workerFilePath = workerFilePath
+  constructor(options?: FFmpegClientOptions) {
+    this._workerFilePath = ffmpegTransformWorkerPath
     this.options = options || {}
     if (this.options.preload) {
       void this.init()

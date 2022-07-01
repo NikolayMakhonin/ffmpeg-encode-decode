@@ -16,6 +16,10 @@ export type FFmpegOptions = Omit<CreateFFmpegOptionsExt, 'logger'> & {
   logger?: (event: WorkerData<FFmpegInitEvent>) => void
 }
 
+export type FFmpegClientOptions = FFmpegOptions & {
+
+}
+
 export type FFmpegInitOptions = Omit<FFmpegOptions, 'logger'> & { logger?: boolean }
 
 export type FFmpegTransformArgs = [
