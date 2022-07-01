@@ -41,7 +41,7 @@ function ffmpegInit(data, abortSignal, callback) {
     });
 }
 let ffmpegTransformRunning = false;
-function ffmpegTransform(data) {
+function ffmpegTransform(data, abortSignal) {
     return tslib.__awaiter(this, void 0, void 0, function* () {
         if (ffmpegTransformRunning) {
             throw new Error('ffmpegTransform is running');
