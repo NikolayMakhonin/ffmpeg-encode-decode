@@ -35,7 +35,7 @@ describe('io > audio > ffmpeg > ffmpegEncodeMp3Params', function () {
     }
   })
 
-  it('vbr joint stereo stress MT', async function () {
+  it('vbr joint stereo stress pool', async function () {
     for (let i = 0; i < 10000; i++) { // should be more than (31 * threads) iterations
       const timeStart = Date.now()
       const promises = []

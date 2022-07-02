@@ -7,7 +7,7 @@ var ffmpeg_ffmpegEncodeMp3Params = require('./ffmpeg/ffmpegEncodeMp3Params.cjs')
 var ffmpeg_ffmpegEncodeOpusParams = require('./ffmpeg/ffmpegEncodeOpusParams.cjs');
 var ffmpeg_ffmpegEncodeVorbisParams = require('./ffmpeg/ffmpegEncodeVorbisParams.cjs');
 var ffmpeg_FFmpegTransformClient = require('./ffmpeg/FFmpegTransformClient.cjs');
-var ffmpeg_FFmpegTransformClientMT = require('./ffmpeg/FFmpegTransformClientMT.cjs');
+var ffmpeg_FFmpegTransformClientPool = require('./ffmpeg/FFmpegTransformClientPool.cjs');
 var ffmpeg_getFFmpegTransform = require('./ffmpeg/getFFmpegTransform.cjs');
 require('tslib');
 require('@flemist/worker-server');
@@ -21,5 +21,5 @@ exports.ffmpegEncodeMp3Params = ffmpeg_ffmpegEncodeMp3Params.ffmpegEncodeMp3Para
 exports.ffmpegEncodeOpusParams = ffmpeg_ffmpegEncodeOpusParams.ffmpegEncodeOpusParams;
 exports.ffmpegEncodeVorbisParams = ffmpeg_ffmpegEncodeVorbisParams.ffmpegEncodeVorbisParams;
 exports.FFmpegTransformClient = ffmpeg_FFmpegTransformClient.FFmpegTransformClient;
-exports.FFmpegTransformClientMT = ffmpeg_FFmpegTransformClientMT.FFmpegTransformClientMT;
+exports.FFmpegTransformClientPool = ffmpeg_FFmpegTransformClientPool.FFmpegTransformClientPool;
 exports.getFFmpegTransform = ffmpeg_getFFmpegTransform.getFFmpegTransform;

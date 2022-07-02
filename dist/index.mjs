@@ -3,7 +3,7 @@ export { ffmpegEncodeMp3Params } from './ffmpeg/ffmpegEncodeMp3Params.mjs';
 export { ffmpegEncodeOpusParams } from './ffmpeg/ffmpegEncodeOpusParams.mjs';
 export { ffmpegEncodeVorbisParams } from './ffmpeg/ffmpegEncodeVorbisParams.mjs';
 export { FFmpegTransformClient } from './ffmpeg/FFmpegTransformClient.mjs';
-export { FFmpegTransformClientMT } from './ffmpeg/FFmpegTransformClientMT.mjs';
+export { FFmpegTransformClientPool } from './ffmpeg/FFmpegTransformClientPool.mjs';
 export { getFFmpegTransform } from './ffmpeg/getFFmpegTransform.mjs';
 import 'tslib';
 import '@flemist/worker-server';
