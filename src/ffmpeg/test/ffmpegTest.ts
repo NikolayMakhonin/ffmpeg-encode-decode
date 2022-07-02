@@ -6,13 +6,14 @@ import * as musicMetadata from 'music-metadata'
 import {IAudioMetadata} from 'music-metadata/lib/type'
 import {AudioSamples} from '../../common/contracts'
 import {getFFmpegTransform} from '../getFFmpegTransform'
-import {FFmpegTransformClientMT} from '../FFmpegTransformClientMT'
+import {FFmpegTransformClientPool} from '../FFmpegTransformClientPool'
+import {Pool} from '@flemist/time-limits'
 
 let logSize = 0
-export const ffmpegTransformClient = new FFmpegTransformClientMT({
-  threads: 3,
-  preInit: true,
-  options: {
+export const ffmpegTransformClient = new FFmpegTransformClientPool({
+  threadsPool: new Pool(3),
+  preInit    : true,
+  options    : {
     preload : true,
     log     : false,
     loglevel: 'warning',

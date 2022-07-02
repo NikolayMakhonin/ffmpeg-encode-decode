@@ -1,35 +1,35 @@
 import {FFmpegClientOptions, FFmpegTransformArgs, IFFmpegTransformClient} from './contracts'
-import {WorkerClientMT, WorkerData} from '@flemist/worker-server'
+import {WorkerClientPool, WorkerData} from '@flemist/worker-server'
 import {FFmpegTransformClient} from './FFmpegTransformClient'
+import {IPool} from '@flemist/time-limits'
 
-export class FFmpegTransformClientMT
-  extends WorkerClientMT<FFmpegClientOptions, FFmpegTransformClient>
+export class FFmpegTransformClientPool
+  extends WorkerClientPool<FFmpegTransformClient>
   implements IFFmpegTransformClient {
 
   constructor({
-    threads,
+    threadsPool,
     preInit,
     options,
   }: {
-    threads: number,
+    threadsPool: IPool,
     preInit?: boolean,
     options?: FFmpegClientOptions,
   }) {
     super({
-      threads,
-      createClient(options) {
+      threadsPool,
+      createClient() {
         return new FFmpegTransformClient({
           preInit,
-          options: this.options,
+          options: options,
         })
       },
-      options: options || {},
       preInit,
     })
   }
 
   ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
-    return this.use((client) => {
+    return this.use(1, ([client]) => {
       return client.ffmpegTransform(...args)
     })
   }
