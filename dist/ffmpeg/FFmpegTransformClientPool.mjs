@@ -1,27 +1,26 @@
-import { WorkerClientMT } from '@flemist/worker-server';
+import { WorkerClientPool } from '@flemist/worker-server';
 import { FFmpegTransformClient } from './FFmpegTransformClient.mjs';
 import 'tslib';
 import './paths.cjs';
 
-class FFmpegTransformClientMT extends WorkerClientMT {
-    constructor({ threads, preInit, options, }) {
+class FFmpegTransformClientPool extends WorkerClientPool {
+    constructor({ threadsPool, preInit, options, }) {
         super({
-            threads,
-            createClient(options) {
+            threadsPool,
+            createClient() {
                 return new FFmpegTransformClient({
                     preInit,
-                    options: this.options,
+                    options: options,
                 });
             },
-            options: options || {},
             preInit,
         });
     }
     ffmpegTransform(...args) {
-        return this.use((client) => {
+        return this.use(1, ([client]) => {
             return client.ffmpegTransform(...args);
         });
     }
 }
 
-export { FFmpegTransformClientMT };
+export { FFmpegTransformClientPool };

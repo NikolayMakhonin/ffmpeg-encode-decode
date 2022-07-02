@@ -4,5 +4,5 @@ export * from './ffmpegEncodeMp3Params';
 export * from './ffmpegEncodeOpusParams';
 export * from './ffmpegEncodeVorbisParams';
 export * from './FFmpegTransformClient';
-export * from './FFmpegTransformClientMT';
+export * from './FFmpegTransformClientPool';
 export * from './getFFmpegTransform';

@@ -7,25 +7,24 @@ var ffmpeg_FFmpegTransformClient = require('./FFmpegTransformClient.cjs');
 require('tslib');
 require('./paths.cjs');
 
-class FFmpegTransformClientMT extends workerServer.WorkerClientMT {
-    constructor({ threads, preInit, options, }) {
+class FFmpegTransformClientPool extends workerServer.WorkerClientPool {
+    constructor({ threadsPool, preInit, options, }) {
         super({
-            threads,
-            createClient(options) {
+            threadsPool,
+            createClient() {
                 return new ffmpeg_FFmpegTransformClient.FFmpegTransformClient({
                     preInit,
-                    options: this.options,
+                    options: options,
                 });
             },
-            options: options || {},
             preInit,
         });
     }
     ffmpegTransform(...args) {
-        return this.use((client) => {
+        return this.use(1, ([client]) => {
             return client.ffmpegTransform(...args);
         });
     }
 }
 
-exports.FFmpegTransformClientMT = FFmpegTransformClientMT;
+exports.FFmpegTransformClientPool = FFmpegTransformClientPool;
