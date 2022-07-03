@@ -2,6 +2,8 @@
 // see: https://superuser.com/a/438280
 import {WorkerData, IWorkerClient} from '@flemist/worker-server'
 import {CreateFFmpegOptions} from '@flemist/ffmpeg.wasm-st'
+import {Priority} from '@flemist/priority-queue'
+import {IAbortSignalFast} from '@flemist/abort-controller-fast'
 
 export type FFmpegLogLevel = 'quiet' | 'panic' | 'fatal' | 'error' | 'warning' | 'info' | 'verbose' | 'debug'
 
@@ -22,16 +24,16 @@ export type FFmpegClientOptions = FFmpegOptions & {
 
 export type FFmpegInitOptions = Omit<FFmpegOptions, 'logger'> & { logger?: boolean }
 
-export type FFmpegTransformArgs = [
+export type FFmpegTransformArgs = {
   inputData: Uint8Array,
-  data: {
-    inputFile?: string,
-    outputFile?: string,
-    params?: string[],
-  },
-]
+  inputFile?: string,
+  outputFile?: string,
+  params?: string[],
+  priority?: Priority,
+  abortSignal?: IAbortSignalFast,
+}
 
-export type FFmpegTransform = (...args: FFmpegTransformArgs) => Promise<Uint8Array>
+export type FFmpegTransform = (args: FFmpegTransformArgs) => Promise<Uint8Array>
 
 // export interface IFFmpegRunner<TOptions extends CreateFFmpegOptions = FFmpegOptions> {
 //   options: TOptions
@@ -40,5 +42,5 @@ export type FFmpegTransform = (...args: FFmpegTransformArgs) => Promise<Uint8Arr
 // }
 
 export interface IFFmpegTransformClient extends IWorkerClient {
-  ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
+  ffmpegTransform(args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
 }

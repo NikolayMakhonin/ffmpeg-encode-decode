@@ -73,13 +73,13 @@ export class FFmpegTransformClient
     )
   }
 
-  async ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
+  async ffmpegTransform(args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
     await this.init()
     try {
       this._runCount++
       const result = await this._ffmpegTransform({
         data        : args,
-        transferList: [args[0].buffer],
+        transferList: [args.inputData.buffer],
       })
       return result
     }

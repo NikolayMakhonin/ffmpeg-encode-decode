@@ -1,6 +1,8 @@
 /* eslint-disable array-element-newline */
 import {AudioSamples} from '../common/contracts'
 import {FFmpegTransform} from './contracts'
+import {IAbortSignalFast} from '@flemist/abort-controller-fast'
+import {Priority} from '@flemist/priority-queue'
 
 // let encodeInputSize = 0
 // let encodeOutputSize = 0
@@ -16,34 +18,42 @@ export type FFmpegDecodeArgs = {
   sampleRate: number,
 }
 
-export async function ffmpegDecode(
-  ffmpegTransform: FFmpegTransform,
-  inputData: Uint8Array,
-  {
+export async function ffmpegDecode({
+  ffmpegTransform,
+  inputData,
+  decode: {
     inputFormat,
     channels,
     sampleRate,
-  }: FFmpegDecodeArgs,
-): Promise<AudioSamples> {
+  },
+  priority,
+  abortSignal,
+}: {
+  ffmpegTransform: FFmpegTransform,
+  inputData: Uint8Array,
+  decode: FFmpegDecodeArgs,
+  priority?: Priority,
+  abortSignal?: IAbortSignalFast,
+}): Promise<AudioSamples> {
   const inputFile = 'input' + (inputFormat ? '.' + inputFormat : '')
   const outputFile = 'output.pcm'
   // decodeInputSize += inputData.byteLength
 
-  const outputData = await ffmpegTransform(
+  const outputData = await ffmpegTransform({
     inputData,
-    {
-      inputFile,
+    inputFile,
+    outputFile,
+    params: [
+      '-i', inputFile,
+      '-f', 'f32le',
+      '-ac', channels + '',
+      '-ar', sampleRate + '',
+      '-acodec', 'pcm_f32le',
       outputFile,
-      params: [
-        '-i', inputFile,
-        '-f', 'f32le',
-        '-ac', channels + '',
-        '-ar', sampleRate + '',
-        '-acodec', 'pcm_f32le',
-        outputFile,
-      ],
-    },
-  )
+    ],
+    priority,
+    abortSignal,
+  })
 
   // decodeOutputSize += outputData.byteLength
   // decodeCount++
@@ -64,15 +74,23 @@ export type FFmpegEncodeArgs = {
   params?: string[],
 }
 
-export async function ffmpegEncode(
-  ffmpegTransform: FFmpegTransform,
-  samples: AudioSamples,
-  {
+export async function ffmpegEncode({
+  ffmpegTransform,
+  samples,
+  encode: {
     outputFormat,
     channels,
     params,
-  }: FFmpegEncodeArgs,
-): Promise<Uint8Array> {
+  },
+  priority,
+  abortSignal,
+}: {
+  ffmpegTransform: FFmpegTransform,
+  samples: AudioSamples,
+  encode: FFmpegEncodeArgs,
+  priority?: Priority,
+  abortSignal?: IAbortSignalFast,
+}): Promise<Uint8Array> {
   const inputFile = 'input.pcm'
   const outputFile = 'output' + (outputFormat ? '.' + outputFormat : '')
 
@@ -85,22 +103,22 @@ export async function ffmpegEncode(
   // encodeInputSize += pcmData.byteLength
 
   // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
-  const outputData = await ffmpegTransform(
-    pcmData,
-    {
-      inputFile,
+  const outputData = await ffmpegTransform({
+    inputData: pcmData,
+    inputFile,
+    outputFile,
+    params   : [
+      '-f', 'f32le',
+      '-ac', samples.channels + '',
+      '-ar', samples.sampleRate + '',
+      '-i', 'input.pcm',
+      '-ac', (channels || samples.channels) + '',
+      ...params || [],
       outputFile,
-      params: [
-        '-f', 'f32le',
-        '-ac', samples.channels + '',
-        '-ar', samples.sampleRate + '',
-        '-i', 'input.pcm',
-        '-ac', (channels || samples.channels) + '',
-        ...params || [],
-        outputFile,
-      ],
-    },
-  )
+    ],
+    priority,
+    abortSignal,
+  })
 
   // encodeOutputSize += outputData.byteLength
   // encodeCount++

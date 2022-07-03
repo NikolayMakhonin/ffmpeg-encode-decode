@@ -28,9 +28,9 @@ export class FFmpegTransformClientPool
     })
   }
 
-  ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
+  ffmpegTransform(args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>> {
     return this.use(1, ([client]) => {
-      return client.ffmpegTransform(...args)
-    })
+      return client.ffmpegTransform(args)
+    }, args.priority, args.abortSignal)
   }
 }

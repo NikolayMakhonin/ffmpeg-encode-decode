@@ -8,6 +8,8 @@ import {AudioSamples} from '../../common/contracts'
 import {getFFmpegTransform} from '../getFFmpegTransform'
 import {FFmpegTransformClientPool} from '../FFmpegTransformClientPool'
 import {Pool} from '@flemist/time-limits'
+import {Priority} from '@flemist/priority-queue'
+import {IAbortSignalFast} from '@flemist/abort-controller-fast'
 
 let logSize = 0
 export const ffmpegTransformClient = new FFmpegTransformClientPool({
@@ -33,12 +35,16 @@ export async function ffmpegTestEncode({
     encodeArgs,
     checkEncodedMetadata,
   },
+  priority,
+  abortSignal,
 }: {
   inputType: 'mono' | 'stereo' | 'mono-split',
   encode: {
     encodeArgs: FFmpegEncodeArgs,
     checkEncodedMetadata: (metadata: IAudioMetadata) => void,
   },
+  priority?: Priority,
+  abortSignal?: IAbortSignalFast,
 }) {
   let input: AudioSamples
   switch (inputType) {
@@ -57,7 +63,13 @@ export async function ffmpegTestEncode({
 
   const inputDataLength = input.data.length
 
-  const data = await ffmpegEncode(ffmpegTransform, input, encodeArgs)
+  const data = await ffmpegEncode({
+    ffmpegTransform,
+    samples: input,
+    encode : encodeArgs,
+    priority,
+    abortSignal,
+  })
 
   assert.ok(data.length > 100, data.length + '')
 
@@ -86,6 +98,8 @@ export async function ffmpegTestDecode({
       minAmplitude,
     },
   },
+  priority,
+  abortSignal,
 }: {
   inputData: Uint8Array,
   decode: {
@@ -95,8 +109,16 @@ export async function ffmpegTestDecode({
       minAmplitude?: number,
     },
   },
+  priority?: Priority,
+  abortSignal?: IAbortSignalFast,
 }) {
-  const samples = await ffmpegDecode(ffmpegTransform, inputData, decodeArgs)
+  const samples = await ffmpegDecode({
+    ffmpegTransform,
+    inputData,
+    decode: decodeArgs,
+    priority,
+    abortSignal,
+  })
 
   // const _data = await ffmpegEncode(samples, {
   //   outputFormat: 'mp3',

@@ -64,14 +64,12 @@ async function ffmpegTransform(
   ffmpegTransformRunning = true
 
   const {
-    data: [
+    data: {
       inputData,
-      {
-        inputFile,
-        outputFile,
-        params,
-      },
-    ],
+      inputFile,
+      outputFile,
+      params,
+    },
   } = data
 
   try {

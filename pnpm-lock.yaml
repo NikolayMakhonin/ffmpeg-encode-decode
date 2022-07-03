@@ -5,6 +5,7 @@ specifiers:
   '@flemist/copy-glob-flat': 0.0.5
   '@flemist/ffmpeg.wasm-core-st': ^0.10.2
   '@flemist/ffmpeg.wasm-st': ^0.10.1
+  '@flemist/priority-queue': ^0.0.8
   '@flemist/test-utils': 0.0.9
   '@flemist/test-variants': 0.0.16
   '@flemist/time-limits': ^0.0.4
@@ -44,6 +45,7 @@ specifiers:
 dependencies:
   '@flemist/abort-controller-fast': 0.0.5
   '@flemist/ffmpeg.wasm-st': 0.10.1
+  '@flemist/priority-queue': 0.0.8
   '@flemist/time-limits': 0.0.4
   '@flemist/worker-server': 0.0.11
   tslib: 2.4.0
