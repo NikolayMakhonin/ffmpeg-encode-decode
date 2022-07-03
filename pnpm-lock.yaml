@@ -5,10 +5,10 @@ specifiers:
   '@flemist/copy-glob-flat': 0.0.5
   '@flemist/ffmpeg.wasm-core-st': ^0.10.2
   '@flemist/ffmpeg.wasm-st': ^0.10.1
-  '@flemist/priority-queue': ^0.0.8
+  '@flemist/priority-queue': ^0.0.9
   '@flemist/test-utils': 0.0.9
   '@flemist/test-variants': 0.0.16
-  '@flemist/time-limits': ^0.0.4
+  '@flemist/time-limits': ^0.0.5
   '@flemist/worker-server': ^0.0.11
   '@rollup/plugin-alias': 3.1.9
   '@rollup/plugin-commonjs': '=21.1.0'
@@ -45,8 +45,8 @@ specifiers:
 dependencies:
   '@flemist/abort-controller-fast': 0.0.5
   '@flemist/ffmpeg.wasm-st': 0.10.1
-  '@flemist/priority-queue': 0.0.8
-  '@flemist/time-limits': 0.0.4
+  '@flemist/priority-queue': 0.0.9
+  '@flemist/time-limits': 0.0.5
   '@flemist/worker-server': 0.0.11
   tslib: 2.4.0
 
@@ -379,6 +379,17 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@flemist/priority-queue/0.0.9:
+    resolution: {integrity: sha512-+yBaLX972yTBzj5TKNhxsoQspbiKC8u3CRR0HNO5rahJ4ixYJMAVFmn8D9S0TiLqTd1NOlYteSqe3Sy9epW8Ag==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/abort-controller-fast': 0.0.5
+      '@flemist/async-utils': 0.0.11
+      '@flemist/pairing-heap': 0.0.7
+      '@flemist/time-controller': 0.0.1
+      tslib: 2.4.0
+    dev: false
+
   /@flemist/test-utils/0.0.9:
     resolution: {integrity: sha512-G0WGevCHCyp1BYipmhvnIJMdq6VGVqTZw69teVIhnC9CyA1jXhKXeHdTo8XZDjDJ5MsE5HKYzo50/tKlay/tVA==}
     engines: {node: '>=10.4.0', pnpm: ^7.1.6}
@@ -409,6 +420,17 @@ packages:
       '@flemist/abort-controller-fast': 0.0.5
       '@flemist/async-utils': 0.0.11
       '@flemist/priority-queue': 0.0.8
+      '@flemist/time-controller': 0.0.1
+      tslib: 2.4.0
+    dev: false
+
+  /@flemist/time-limits/0.0.5:
+    resolution: {integrity: sha512-4N0JTwyE+xLVPm47gJ1Aztrwt0hgU2+7i2tTiWGMNyI4GceygK/5eSNFl6gKcEkiOoX7NOM9pRyHk5CquC8fNw==}
+    engines: {node: '>=10.4.0', pnpm: ^7.1.6}
+    dependencies:
+      '@flemist/abort-controller-fast': 0.0.5
+      '@flemist/async-utils': 0.0.11
+      '@flemist/priority-queue': 0.0.9
       '@flemist/time-controller': 0.0.1
       tslib: 2.4.0
     dev: false
