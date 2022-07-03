@@ -9,7 +9,7 @@ specifiers:
   '@flemist/test-utils': 0.0.9
   '@flemist/test-variants': 0.0.16
   '@flemist/time-limits': ^0.0.2
-  '@flemist/worker-server': ^0.0.7
+  '@flemist/worker-server': ^0.0.8
   '@rollup/plugin-alias': 3.1.9
   '@rollup/plugin-commonjs': '=21.1.0'
   '@rollup/plugin-json': 4.1.0
@@ -47,7 +47,7 @@ dependencies:
   '@flemist/async-utils': 0.0.10
   '@flemist/ffmpeg.wasm-st': 0.10.1
   '@flemist/time-limits': 0.0.2
-  '@flemist/worker-server': 0.0.7
+  '@flemist/worker-server': 0.0.8
   tslib: 2.4.0
 
 optionalDependencies:
@@ -422,8 +422,8 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@flemist/worker-server/0.0.7:
-    resolution: {integrity: sha512-yuStdRf8iWEafX/PDf1UunPSaLTM5xO5KA/cumxMTBokUDOTShTQksfSGB+yfz3TemmgfjyuWvyJQAXZ5PkEJw==}
+  /@flemist/worker-server/0.0.8:
+    resolution: {integrity: sha512-f7zaAbZ/9MrxvbijRFSlVEctCPdFRk+soPiv6HK3ljFxIwPVM6LEfiFWhIBy7+iDefIaGEbAqaK3Vk0iu3rIzw==}
     engines: {node: '>=12.11.0', pnpm: ^7.1.6}
     dependencies:
       '@flemist/abort-controller-fast': 0.0.5
