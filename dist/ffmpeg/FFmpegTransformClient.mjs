@@ -42,7 +42,7 @@ class FFmpegTransformClient extends WorkerClient {
                 this._runCount++;
                 const result = yield this._ffmpegTransform({
                     data: args,
-                    transferList: [args[0].buffer],
+                    transferList: [args.inputData.buffer],
                 });
                 return result;
             }
