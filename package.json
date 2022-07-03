@@ -1,6 +1,6 @@
 {
   "name": "@flemist/ffmpeg-encode-decode",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "WASM (WebAssembly) encode/decode mp3/ogg/opus/vorbis from/to Float32Array. Well tested @ffmpeg/ffmpeg wrapper.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -97,10 +97,9 @@
   },
   "dependencies": {
     "@flemist/abort-controller-fast": "^0.0.5",
-    "@flemist/async-utils": "^0.0.11",
     "@flemist/ffmpeg.wasm-st": "^0.10.1",
-    "@flemist/time-limits": "^0.0.3",
-    "@flemist/worker-server": "^0.0.10",
+    "@flemist/time-limits": "^0.0.4",
+    "@flemist/worker-server": "^0.0.11",
     "tslib": "^2.4.0"
   }
 }
