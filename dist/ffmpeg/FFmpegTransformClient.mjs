@@ -35,7 +35,7 @@ class FFmpegTransformClient extends WorkerClient {
             });
         });
     }
-    ffmpegTransform(...args) {
+    ffmpegTransform(args) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.init();
             try {

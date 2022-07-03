@@ -1,11 +1,12 @@
 import { __awaiter } from 'tslib';
 
-function ffmpegDecode(ffmpegTransform, inputData, { inputFormat, channels, sampleRate, }) {
+function ffmpegDecode({ ffmpegTransform, inputData, decode: { inputFormat, channels, sampleRate, }, priority, abortSignal, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const inputFile = 'input' + (inputFormat ? '.' + inputFormat : '');
         const outputFile = 'output.pcm';
         // decodeInputSize += inputData.byteLength
-        const outputData = yield ffmpegTransform(inputData, {
+        const outputData = yield ffmpegTransform({
+            inputData,
             inputFile,
             outputFile,
             params: [
@@ -16,6 +17,8 @@ function ffmpegDecode(ffmpegTransform, inputData, { inputFormat, channels, sampl
                 '-acodec', 'pcm_f32le',
                 outputFile,
             ],
+            priority,
+            abortSignal,
         });
         // decodeOutputSize += outputData.byteLength
         // decodeCount++
@@ -27,14 +30,15 @@ function ffmpegDecode(ffmpegTransform, inputData, { inputFormat, channels, sampl
         };
     });
 }
-function ffmpegEncode(ffmpegTransform, samples, { outputFormat, channels, params, }) {
+function ffmpegEncode({ ffmpegTransform, samples, encode: { outputFormat, channels, params, }, priority, abortSignal, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const inputFile = 'input.pcm';
         const outputFile = 'output' + (outputFormat ? '.' + outputFormat : '');
         const pcmData = new Uint8Array(samples.data.buffer, samples.data.byteOffset, samples.data.byteLength);
         // encodeInputSize += pcmData.byteLength
         // docs: https://trac.ffmpeg.org/wiki/AudioChannelManipulation
-        const outputData = yield ffmpegTransform(pcmData, {
+        const outputData = yield ffmpegTransform({
+            inputData: pcmData,
             inputFile,
             outputFile,
             params: [
@@ -46,6 +50,8 @@ function ffmpegEncode(ffmpegTransform, samples, { outputFormat, channels, params
                 ...params || [],
                 outputFile,
             ],
+            priority,
+            abortSignal,
         });
         // encodeOutputSize += outputData.byteLength
         // encodeCount++

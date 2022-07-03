@@ -47,7 +47,7 @@ function ffmpegTransform(data, abortSignal) {
             throw new Error('ffmpegTransform is running');
         }
         ffmpegTransformRunning = true;
-        const { data: [inputData, { inputFile, outputFile, params, },], } = data;
+        const { data: { inputData, inputFile, outputFile, params, }, } = data;
         try {
             const ffmpeg = yield getFFmpeg();
             // docs: https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md

@@ -9,6 +9,6 @@ export declare class FFmpegTransformClient extends WorkerClient<FFmpegClientOpti
         options?: FFmpegClientOptions;
     });
     protected _init(workerEventBus: IWorkerEventBus): Promise<void>;
-    ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
+    ffmpegTransform(args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
     protected _terminate(): void;
 }

@@ -8,5 +8,5 @@ export declare class FFmpegTransformClientPool extends WorkerClientPool<FFmpegTr
         preInit?: boolean;
         options?: FFmpegClientOptions;
     });
-    ffmpegTransform(...args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
+    ffmpegTransform(args: FFmpegTransformArgs): Promise<WorkerData<Uint8Array>>;
 }

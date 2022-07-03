@@ -20,10 +20,10 @@ class FFmpegTransformClientPool extends workerServer.WorkerClientPool {
             preInit,
         });
     }
-    ffmpegTransform(...args) {
+    ffmpegTransform(args) {
         return this.use(1, ([client]) => {
-            return client.ffmpegTransform(...args);
-        });
+            return client.ffmpegTransform(args);
+        }, args.priority, args.abortSignal);
     }
 }
 
